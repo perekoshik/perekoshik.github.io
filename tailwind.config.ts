@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import defaultTheme from 'tailwindcss/defaultTheme'
 
 export default {
   darkMode: ['class'],
@@ -9,6 +10,9 @@ export default {
   theme: {
     container: { center: true, padding: '16px' },
     extend: {
+      fontFamily: {
+        sans: ['Inter', ...defaultTheme.fontFamily.sans],
+      },
       colors: {
         bg: {
           DEFAULT: '#0b0f14', // fragment-like deep

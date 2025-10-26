@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply font-sans bg-bg text-txt antialiased;
+  }
+}
+
 /* premium feel */
 :root {
   --blur: 12px;
@@ -32,4 +38,11 @@
 
 /* Safe area for Telegram bottom bar */
 :root { --safe-bottom: env(safe-area-inset-bottom); }
+.pb-safe { padding-bottom: calc(var(--safe-bottom, 0px)); }
 body { padding-bottom: var(--safe-bottom); }
+
+@media (prefers-reduced-motion: reduce) {
+  .card-hover { transition: none; }
+  .card-hover:hover { transform: none; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .img-progressive { transition: none; }
+}

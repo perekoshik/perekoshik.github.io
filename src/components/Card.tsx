@@ -20,7 +20,7 @@ export default function Card({ item, onClick, className }: CardProps) {
     <button
       type="button"
       onClick={onClick}
-      className={cn('w-full text-left rounded-2xl glass card-hover overflow-hidden', className)}
+      className={cn('market-card card-hover', className)}
     >
       <div className="relative aspect-square w-full overflow-hidden">
         <Media src={item.image} alt={item.title} />

@@ -25,6 +25,10 @@
 }
 .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.45) }
 
+.market-card {
+  @apply w-full overflow-hidden rounded-2xl glass text-left;
+}
+
 /* Hide scrollbars on horizontal pill list */
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }

@@ -8,7 +8,6 @@ import { initTWA } from './lib/twa'
 initTWA()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  // УБРАЛ StrictMode, чтобы WebView не падал
+  <RouterProvider router={router} />
 )

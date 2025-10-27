@@ -15,13 +15,13 @@ export default {
       },
       colors: {
         bg: {
-          DEFAULT: '#0b0f14', // fragment-like deep
-          soft: '#0f141b',
-          card: '#121821',
+          DEFAULT: 'hsl(var(--bg) / <alpha-value>)',
+          soft: 'hsl(var(--bg-soft) / <alpha-value>)',
+          card: 'hsl(var(--bg-card) / <alpha-value>)',
         },
         txt: {
-          DEFAULT: '#e6edf3',
-          muted: '#98a2b3',
+          DEFAULT: 'hsl(var(--txt) / <alpha-value>)',
+          muted: 'hsl(var(--txt-muted) / <alpha-value>)',
         },
         brand: {
           DEFAULT: '#3b82f6', // OpenSea blue vibe

@@ -7,9 +7,10 @@ export function initTWA() {
     WebApp.expand()
 
     // Sync theme colors with Telegram
-    const bg = WebApp.themeParams.bg_color || '#0b0f14'
-    document.documentElement.classList.add('dark')
-    document.body.style.backgroundColor = bg
+    const bg = WebApp.themeParams.bg_color
+    if (bg) {
+      document.body.style.backgroundColor = bg
+    }
 
     // Optional: set app header color
     WebApp.setHeaderColor('secondary')

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,6 +11,23 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <script>
+      (() => {
+        const storageKey = 'theme'
+        const root = document.documentElement
+        try {
+          const stored = window.localStorage.getItem(storageKey)
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const theme = stored ?? (prefersDark ? 'dark' : 'light')
+          root.classList.toggle('dark', theme === 'dark')
+          root.dataset.theme = theme
+        } catch (error) {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          root.classList.toggle('dark', prefersDark)
+          root.dataset.theme = prefersDark ? 'dark' : 'light'
+        }
+      })()
+    </script>
     <title>DevPulse Market</title>
   </head>
   <body class="bg-bg text-txt selection:bg-brand/30 selection:text-txt">

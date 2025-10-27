@@ -5,12 +5,18 @@ import { Outlet } from 'react-router-dom'
 
 export default function App() {
   return (
-    <div className="min-h-dvh">
+    <div className="min-h-dvh flex flex-col">
       <Header />
+
       <div className="container mt-3 sm:mt-4 flex items-center justify-end">
         <ThemeToggle />
       </div>
-      <Outlet />
+
+      {}
+      <div className="flex-1">
+        <Outlet />
+      </div>
+
       <BottomBar />
     </div>
   )

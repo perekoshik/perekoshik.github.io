@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+server/.gocache/
+server/.gomodcache/
+server/uploads/
+server/bin/

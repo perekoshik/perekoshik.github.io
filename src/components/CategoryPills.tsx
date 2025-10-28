@@ -38,7 +38,7 @@ export default function CategoryPills({ items, value, onChange }: CategoryPillsP
               'px-3 py-1.5 rounded-xl border text-sm whitespace-nowrap transition-colors duration-150',
               activeValue === item
                 ? 'bg-brand/25 text-txt border-brand/40 shadow-soft'
-                : 'bg-bg-soft/70 text-txt/70 border-white/5 hover:text-txt'
+                : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 dark:bg-bg-soft/80 dark:text-txt/70 dark:border-white/10 dark:hover:text-txt'
             )}
             aria-pressed={activeValue === item}
           >

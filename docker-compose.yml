@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-market}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-marketpass}
+      POSTGRES_DB: ${POSTGRES_DB:-market}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  api:
+    build:
+      context: ./server
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-market}:${POSTGRES_PASSWORD:-marketpass}@postgres:5432/${POSTGRES_DB:-market}?sslmode=disable
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?ADMIN_TOKEN is required}
+      PORT: 8080
+      UPLOAD_DIR: /uploads
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://perekoshik.github.io}
+    volumes:
+      - ./server/uploads:/uploads
+    ports:
+      - "8080:8080"
+
+volumes:
+  pg_data:

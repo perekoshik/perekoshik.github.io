@@ -1,5 +1,6 @@
 import { Search, User, Store } from "lucide-react";
 import { Link } from "react-router-dom";
+import { TonConnectButton } from "@tonconnect/ui-react";
 
 export default function Header() {
   return (
@@ -18,13 +19,16 @@ export default function Header() {
           />
         </div>
 
-        <Link
-          to="/profile"
-          className="inline-flex items-center gap-2 glass rounded-xl px-3 py-2 text-sm"
-        >
-          <User className="h-4 w-4" />
-          <span className="hidden sm:block">Profile</span>
-        </Link>
+        <div className="inline-flex items-center gap-2">
+          <TonConnectButton className="hidden sm:inline-flex" />
+          <Link
+            to="/profile"
+            className="inline-flex items-center gap-2 glass rounded-xl px-3 py-2 text-sm"
+          >
+            <User className="h-4 w-4" />
+            <span className="hidden sm:block">Profile</span>
+          </Link>
+        </div>
       </div>
     </header>
   );

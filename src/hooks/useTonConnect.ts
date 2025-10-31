@@ -1,5 +1,5 @@
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
-import { Address, address, Sender, SenderArguments } from "ton-core";
+import { Address, Sender, SenderArguments } from "ton-core";
 
 export function useTonConnect(): {
     sender: Sender,

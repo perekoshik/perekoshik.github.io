@@ -3,12 +3,15 @@ import { TWA } from "@/lib/twa";
 import Media from "@/components/Media";
 import { Package, Star, UserRound } from "lucide-react";
 import { useTonConnect } from "@/hooks/useTonConnect";
+import { CHAIN } from "@tonconnect/ui-react";
+import { Address } from "ton-core";
 
 export default function Profile() {
   const user = TWA?.initDataUnsafe?.user;
   const avatarUrl = user?.photo_url;
   const initials = user ? buildInitials(user.first_name, user.last_name) : "DP";
   const { wallet, connected, network } = useTonConnect();
+  console.log(wallet, connected, network);
 
   return (
     <div className="container pb-24 space-y-6 sm:space-y-8">
@@ -41,8 +44,13 @@ export default function Profile() {
             </div>
             {connected ? (
               <div className="grid gap-2 text-sm text-txt/70 sm:text-right">
-                <span>Wallet: {wallet}</span>
-                <span>Network: {network}</span>
+                <span>
+                  Wallet: {Address.parse(wallet as string).toString()}
+                </span>
+                <span>
+                  Network:
+                  {network === CHAIN.MAINNET ? "mainnet" : "testnet"}
+                </span>
               </div>
             ) : (
               <div className="grid gap-2 text-sm text-txt/70 sm:text-right">

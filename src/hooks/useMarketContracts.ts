@@ -1,15 +1,16 @@
 import { useTonClient } from "./useTonClient";
 import { useAsyncInitialize } from "./useAsyncInitialize";
-import { Address, OpenedContract } from "ton-core";
+import { Address, OpenedContract, toNano } from "ton-core";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useTonConnect } from "./useTonConnect";
 import { User } from "@/wrappers/User";
 import { ShopFactory } from "@/wrappers/ShopFactory";
-import { Shop } from "@/wrappers/Shop";
+import { Shop, UpdateShopInfo } from "@/wrappers/Shop";
 
 export function useMarketContracts() {
     const {client} = useTonClient();
     const {wallet} = useTonConnect();
+    const {sender} = useTonConnect();
 
     const usersFactoryContract = useAsyncInitialize(async () => {
         if(!client) return;
@@ -50,5 +51,18 @@ export function useMarketContracts() {
     return {
         marketAddress: userContract?.address.toString(),
         shopAddress: shopContract?.address.toString(),
+        makeShop: (name: string, id: bigint) => {
+            const message: UpdateShopInfo = {
+                $$type: 'UpdateShopInfo',
+                shopName: name,
+                shopId: id,
+                uniqueItemsCount: 0n,
+                ordersCount: 0n
+            }
+
+            shopContract?.send(sender, {
+                value: toNano('0.05'),
+            }, message)
+        }
     }
 }

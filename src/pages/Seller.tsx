@@ -3,6 +3,8 @@ import { Plus, Trash2, UploadCloud } from "lucide-react";
 import Card from "@/components/Card";
 import Media from "@/components/Media";
 import { useMarketContracts } from "@/hooks/useMarketContracts";
+import { useTonConnect } from "@/hooks/useTonConnect";
+import { TWA } from "@/lib/twa";
 
 const defaultImage =
   "https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80";
@@ -14,10 +16,12 @@ export default function Seller() {
   const [highlights, setHighlights] = useState<string[]>([""]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const user = TWA?.initDataUnsafe?.user;
 
   const [shopTitle, setShopTitle] = useState("");
 
-  const { shopAddress } = useMarketContracts();
+  const { shopAddress, makeShop } = useMarketContracts();
+  const { connected } = useTonConnect();
 
   const cardPreview = useMemo(() => {
     return {
@@ -73,8 +77,6 @@ export default function Seller() {
   return (
     <div className="container pb-24 space-y-6 sm:space-y-8">
       <header className="pt-4 space-y-1">
-        <p>{shopAddress}</p>
-
         <span className="text-[11px] uppercase tracking-[0.16em] text-txt/60">
           Seller console
         </span>
@@ -97,12 +99,21 @@ export default function Seller() {
             className="w-full rounded-2xl border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-brand/60"
           />
         </div>
-        <button
-          type="button"
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30"
-        >
-          Save Shop
-        </button>
+        {user ? (
+          <button
+            type="button"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30"
+            disabled={!connected}
+            onClick={() => makeShop(shopTitle, BigInt(user.id))}
+          >
+            Save Shop
+          </button>
+        ) : (
+          <p>
+            Open inside Telegram to see your account details and manage
+            purchases.
+          </p>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">

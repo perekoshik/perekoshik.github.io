@@ -1,7 +1,7 @@
-import Header from '@/components/Header'
-import BottomBar from '@/components/BottomBar'
-import ThemeToggle from '@/components/ThemeToggle'
-import { Outlet } from 'react-router-dom'
+import Header from "@/components/Header";
+import BottomBar from "@/components/BottomBar";
+import ThemeToggle from "@/components/ThemeToggle";
+import { Outlet } from "react-router-dom";
 
 export default function App() {
   return (
@@ -19,5 +19,5 @@ export default function App() {
 
       <BottomBar />
     </div>
-  )
+  );
 }

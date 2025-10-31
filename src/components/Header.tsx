@@ -1,6 +1,7 @@
 import { Search, Store } from "lucide-react";
 import { Link } from "react-router-dom";
 import { TonConnectButton } from "@tonconnect/ui-react";
+import { useTonConnect } from "@/hooks/useTonConnect";
 
 export default function Header() {
   return (

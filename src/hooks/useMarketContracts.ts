@@ -4,7 +4,9 @@ import { Address, OpenedContract } from "ton-core";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useTonConnect } from "./useTonConnect";
 import { User } from "@/wrappers/User";
-import { ShopFactory, ShopFactory_errors_backward } from "build/ShopFactory/tact_ShopFactory";
+import { ShopFactory } from "@/wrappers/ShopFactory";
+import { Shop } from "@/wrappers/Shop";
+
 export function useMarketContracts() {
     const {client} = useTonClient();
     const {wallet} = useTonConnect();
@@ -42,7 +44,7 @@ export function useMarketContracts() {
             Address.parse(wallet)
         )
 
-        return client.open(User.fromAddress(shopAddress))
+        return client.open(Shop.fromAddress(shopAddress))
     }, [shopFactoryContract]);
 
     return {

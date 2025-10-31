@@ -17,13 +17,13 @@ export function useMarketContracts() {
     }, [client]);
 
     const userContract = useAsyncInitialize( async () => {
-        if(!client) return;
+        if(!usersFactoryContract || !client || !wallet) return;
 
-        const userAddress = await usersFactoryContract?.getUserAddress(
-            Address.parse(wallet!)
+        const userAddress = await usersFactoryContract.getUserAddress(
+            Address.parse(wallet)
         )
 
-        return client.open(User.fromAddress(userAddress!))
+        return client.open(User.fromAddress(userAddress))
     }, [usersFactoryContract])
 
     return {

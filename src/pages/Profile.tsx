@@ -57,7 +57,7 @@ export default function Profile() {
                   Network:
                   {network === CHAIN.MAINNET ? "mainnet" : "testnet"}
                 </span>
-                <span>MarketWallet : {marketAddress}</span>
+                <span>MarketWallet: {marketAddress}</span>
               </div>
             ) : (
               <div className="grid gap-2 text-sm text-txt/70 sm:text-right">

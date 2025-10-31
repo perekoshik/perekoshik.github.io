@@ -3,7 +3,8 @@ import { Plus, Trash2, UploadCloud } from "lucide-react";
 import Card from "@/components/Card";
 import Media from "@/components/Media";
 
-const defaultImage = "https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80";
+const defaultImage =
+  "https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80";
 
 export default function Seller() {
   const [title, setTitle] = useState("");
@@ -12,6 +13,8 @@ export default function Seller() {
   const [highlights, setHighlights] = useState<string[]>([""]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+
+  const [shopTitle, setShopTitle] = useState("");
 
   const cardPreview = useMemo(() => {
     return {
@@ -72,9 +75,30 @@ export default function Seller() {
         </span>
         <h1 className="text-2xl font-semibold">Create product listing</h1>
         <p className="text-sm text-txt/70 sm:max-w-2xl">
-          Fill out the product card. Once saved, it will go through moderation before appearing in the marketplace.
+          Fill out the product card. Once saved, it will go through moderation
+          before appearing in the marketplace.
         </p>
       </header>
+
+      <div className="glass rounded-3xl p-5 sm:p-6">
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">
+            Create your shop
+          </label>
+          <input
+            value={shopTitle}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder="e.g. Genesis Shard"
+            className="w-full rounded-2xl border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-brand/60"
+          />
+        </div>
+        <button
+          type="button"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30"
+        >
+          Save Shop
+        </button>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <section className="space-y-6">
@@ -140,7 +164,9 @@ export default function Seller() {
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-sm font-semibold">Highlights</h2>
-                <p className="text-xs text-txt/60">Key selling points visible to buyers</p>
+                <p className="text-xs text-txt/60">
+                  Key selling points visible to buyers
+                </p>
               </div>
               <button
                 type="button"
@@ -157,7 +183,9 @@ export default function Seller() {
                 <div key={index} className="flex items-center gap-3">
                   <input
                     value={highlight}
-                    onChange={(event) => handleHighlightChange(index, event.target.value)}
+                    onChange={(event) =>
+                      handleHighlightChange(index, event.target.value)
+                    }
                     placeholder="e.g. Premium packaging"
                     className="flex-1 rounded-2xl border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-brand/60"
                   />
@@ -195,7 +223,8 @@ export default function Seller() {
           <div className="glass rounded-3xl p-5 sm:p-6 space-y-4">
             <h2 className="text-sm font-semibold">Card preview</h2>
             <p className="text-xs text-txt/60">
-              This is how the product will appear in the marketplace feed. Update the image and fields to see live changes.
+              This is how the product will appear in the marketplace feed.
+              Update the image and fields to see live changes.
             </p>
             <Card item={cardPreview} />
           </div>
@@ -203,35 +232,41 @@ export default function Seller() {
           <div className="glass rounded-3xl p-5 sm:p-6 space-y-4">
             <h2 className="text-sm font-semibold">Moderation summary</h2>
             <p className="text-xs text-txt/60">
-              Internal data for the marketplace team. Later this block will be linked to smart contracts and automated publishing.
+              Internal data for the marketplace team. Later this block will be
+              linked to smart contracts and automated publishing.
             </p>
             <div className="space-y-3 text-sm text-txt/80">
               <div>
-                <div className="text-xs uppercase tracking-[0.28em] text-txt/50">Title</div>
+                <div className="text-xs uppercase tracking-[0.28em] text-txt/50">
+                  Title
+                </div>
                 <div className="mt-1 rounded-2xl border border-white/10 bg-white/5 p-3">
                   {title || "Not provided"}
                 </div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-[0.28em] text-txt/50">Description</div>
+                <div className="text-xs uppercase tracking-[0.28em] text-txt/50">
+                  Description
+                </div>
                 <div className="mt-1 rounded-2xl border border-white/10 bg-white/5 p-3 whitespace-pre-wrap">
-                  {description || "Add story, details and why it matters to the buyer."}
+                  {description ||
+                    "Add story, details and why it matters to the buyer."}
                 </div>
               </div>
               <div>
-                <div className="text-xs uppercase tracking-[0.28em] text-txt/50">Highlights</div>
+                <div className="text-xs uppercase tracking-[0.28em] text-txt/50">
+                  Highlights
+                </div>
                 <ul className="mt-1 space-y-2">
                   {highlights.filter(Boolean).length ? (
-                    highlights
-                      .filter(Boolean)
-                      .map((item, index) => (
-                        <li
-                          key={`${item}-${index}`}
-                          className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2"
-                        >
-                          {item}
-                        </li>
-                      ))
+                    highlights.filter(Boolean).map((item, index) => (
+                      <li
+                        key={`${item}-${index}`}
+                        className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2"
+                      >
+                        {item}
+                      </li>
+                    ))
                   ) : (
                     <li className="rounded-2xl border border-dashed border-white/10 px-3 py-2 text-txt/60">
                       Provide at least three core highlights.

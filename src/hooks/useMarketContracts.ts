@@ -11,7 +11,7 @@ export function useMarketContracts() {
     const usersFactoryContract = useAsyncInitialize(async () => {
         if(!client) return;
 
-        const usersFactoryContract = UsersFactory.fromAddress(Address.parse("kQBHFTbPmcS02DWIRwDKc70HnfYMM1AQsxHuB02h4NLsnk9j"))
+        const usersFactoryContract = UsersFactory.fromAddress(Address.parse("EQApbRMD39StaHO1eJPpCG9lUGwr9k7Q5ypw0xhmKAnueOj1"))
     
         return client.open(usersFactoryContract) as OpenedContract<UsersFactory>;
     }, [client]);
@@ -20,7 +20,7 @@ export function useMarketContracts() {
         if(!usersFactoryContract || !client || !wallet) return;
 
         const userAddress = await usersFactoryContract.getUserAddress(
-            Address.parse(wallet),
+            Address.parse(wallet)
         )
 
         return client.open(User.fromAddress(userAddress))

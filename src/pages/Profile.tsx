@@ -45,7 +45,11 @@ export default function Profile() {
             {connected ? (
               <div className="grid gap-2 text-sm text-txt/70 sm:text-right">
                 <span>
-                  Wallet: {Address.parse(wallet as string).toString()}
+                  Wallet:{" "}
+                  {Address.parse(wallet as string).toString({
+                    bounceable: false,
+                    testOnly: false,
+                  })}
                 </span>
                 <span>
                   Network:

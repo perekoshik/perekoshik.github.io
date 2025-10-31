@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: UsersFactory
-BoC Size: 896 bytes
+BoC Size: 832 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 30
@@ -50,8 +50,8 @@ TL-B: `make_new_user#dc6a8b83 name:^string id:int257 = MakeNewUser`
 Signature: `MakeNewUser{name:^string,id:int257}`
 
 ### ChangeUserData
-TL-B: `change_user_data#7f22ed74 name:^string deliveryAddress:^string = ChangeUserData`
-Signature: `ChangeUserData{name:^string,deliveryAddress:^string}`
+TL-B: `change_user_data#7f22ed74 name:^string id:int257 deliveryAddress:^string = ChangeUserData`
+Signature: `ChangeUserData{name:^string,id:int257,deliveryAddress:^string}`
 
 ### CreateShop
 TL-B: `create_shop#c6366b42 shopName:^string = CreateShop`
@@ -132,7 +132,7 @@ Total get methods: 2
 No arguments
 
 ## userAddress
-Argument: id
+Argument: parent
 
 ## Exit codes
 * 2: Stack underflow

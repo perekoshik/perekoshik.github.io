@@ -50,11 +50,14 @@ cell $SetPrice$_store_cell((int, int) v) inline;
 ;; $NewOrder$_load_without_opcode
 (slice, ((slice, int, int))) $NewOrder$_load_without_opcode(slice sc_0) inline;
 
+;; $UpdateShopInfo$_load_without_opcode
+(slice, ((slice, int, int, int))) $UpdateShopInfo$_load_without_opcode(slice sc_0) inline;
+
 ;; $Shop$_store
-builder $Shop$_store(builder build_0, (slice, slice, slice, int, int, int, int) v) inline;
+builder $Shop$_store(builder build_0, (slice, slice, int, int, int, int) v) inline;
 
 ;; $Shop$_load
-(slice, ((slice, slice, slice, int, int, int, int))) $Shop$_load(slice sc_0) inline;
+(slice, ((slice, slice, int, int, int, int))) $Shop$_load(slice sc_0) inline;
 
 ;; $StateInit$_to_external
 (cell, cell) $StateInit$_to_external(((cell, cell)) v) inline;
@@ -69,16 +72,16 @@ builder $UniqueItem$init$_store(builder build_0, (slice, slice, int, slice) v) i
 builder $Order$init$_store(builder build_0, (int, slice, slice, slice) v) inline;
 
 ;; $Shop$init$_load
-(slice, ((slice, slice, slice, int))) $Shop$init$_load(slice sc_0) inline;
+(slice, ((slice))) $Shop$init$_load(slice sc_0) inline;
 
 ;; $Shop$_contract_init
-(slice, slice, slice, int, int, int, int) $Shop$_contract_init(slice $parent, slice $owner, slice $shopName, int $shopId) impure inline;
+(slice, slice, int, int, int, int) $Shop$_contract_init(slice $owner) impure inline;
 
 ;; $Shop$_contract_load
-(slice, slice, slice, int, int, int, int) $Shop$_contract_load() impure inline;
+(slice, slice, int, int, int, int) $Shop$_contract_load() impure inline;
 
 ;; $Shop$_contract_store
-() $Shop$_contract_store((slice, slice, slice, int, int, int, int) v) impure inline;
+() $Shop$_contract_store((slice, slice, int, int, int, int) v) impure inline;
 
 ;; $Cell$_fun_asSlice
 slice $Cell$_fun_asSlice(cell $self) impure inline;
@@ -102,22 +105,22 @@ slice $global_contractAddress((cell, cell) $s) impure inline;
 (cell, cell) $Order$_init_child(int $id, slice $seller, slice $buyer, slice $itemAddress) inline;
 
 ;; $Shop$_fun_shopName
-((slice, slice, slice, int, int, int, int), slice) $Shop$_fun_shopName((slice, slice, slice, int, int, int, int) $self) impure inline_ref;
+((slice, slice, int, int, int, int), slice) $Shop$_fun_shopName((slice, slice, int, int, int, int) $self) impure inline_ref;
 
 ;; $Shop$_fun_uniqueItemInit
-((slice, slice, slice, int, int, int, int), (cell, cell)) $Shop$_fun_uniqueItemInit((slice, slice, slice, int, int, int, int) $self, slice $owner, int $index) impure inline_ref;
+((slice, slice, int, int, int, int), (cell, cell)) $Shop$_fun_uniqueItemInit((slice, slice, int, int, int, int) $self, slice $owner, int $index) impure inline_ref;
 
 ;; $Shop$_fun_orderInit
-((slice, slice, slice, int, int, int, int), (cell, cell)) $Shop$_fun_orderInit((slice, slice, slice, int, int, int, int) $self, int $orderId, slice $buyer, slice $itemAddress) impure inline_ref;
+((slice, slice, int, int, int, int), (cell, cell)) $Shop$_fun_orderInit((slice, slice, int, int, int, int) $self, int $orderId, slice $buyer, slice $itemAddress) impure inline_ref;
 
 ;; $Shop$_fun_reply
-((slice, slice, slice, int, int, int, int), ()) $Shop$_fun_reply((slice, slice, slice, int, int, int, int) $self, cell $body) impure inline;
+((slice, slice, int, int, int, int), ()) $Shop$_fun_reply((slice, slice, int, int, int, int) $self, cell $body) impure inline;
 
 ;; $Shop$_fun_requireOwner
-((slice, slice, slice, int, int, int, int), ()) $Shop$_fun_requireOwner((slice, slice, slice, int, int, int, int) $self) impure inline_ref;
+((slice, slice, int, int, int, int), ()) $Shop$_fun_requireOwner((slice, slice, int, int, int, int) $self) impure inline_ref;
 
 ;; $Shop$_fun_owner
-((slice, slice, slice, int, int, int, int), slice) $Shop$_fun_owner((slice, slice, slice, int, int, int, int) $self) impure inline_ref;
+((slice, slice, int, int, int, int), slice) $Shop$_fun_owner((slice, slice, int, int, int, int) $self) impure inline_ref;
 
 ;; $SendParameters$_constructor_to_value_code_data_body
 ((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_code_data_body(slice $to, int $value, cell $code, cell $data, cell $body) inline;
@@ -404,8 +407,8 @@ slice $Int$_fun_toString(int $self) impure asm """
     ENDC CTOS // s
 """;
 
-((slice, slice, slice, int, int, int, int), ()) $Shop$_fun_reply((slice, slice, slice, int, int, int, int) $self, cell $body) impure inline {
-    var (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+((slice, slice, int, int, int, int), ()) $Shop$_fun_reply((slice, slice, int, int, int, int) $self, cell $body) impure inline {
+    var (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
     slice $to = __tact_context_get_sender();
     int $bounce = true;
     if (false) {
@@ -414,26 +417,31 @@ slice $Int$_fun_toString(int $self) impure asm """
         if (($balanceBeforeMessage < 0)) {
             $global_nativeReserve(0, 0);
             $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 130, $body));
-            return (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), ());
+            return (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), ());
         }
     }
     $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 66, $body));
-    return (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), ());
+    return (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), ());
 }
 
-((slice, slice, slice, int, int, int, int), ()) $Shop$_fun_requireOwner((slice, slice, slice, int, int, int, int) $self) impure inline_ref {
-    var (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+((slice, slice, int, int, int, int), ()) $Shop$_fun_requireOwner((slice, slice, int, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
     throw_unless(132, ( equal_slices_bits($self'owner, __tact_context_get_sender()) ));
-    return (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), ());
+    return (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), ());
 }
 
-((slice, slice, slice, int, int, int, int), slice) $Shop$_fun_owner((slice, slice, slice, int, int, int, int) $self) impure inline_ref {
-    var (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+((slice, slice, int, int, int, int), slice) $Shop$_fun_owner((slice, slice, int, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
     var $fresh$ret_23 = $self'owner;
-    return (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_23);
+    return (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_23);
 }
 
 ;; tact_Shop.constants.fc
+;; String "shopName"
+slice __gen_slice_string_9d9a29a079e44a38147f68f3d6b2168031c4acfb553b12368adcc9eff238767a() asm """
+    B{b5ee9c7241010101000a00001073686f704e616d65c1985e3e} B>boc <s PUSHSLICE
+""";
+
 ;; String "https://some-json-file.com/id"
 slice __gen_slice_string_a271c64779d2c26f6a4af9d42e4ab3d53ba8f200e6f386630db701c5adac6110() asm """
     B{b5ee9c7241010101001f00003a68747470733a2f2f736f6d652d6a736f6e2d66696c652e636f6d2f69643842f536} B>boc <s PUSHSLICE
@@ -578,6 +586,20 @@ cell $SetPrice$_store_cell((int, int) v) inline {
 }
 
 ;;
+;; Type: UpdateShopInfo
+;; Header: 0x1ffafc68
+;; TLB: update_shop_info#1ffafc68 shopName:^string shopId:uint256 uniqueItemsCount:uint256 ordersCount:uint256 = UpdateShopInfo
+;;
+
+(slice, ((slice, int, int, int))) $UpdateShopInfo$_load_without_opcode(slice sc_0) inline {
+    var v'shopName = sc_0~load_ref().begin_parse();
+    var v'shopId = sc_0~load_uint(256);
+    var v'uniqueItemsCount = sc_0~load_uint(256);
+    var v'ordersCount = sc_0~load_uint(256);
+    return (sc_0, (v'shopName, v'shopId, v'uniqueItemsCount, v'ordersCount));
+}
+
+;;
 ;; Type: UniqueItem
 ;; TLB: _ shop:address owner:address content:^string index:uint256 price:coins isSalable:bool = UniqueItem
 ;;
@@ -643,57 +665,52 @@ cell $Order$_child_get_code() impure asm """
 
 ;;
 ;; Type: Shop
-;; TLB: _ parent:address owner:address shopName:^string uniqueItemsCount:uint256 shopId:uint256 ordersCount:uint256 balance:coins = Shop
+;; TLB: _ owner:address shopName:^string uniqueItemsCount:uint256 shopId:uint256 ordersCount:uint256 balance:coins = Shop
 ;;
 
-builder $Shop$_store(builder build_0, (slice, slice, slice, int, int, int, int) v) inline {
-    var (v'parent, v'owner, v'shopName, v'uniqueItemsCount, v'shopId, v'ordersCount, v'balance) = v;
-    build_0 = build_0.store_slice(v'parent);
+builder $Shop$_store(builder build_0, (slice, slice, int, int, int, int) v) inline {
+    var (v'owner, v'shopName, v'uniqueItemsCount, v'shopId, v'ordersCount, v'balance) = v;
     build_0 = build_0.store_slice(v'owner);
     build_0 = build_0.store_builder_ref(begin_cell().store_slice(v'shopName));
     build_0 = build_0.store_uint(v'uniqueItemsCount, 256);
+    build_0 = build_0.store_uint(v'shopId, 256);
     var build_1 = begin_cell();
-    build_1 = build_1.store_uint(v'shopId, 256);
     build_1 = build_1.store_uint(v'ordersCount, 256);
     build_1 = build_1.store_varuint16(v'balance);
     build_0 = store_builder_ref(build_0, build_1);
     return build_0;
 }
 
-(slice, ((slice, slice, slice, int, int, int, int))) $Shop$_load(slice sc_0) inline {
-    var v'parent = sc_0~load_msg_addr();
+(slice, ((slice, slice, int, int, int, int))) $Shop$_load(slice sc_0) inline {
     var v'owner = sc_0~load_msg_addr();
     var v'shopName = sc_0~load_ref().begin_parse();
     var v'uniqueItemsCount = sc_0~load_uint(256);
+    var v'shopId = sc_0~load_uint(256);
     slice sc_1 = sc_0~load_ref().begin_parse();
-    var v'shopId = sc_1~load_uint(256);
     var v'ordersCount = sc_1~load_uint(256);
     var v'balance = sc_1~load_varuint16();
-    return (sc_0, (v'parent, v'owner, v'shopName, v'uniqueItemsCount, v'shopId, v'ordersCount, v'balance));
+    return (sc_0, (v'owner, v'shopName, v'uniqueItemsCount, v'shopId, v'ordersCount, v'balance));
 }
 
-(slice, ((slice, slice, slice, int))) $Shop$init$_load(slice sc_0) inline {
-    var v'parent = sc_0~load_msg_addr();
+(slice, ((slice))) $Shop$init$_load(slice sc_0) inline {
     var v'owner = sc_0~load_msg_addr();
-    var v'shopName = sc_0~load_ref().begin_parse();
-    var v'shopId = sc_0~load_int(257);
-    return (sc_0, (v'parent, v'owner, v'shopName, v'shopId));
+    return (sc_0, (v'owner));
 }
 
-(slice, slice, slice, int, int, int, int) $Shop$_contract_load() impure inline {
+(slice, slice, int, int, int, int) $Shop$_contract_load() impure inline {
     slice $sc = get_data().begin_parse();
     int $loaded = $sc~load_int(1);
     if ($loaded) {
         return $sc~$Shop$_load();
     }
     else {
-        (slice $parent, slice $owner, slice $shopName, int $shopId) = $sc~$Shop$init$_load();
+        (slice $owner) = $sc~$Shop$init$_load();
         $sc.end_parse();
-        return $Shop$_contract_init($parent, $owner, $shopName, $shopId);
+        return $Shop$_contract_init($owner);
     }
 }
 
-() $Shop$_contract_store((slice, slice, slice, int, int, int, int) v) impure inline {
+() $Shop$_contract_store((slice, slice, int, int, int, int) v) impure inline {
     builder b = begin_cell();
     b = b.store_int(true, 1);
     b = $Shop$_store(b, v);
@@ -704,36 +721,35 @@ builder $Shop$_store(builder build_0, (slice, slice, slice, int, int, int, int) 
 ;; Contract Shop functions
 ;;
 
-(slice, slice, slice, int, int, int, int) $Shop$_contract_init(slice $parent, slice $owner, slice $shopName, int $shopId) impure inline {
-    var (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = (null(), null(), null(), null(), null(), null(), 0);
-    $self'parent = $parent;
+(slice, slice, int, int, int, int) $Shop$_contract_init(slice $owner) impure inline {
+    var (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = (null(), null(), null(), null(), null(), 0);
     $self'owner = $owner;
-    $self'shopName = $shopName;
-    $self'shopId = $shopId;
+    $self'shopName = __gen_slice_string_9d9a29a079e44a38147f68f3d6b2168031c4acfb553b12368adcc9eff238767a();
+    $self'shopId = 1;
     $self'uniqueItemsCount = 0;
     $self'ordersCount = 0;
-    return ($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance);
+    return ($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance);
 }
 
-((slice, slice, slice, int, int, int, int), slice) $Shop$_fun_shopName((slice, slice, slice, int, int, int, int) $self) impure inline_ref {
-    var (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+((slice, slice, int, int, int, int), slice) $Shop$_fun_shopName((slice, slice, int, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
     var $fresh$ret_20 = $self'shopName;
-    return (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_20);
+    return (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_20);
 }
 
-((slice, slice, slice, int, int, int, int), (cell, cell)) $Shop$_fun_uniqueItemInit((slice, slice, slice, int, int, int, int) $self, slice $owner, int $index) impure inline_ref {
-    var (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+((slice, slice, int, int, int, int), (cell, cell)) $Shop$_fun_uniqueItemInit((slice, slice, int, int, int, int) $self, slice $owner, int $index) impure inline_ref {
+    var (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
     tuple $individual_content = __tact_string_builder_start_string();
     $individual_content~__tact_string_builder_append(__gen_slice_string_a271c64779d2c26f6a4af9d42e4ab3d53ba8f200e6f386630db701c5adac6110());
     $individual_content~__tact_string_builder_append($Int$_fun_toString($index));
     var $fresh$ret_21 = $UniqueItem$_init_child($owner, $global_myAddress(), $index, __tact_string_builder_end_slice($individual_content));
-    return (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_21);
+    return (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_21);
 }
 
-((slice, slice, slice, int, int, int, int), (cell, cell)) $Shop$_fun_orderInit((slice, slice, slice, int, int, int, int) $self, int $orderId, slice $buyer, slice $itemAddress) impure inline_ref {
-    var (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+((slice, slice, int, int, int, int), (cell, cell)) $Shop$_fun_orderInit((slice, slice, int, int, int, int) $self, int $orderId, slice $buyer, slice $itemAddress) impure inline_ref {
+    var (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
     var $fresh$ret_22 = $Order$_init_child($orderId, $global_myAddress(), $global_myAddress(), $itemAddress);
-    return (($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_22);
+    return (($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_22);
 }
 
 ;;
@@ -789,31 +805,42 @@ _ %owner() method_id(83229) {
     __tact_context_sender = msg_sender_addr;
     
     ;; Load contract data
-    var ($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance) = $Shop$_contract_load();
+    var ($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance) = $Shop$_contract_load();
     
     ;; Handle bounced messages
     if (msg_bounced) { return (); }
     var op = in_msg~load_opcode_internal();
+    ;; Receive UpdateShopInfo message
+    if (op == 536542312) {
+        var ($msg'shopName, $msg'shopId, $msg'uniqueItemsCount, $msg'ordersCount) = in_msg~$UpdateShopInfo$_load_without_opcode();
+        $self'shopName = $msg'shopName;
+        $self'shopId = $msg'shopId;
+        $self'uniqueItemsCount = $msg'uniqueItemsCount;
+        $self'ordersCount = $msg'ordersCount;
+        $Shop$_contract_store(($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
+        return ();
+    }
+    
     ;; Receive AddItem message
     if (op == 0xfe3511b0) {
         var ($msg'isUnique, $msg'content, $msg'price) = in_msg~$AddItem$_load_without_opcode();
-        ($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)~$Shop$_fun_requireOwner();
+        ($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)~$Shop$_fun_requireOwner();
         if ($msg'isUnique) {
-            var ($init'code, $init'data) = ($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)~$Shop$_fun_uniqueItemInit($global_myAddress(), $self'uniqueItemsCount);
+            var ($init'code, $init'data) = ($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)~$Shop$_fun_uniqueItemInit($global_myAddress(), $self'uniqueItemsCount);
             $global_send($SendParameters$_constructor_to_value_code_data_body($global_contractAddress(($init'code, $init'data)), 20000000, $init'code, $init'data, $SetPrice$_store_cell($SetPrice$_constructor_newPrice_isSalable($msg'price, true))));
         }
         $self'uniqueItemsCount = $self'uniqueItemsCount + 1;
-        $Shop$_contract_store(($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
+        $Shop$_contract_store(($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
         return ();
     }
     
     ;; Receive SetUniqueItemPrice message
     if (op == 0xc46fecd7) {
         var ($msg'uniqueItem, $msg'newPrice) = in_msg~$SetUniqueItemPrice$_load_without_opcode();
-        ($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)~$Shop$_fun_requireOwner();
+        ($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)~$Shop$_fun_requireOwner();
         $global_send($SendParameters$_constructor_to_value_mode_body($msg'uniqueItem, 20000000, 2, $SetPrice$_store_cell($SetPrice$_constructor_newPrice_isSalable($msg'newPrice, true))));
-        ($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)~$Shop$_fun_reply(__gen_cell_cell_8f363738809b64f1aab1248f39e76b6a70909c623ab568850914ec239c36134e());
-        $Shop$_contract_store(($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
+        ($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)~$Shop$_fun_reply(__gen_cell_cell_8f363738809b64f1aab1248f39e76b6a70909c623ab568850914ec239c36134e());
+        $Shop$_contract_store(($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
         return ();
     }
     
@@ -823,16 +850,16 @@ _ %owner() method_id(83229) {
         var ($init'code, $init'data) = $Order$_init_child($self'ordersCount, $global_myAddress(), __tact_context_get_sender(), $msg'itemAddress);
         $global_send($SendParameters$_constructor_to_value_mode_code_data($global_contractAddress(($init'code, $init'data)), $msg'price, 2, $init'code, $init'data));
         $self'ordersCount = $self'ordersCount + 1;
-        $Shop$_contract_store(($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
+        $Shop$_contract_store(($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
         return ();
     }
     
     ;; Receive OrderCompleted message
     if (op == 0x993e1ed5) {
         var ($msg'orderIndex, $msg'itemAddress, $msg'buyer) = in_msg~$OrderCompleted$_load_without_opcode();
-        var ($init'code, $init'data) = ($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)~$Shop$_fun_orderInit($msg'orderIndex, $msg'buyer, $msg'itemAddress);
+        var ($init'code, $init'data) = ($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance)~$Shop$_fun_orderInit($msg'orderIndex, $msg'buyer, $msg'itemAddress);
         throw_unless(24546, ( equal_slices_bits(__tact_context_get_sender(), $global_contractAddress(($init'code, $init'data))) ));
-        $Shop$_contract_store(($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
+        $Shop$_contract_store(($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
         return ();
     }
     
@@ -840,7 +867,7 @@ _ %owner() method_id(83229) {
     if (op == 0x90268e31) {
         var ($msg'deliveryAddress, $msg'itemIndex, $msg'price) = in_msg~$NewOrder$_load_without_opcode();
         $self'balance = $self'balance + $msg'price;
-        $Shop$_contract_store(($self'parent, $self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
+        $Shop$_contract_store(($self'owner, $self'shopName, $self'uniqueItemsCount, $self'shopId, $self'ordersCount, $self'balance));
         return ();
     }
     

@@ -24,29 +24,6 @@ export default function Profile() {
       </header>
 
       <section className="glass rounded-3xl p-5 sm:p-6">
-        {connected ? (
-          <div className="grid gap-2 text-sm text-txt/70 sm:text-right">
-            <span>
-              Wallet:{" "}
-              {Address.parse(wallet as string).toString({
-                bounceable: false,
-                testOnly: false,
-              })}
-            </span>
-            <span>
-              Network:
-              {network === CHAIN.MAINNET ? "mainnet" : "testnet"}
-            </span>
-            <span>
-              MarketWallet: {marketAddress ? marketAddress : "Something bad("}
-            </span>
-          </div>
-        ) : (
-          <div className="grid gap-2 text-sm text-txt/70 sm:text-right">
-            <span>Connect your wallet to see your account details</span>
-          </div>
-        )}
-
         {user ? (
           <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">

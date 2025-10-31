@@ -4,6 +4,7 @@ import { Address, OpenedContract } from "ton-core";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useTonConnect } from "./useTonConnect";
 import { User } from "@/wrappers/User";
+import { ShopFactory, ShopFactory_errors_backward } from "build/ShopFactory/tact_ShopFactory";
 export function useMarketContracts() {
     const {client} = useTonClient();
     const {wallet} = useTonConnect();
@@ -26,7 +27,26 @@ export function useMarketContracts() {
         return client.open(User.fromAddress(userAddress))
     }, [usersFactoryContract])
 
+    const shopFactoryContract = useAsyncInitialize(async () => {
+        if(!client) return;
+
+        const shopFactoryAddress = ShopFactory.fromAddress(Address.parse("EQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXrIF"))
+    
+        return client.open(shopFactoryAddress) as OpenedContract<ShopFactory>;
+    }, [client]);
+
+    const shopContract = useAsyncInitialize( async () => {
+        if(!shopFactoryContract || !client || !wallet) return;
+
+        const shopAddress = await shopFactoryContract.getShopAddress(
+            Address.parse(wallet)
+        )
+
+        return client.open(User.fromAddress(shopAddress))
+    }, [shopFactoryContract]);
+
     return {
         marketAddress: userContract?.address.toString(),
+        shopAddress: shopContract?.address.toString(),
     }
 }

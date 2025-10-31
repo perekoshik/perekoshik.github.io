@@ -771,6 +771,7 @@ export function dictValueParserMakeNewUser(): DictionaryValue<MakeNewUser> {
 export type ChangeUserData = {
     $$type: 'ChangeUserData';
     name: string;
+    id: bigint;
     deliveryAddress: string;
 }
 
@@ -779,6 +780,7 @@ export function storeChangeUserData(src: ChangeUserData) {
         const b_0 = builder;
         b_0.storeUint(2132995444, 32);
         b_0.storeStringRefTail(src.name);
+        b_0.storeInt(src.id, 257);
         b_0.storeStringRefTail(src.deliveryAddress);
     };
 }
@@ -787,25 +789,29 @@ export function loadChangeUserData(slice: Slice) {
     const sc_0 = slice;
     if (sc_0.loadUint(32) !== 2132995444) { throw Error('Invalid prefix'); }
     const _name = sc_0.loadStringRefTail();
+    const _id = sc_0.loadIntBig(257);
     const _deliveryAddress = sc_0.loadStringRefTail();
-    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
 }
 
 export function loadTupleChangeUserData(source: TupleReader) {
     const _name = source.readString();
+    const _id = source.readBigNumber();
     const _deliveryAddress = source.readString();
-    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
 }
 
 export function loadGetterTupleChangeUserData(source: TupleReader) {
     const _name = source.readString();
+    const _id = source.readBigNumber();
     const _deliveryAddress = source.readString();
-    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
 }
 
 export function storeTupleChangeUserData(source: ChangeUserData) {
     const builder = new TupleBuilder();
     builder.writeString(source.name);
+    builder.writeNumber(source.id);
     builder.writeString(source.deliveryAddress);
     return builder.build();
 }
@@ -1906,7 +1912,7 @@ const UniqueItem_types: ABIType[] = [
     {"name":"ChangeOwner","header":2174598809,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"ChangeOwnerOk","header":846932810,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"MakeNewUser","header":3697970051,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"id","type":{"kind":"simple","type":"int","optional":false,"format":257}}]},
-    {"name":"ChangeUserData","header":2132995444,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"ChangeUserData","header":2132995444,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"id","type":{"kind":"simple","type":"int","optional":false,"format":257}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"CreateShop","header":3325455170,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"AddItem","header":4264890800,"fields":[{"name":"isUnique","type":{"kind":"simple","type":"bool","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"NftTransfer","header":3656957868,"fields":[{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},

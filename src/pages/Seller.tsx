@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Plus, Trash2, UploadCloud } from "lucide-react";
 import Card from "@/components/Card";
 import Media from "@/components/Media";
+import { useMarketContracts } from "@/hooks/useMarketContracts";
 
 const defaultImage =
   "https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80";
@@ -15,6 +16,8 @@ export default function Seller() {
   const [imagePreview, setImagePreview] = useState<string>("");
 
   const [shopTitle, setShopTitle] = useState("");
+
+  const { shopAddress } = useMarketContracts();
 
   const cardPreview = useMemo(() => {
     return {
@@ -70,6 +73,8 @@ export default function Seller() {
   return (
     <div className="container pb-24 space-y-6 sm:space-y-8">
       <header className="pt-4 space-y-1">
+        <p>{shopAddress}</p>
+
         <span className="text-[11px] uppercase tracking-[0.16em] text-txt/60">
           Seller console
         </span>

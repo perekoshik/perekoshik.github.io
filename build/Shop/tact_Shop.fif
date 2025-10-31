@@ -14,6 +14,7 @@ PROGRAM{
   DECLPROC $SetUniqueItemPrice$_load_without_opcode
   DECLPROC $OrderCompleted$_load_without_opcode
   DECLPROC $NewOrder$_load_without_opcode
+  DECLPROC $UpdateShopInfo$_load_without_opcode
   DECLPROC $Shop$_store
   DECLPROC $Shop$_load
   DECLPROC $StateInit$_to_external
@@ -209,21 +210,28 @@ PROGRAM{
     LDVARUINT16
     3 -ROLL
   }>
+  $UpdateShopInfo$_load_without_opcode PROCINLINE:<{
+    LDREF
+    SWAP
+    CTOS
+    SWAP
+    256 LDU
+    256 LDU
+    256 LDU
+    4 -ROLL
+  }>
   $Shop$_store PROCINLINE:<{
-    s7 s6 XCHG2
+    s6 s5 XCHG2
     STSLICER
+    NEWC
     s0 s4 XCHG2
     STSLICER
-    NEWC
-    s0 s3 XCHG2
-    STSLICER
-    s1 s2 XCHG
+    s1 s3 XCHG
     STBREFR
     256 STU
-    SWAP
-    NEWC
     256 STU
-    s1 s3 XCHG
+    s0 s2 XCHG
+    NEWC
     256 STU
     SWAP
     STVARUINT16
@@ -231,23 +239,22 @@ PROGRAM{
   }>
   $Shop$_load PROCINLINE:<{
     LDMSGADDR
-    LDMSGADDR
     LDREF
     SWAP
     CTOS
     SWAP
     256 LDU
+    256 LDU
     LDREF
     SWAP
     CTOS
-    256 LDU
     256 LDU
     LDVARUINT16
     DROP
-    s3 s7 XCHG
-    s3 s6 XCHG
-    s3 s5 XCHG
-    s3 s4 XCHG
+    s2 s6 XCHG
+    s2 s5 XCHG
+    s2 s4 XCHG
+    s2 s3 XCHG
   }>
   $StateInit$_to_external PROCINLINE:<{
   }>
@@ -283,18 +290,15 @@ PROGRAM{
   }>
   $Shop$init$_load PROCINLINE:<{
     LDMSGADDR
-    LDMSGADDR
-    LDREF
     SWAP
-    CTOS
-    SWAP
-    257 PUSHINT
-    LDIX
-    4 -ROLL
   }>
   $Shop$_contract_init PROCINLINE:<{
     0 PUSHINT
-    s1 s1 s1 XCPU2
+        B{b5ee9c7241010101000a00001073686f704e616d65c1985e3e} B>boc <s PUSHSLICE
+    1 PUSHINT
+    s2 s2 PUSH2
+    s0 s3 XCHG
+    s0 s4 XCHG
   }>
   $Shop$_contract_load PROCINLINE:<{
     c4 PUSH
@@ -303,12 +307,11 @@ PROGRAM{
     SWAP
     IF:<{
       $Shop$_load INLINECALLDICT
-      1 7 BLKDROP2
+      1 6 BLKDROP2
     }>ELSE<{
       $Shop$init$_load INLINECALLDICT
-      s0 s4 XCHG
+      SWAP
       ENDS
-      3 ROLL
       $Shop$_contract_init INLINECALLDICT
     }>
   }>
@@ -317,7 +320,7 @@ PROGRAM{
     TRUE
     SWAP
     1 STI
-    7 -ROLL
+    6 -ROLL
     $Shop$_store INLINECALLDICT
     ENDC
     c4 POP
@@ -494,26 +497,26 @@ PROGRAM{
   %shopName PROC:<{
     $Shop$_contract_load INLINECALLDICT
     $Shop$_fun_shopName INLINECALLDICT
-    7 1 BLKDROP2
+    6 1 BLKDROP2
   }>
   %uniqueItemInit PROC:<{
     $Shop$_contract_load INLINECALLDICT
-    2 7 BLKSWAP
+    2 6 BLKSWAP
     $Shop$_fun_uniqueItemInit INLINECALLDICT
-    7 2 BLKDROP2
+    6 2 BLKDROP2
     $StateInit$_to_external INLINECALLDICT
   }>
   %orderInit PROC:<{
     $Shop$_contract_load INLINECALLDICT
-    3 7 BLKSWAP
+    3 6 BLKSWAP
     $Shop$_fun_orderInit INLINECALLDICT
-    7 2 BLKDROP2
+    6 2 BLKDROP2
     $StateInit$_to_external INLINECALLDICT
   }>
   %owner PROC:<{
     $Shop$_contract_load INLINECALLDICT
     $Shop$_fun_owner INLINECALLDICT
-    7 1 BLKDROP2
+    6 1 BLKDROP2
   }>
   recv_internal PROC:<{
     SWAP
@@ -531,12 +534,26 @@ PROGRAM{
     s0 s2 XCHG
     __tact_context_sender SETGLOB
     $Shop$_contract_load INLINECALLDICT
-    s0 s8 XCHG
+    s0 s7 XCHG
     IFJMP:<{
-      8 BLKDROP
+      7 BLKDROP
     }>
-    s0 s6 XCHG
+    s0 s5 XCHG
     32 LDUQ 130 THROWIFNOT
+    OVER
+    536542312 PUSHINT
+    EQUAL
+    IFJMP:<{
+      s6 POP
+      4 BLKDROP
+      SWAP
+      $UpdateShopInfo$_load_without_opcode INLINECALLDICT
+      s4 POP
+      s4 s5 XCHG
+      s4 s3 s3 XCHG3
+      s0 s2 XCHG
+      $Shop$_contract_store INLINECALLDICT
+    }>
     OVER
     4264890800 PUSHINT
     EQUAL
@@ -545,29 +562,28 @@ PROGRAM{
       $AddItem$_load_without_opcode INLINECALLDICT
       NIP
       s2 POP
-      s7 s8 XCHG2
+      s6 s7 XCHG2
       $Shop$_fun_requireOwner INLINECALLDICT
-      s0 s8 XCHG
+      s0 s7 XCHG
       IF:<{
             MYADDR
         s3 PUSH
-        s7 s8 XCHG
         s6 s7 XCHG
         s0 s5 XCHG
         s0 s6 XCHG
         s3 s4 XCHG
-        s3 s1 s9 XCHG3
+        s3 s1 s8 XCHG3
         s0 s2 XCHG
         $Shop$_fun_uniqueItemInit INLINECALLDICT
         2DUP
         $global_contractAddress INLINECALLDICT
         20000000 PUSHINT
-        s0 s11 XCHG
+        s0 s10 XCHG
         TRUE
         $SetPrice$_constructor_newPrice_isSalable INLINECALLDICT
         $SetPrice$_store_cell INLINECALLDICT
         s1 s4 XCHG
-        s1 s11 XCHG
+        s1 s10 XCHG
         s3 s3 s0 XCHG3
         $SendParameters$_constructor_to_value_code_data_body INLINECALLDICT
             NEWC
@@ -636,16 +652,14 @@ PROGRAM{
             // Group 5: Sending the message, with `mode` on top
             SWAP
             SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
-        5 -ROLL
+        4 -ROLL
       }>ELSE<{
-        s6 POP
+        s5 POP
       }>
       SWAP
       INC
-      s4 s6 XCHG
       s3 s5 XCHG
-      s4 s3 s3 XCHG3
-      s0 s2 XCHG
+      s1 s4 s3 XCHG3
       $Shop$_contract_store INLINECALLDICT
     }>
     OVER
@@ -655,16 +669,16 @@ PROGRAM{
       NIP
       $SetUniqueItemPrice$_load_without_opcode INLINECALLDICT
       s2 POP
-      s7 s8 XCHG2
+      s6 s7 XCHG2
       $Shop$_fun_requireOwner INLINECALLDICT
       20000000 PUSHINT
       2 PUSHINT
-      s0 s9 XCHG
+      s0 s8 XCHG
       TRUE
       $SetPrice$_constructor_newPrice_isSalable INLINECALLDICT
       $SetPrice$_store_cell INLINECALLDICT
-      s3 s10 XCHG
-      s1 s9 s0 XCHG3
+      s3 s9 XCHG
+      s1 s8 s0 XCHG3
       $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
           NEWC
           b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
@@ -733,11 +747,9 @@ PROGRAM{
           SWAP
           SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
           B{b5ee9c724101010100120000200000000050726963652073657474656462f55394} B>boc PUSHREF
-      s5 s7 XCHG
       s4 s6 XCHG
       s3 s5 XCHG
       s4 s3 s0 XCHG3
-      s1 s2 XCHG
       $Shop$_fun_reply INLINECALLDICT
       $Shop$_contract_store INLINECALLDICT
     }>
@@ -751,7 +763,7 @@ PROGRAM{
       s2 POP
           MYADDR
       __tact_context_get_sender INLINECALLDICT
-      s9 PUSH
+      s8 PUSH
       s0 s3 XCHG
       $Order$_init_child INLINECALLDICT
       2DUP
@@ -826,12 +838,10 @@ PROGRAM{
           // Group 5: Sending the message, with `mode` on top
           SWAP
           SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
-      s0 s5 XCHG
+      s0 s4 XCHG
       INC
-      s4 s6 XCHG
       s3 s5 XCHG
       s4 s0 s3 XCHG3
-      s0 s2 XCHG
       $Shop$_contract_store INLINECALLDICT
     }>
     OVER
@@ -841,11 +851,11 @@ PROGRAM{
       NIP
       $OrderCompleted$_load_without_opcode INLINECALLDICT
       s3 POP
-      s7 s9 XCHG
       s6 s8 XCHG
       s5 s7 XCHG
       s4 s6 XCHG
       s3 s5 XCHG
+      s3 s4 XCHG
       s1 s2 XCHG
       $Shop$_fun_orderInit INLINECALLDICT
       24546 PUSHINT
@@ -862,14 +872,14 @@ PROGRAM{
     IFJMP:<{
       $NewOrder$_load_without_opcode INLINECALLDICT
       3 1 BLKDROP2
-      s1 s7 XCHG
+      s1 s6 XCHG
       ADD
-      s4 s6 XCHG
       s3 s5 XCHG
       s4 s3 s0 XCHG3
+      s1 s2 XCHG
       $Shop$_contract_store INLINECALLDICT
     }>
-    8 BLKDROP
+    7 BLKDROP
     130 THROW
   }>
   __tact_selector_hack PROC:<{

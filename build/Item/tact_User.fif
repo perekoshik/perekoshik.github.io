@@ -39,10 +39,12 @@ PROGRAM{
     SWAP
     CTOS
     SWAP
+    257 PUSHINT
+    LDIX
     LDREF
     SWAP
     CTOS
-    s1 s2 XCHG
+    s3 s3 s0 XCHG3
   }>
   $CreateOrder$_store PROCINLINE:<{
     2059487624 PUSHINT
@@ -117,11 +119,10 @@ PROGRAM{
   }>
   $User$init$_load PROCINLINE:<{
     LDMSGADDR
-    257 PUSHINT
-    LDIX
-    -ROT
+    SWAP
   }>
   $User$_contract_init PROCINLINE:<{
+    1 PUSHINT
         B{b5ee9c724101010100020000004cacb9cd} B>boc <s PUSHSLICE
         B{b5ee9c724101010100020000004cacb9cd} B>boc <s PUSHSLICE
   }>
@@ -135,9 +136,8 @@ PROGRAM{
       1 4 BLKDROP2
     }>ELSE<{
       $User$init$_load INLINECALLDICT
-      s0 s2 XCHG
-      ENDS
       SWAP
+      ENDS
       $User$_contract_init INLINECALLDICT
     }>
   }>
@@ -218,18 +218,17 @@ PROGRAM{
     2132995444 PUSHINT
     EQUAL
     IFJMP:<{
-      NIP
-      s3 POP
-      s3 POP
-      SWAP
-      $ChangeUserData$_load_without_opcode INLINECALLDICT
+      s4 POP
+      2DROP
       s2 POP
+      $ChangeUserData$_load_without_opcode INLINECALLDICT
+      s3 POP
       50052 PUSHINT
       __tact_context_get_sender INLINECALLDICT
-      s4 s(-1) PUXC
+      s5 s(-1) PUXC
       SDEQ
       THROWANYIFNOT
-      s3 s0 s0 XCHG3
+      s0 s2 XCHG
       $User$_contract_store INLINECALLDICT
     }>
     OVER

@@ -15,7 +15,7 @@
 slice __tact_context_get_sender() inline;
 
 ;; $ChangeUserData$_load_without_opcode
-(slice, ((slice, slice))) $ChangeUserData$_load_without_opcode(slice sc_0) inline;
+(slice, ((slice, int, slice))) $ChangeUserData$_load_without_opcode(slice sc_0) inline;
 
 ;; $CreateOrder$_store
 builder $CreateOrder$_store(builder build_0, (slice, slice, int) v) inline;
@@ -45,10 +45,10 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline;
 _ $Context$_get_value((int, slice, int, slice) v) inline;
 
 ;; $User$init$_load
-(slice, ((slice, int))) $User$init$_load(slice sc_0) inline;
+(slice, ((slice))) $User$init$_load(slice sc_0) inline;
 
 ;; $User$_contract_init
-(slice, int, slice, slice) $User$_contract_init(slice $parent, int $id) impure inline;
+(slice, int, slice, slice) $User$_contract_init(slice $parent) impure inline;
 
 ;; $User$_contract_load
 (slice, int, slice, slice) $User$_contract_load() impure inline;
@@ -244,13 +244,14 @@ _ $Context$_get_value((int, slice, int, slice) v) inline {
 ;;
 ;; Type: ChangeUserData
 ;; Header: 0x7f22ed74
-;; TLB: change_user_data#7f22ed74 name:^string deliveryAddress:^string = ChangeUserData
+;; TLB: change_user_data#7f22ed74 name:^string id:int257 deliveryAddress:^string = ChangeUserData
 ;;
 
-(slice, ((slice, slice))) $ChangeUserData$_load_without_opcode(slice sc_0) inline {
+(slice, ((slice, int, slice))) $ChangeUserData$_load_without_opcode(slice sc_0) inline {
     var v'name = sc_0~load_ref().begin_parse();
+    var v'id = sc_0~load_int(257);
     var v'deliveryAddress = sc_0~load_ref().begin_parse();
-    return (sc_0, (v'name, v'deliveryAddress));
+    return (sc_0, (v'name, v'id, v'deliveryAddress));
 }
 
 ;;
@@ -342,10 +343,9 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
     return (sc_0, (v'parent, v'id, v'name, v'deliveryAddress));
 }
 
-(slice, ((slice, int))) $User$init$_load(slice sc_0) inline {
+(slice, ((slice))) $User$init$_load(slice sc_0) inline {
     var v'parent = sc_0~load_msg_addr();
-    var v'id = sc_0~load_int(257);
-    return (sc_0, (v'parent, v'id));
+    return (sc_0, (v'parent));
 }
 
 (slice, int, slice, slice) $User$_contract_load() impure inline {
@@ -355,9 +355,9 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
         return $sc~$User$_load();
     }
     else {
-        (slice $parent, int $id) = $sc~$User$init$_load();
+        (slice $parent) = $sc~$User$init$_load();
         $sc.end_parse();
-        return $User$_contract_init($parent, $id);
+        return $User$_contract_init($parent);
     }
 }
 
@@ -372,10 +372,10 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
 ;; Contract User functions
 ;;
 
-(slice, int, slice, slice) $User$_contract_init(slice $parent, int $id) impure inline {
+(slice, int, slice, slice) $User$_contract_init(slice $parent) impure inline {
     var (($self'parent, $self'id, $self'name, $self'deliveryAddress)) = (null(), null(), null(), null());
     $self'parent = $parent;
-    $self'id = $id;
+    $self'id = 1;
     $self'name = __gen_slice_string_96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7();
     $self'deliveryAddress = __gen_slice_string_96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7();
     return ($self'parent, $self'id, $self'name, $self'deliveryAddress);
@@ -412,9 +412,10 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
     var op = in_msg~load_opcode_internal();
     ;; Receive ChangeUserData message
     if (op == 0x7f22ed74) {
-        var ($msg'name, $msg'deliveryAddress) = in_msg~$ChangeUserData$_load_without_opcode();
+        var ($msg'name, $msg'id, $msg'deliveryAddress) = in_msg~$ChangeUserData$_load_without_opcode();
         throw_unless(50052, ( equal_slices_bits($self'parent, __tact_context_get_sender()) ));
         $self'name = $msg'name;
+        $self'id = $msg'id;
         $self'deliveryAddress = $msg'deliveryAddress;
         $User$_contract_store(($self'parent, $self'id, $self'name, $self'deliveryAddress));
         return ();

@@ -771,6 +771,7 @@ export function dictValueParserMakeNewUser(): DictionaryValue<MakeNewUser> {
 export type ChangeUserData = {
     $$type: 'ChangeUserData';
     name: string;
+    id: bigint;
     deliveryAddress: string;
 }
 
@@ -779,6 +780,7 @@ export function storeChangeUserData(src: ChangeUserData) {
         const b_0 = builder;
         b_0.storeUint(2132995444, 32);
         b_0.storeStringRefTail(src.name);
+        b_0.storeInt(src.id, 257);
         b_0.storeStringRefTail(src.deliveryAddress);
     };
 }
@@ -787,25 +789,29 @@ export function loadChangeUserData(slice: Slice) {
     const sc_0 = slice;
     if (sc_0.loadUint(32) !== 2132995444) { throw Error('Invalid prefix'); }
     const _name = sc_0.loadStringRefTail();
+    const _id = sc_0.loadIntBig(257);
     const _deliveryAddress = sc_0.loadStringRefTail();
-    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
 }
 
 export function loadTupleChangeUserData(source: TupleReader) {
     const _name = source.readString();
+    const _id = source.readBigNumber();
     const _deliveryAddress = source.readString();
-    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
 }
 
 export function loadGetterTupleChangeUserData(source: TupleReader) {
     const _name = source.readString();
+    const _id = source.readBigNumber();
     const _deliveryAddress = source.readString();
-    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
 }
 
 export function storeTupleChangeUserData(source: ChangeUserData) {
     const builder = new TupleBuilder();
     builder.writeString(source.name);
+    builder.writeNumber(source.id);
     builder.writeString(source.deliveryAddress);
     return builder.build();
 }
@@ -1786,22 +1792,20 @@ export function dictValueParserUniqueItem$Data(): DictionaryValue<UniqueItem$Dat
  type User_init_args = {
     $$type: 'User_init_args';
     parent: Address;
-    id: bigint;
 }
 
 function initUser_init_args(src: User_init_args) {
     return (builder: Builder) => {
         const b_0 = builder;
         b_0.storeAddress(src.parent);
-        b_0.storeInt(src.id, 257);
     };
 }
 
-async function User_init(parent: Address, id: bigint) {
-    const __code = Cell.fromHex('b5ee9c72410204010001890003f2ff00208ff03001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e10fa40d3ffd401d001d401d01443306c149ffa40810101d7005902d1018b088b08e205925f05e003d70d1ff2e0822182107f22ed74bae30221821075bc02e6bae302018210946a98b6bae3025f05f2c082e1f2c80b010203006e31333301d401d001d401d012328200c384f8425240c705f2f44300c87f01ca0055305043cf16cbffc85003cf1612cdc858cf16cdc9ed5400f431fa40fa005932547051c8552082107ac149885004cb1f58cf16c858cf16cd01fa02c912726d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb004003c87f01ca0055305043cf16cbffc85003cf1612cdc858cf16cdc9ed5400a8d33f0131c8018210aff90f5758cb1fcb3fc9443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055305043cf16cbffc85003cf1612cdc858cf16cdc9ed54b110e5e4');
+async function User_init(parent: Address) {
+    const __code = Cell.fromHex('b5ee9c72410204010001880003e8ff00208feb3001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e10fa40d3ffd401d001d401d01443306c149afa400101d1718b088b08e205925f05e003d70d1ff2e0822182107f22ed74bae30221821075bc02e6bae302018210946a98b6bae3025f05f2c082e1f2c80b0102030076345b32d401d001810101d700d401d04330338200c384f8425250c705f2f402c87f01ca0055305043cf16cbffc85003cf1612cdc858cf16cdc9ed5400f431fa40fa005932547051c8552082107ac149885004cb1f58cf16c858cf16cd01fa02c912726d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb004003c87f01ca0055305043cf16cbffc85003cf1612cdc858cf16cdc9ed5400a8d33f0131c8018210aff90f5758cb1fcb3fc9443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055305043cf16cbffc85003cf1612cdc858cf16cdc9ed5460a981e8');
     const builder = beginCell();
     builder.storeUint(0, 1);
-    initUser_init_args({ $$type: 'User_init_args', parent, id })(builder);
+    initUser_init_args({ $$type: 'User_init_args', parent })(builder);
     const __data = builder.endCell();
     return { code: __code, data: __data };
 }
@@ -1900,7 +1904,7 @@ const User_types: ABIType[] = [
     {"name":"ChangeOwner","header":2174598809,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"ChangeOwnerOk","header":846932810,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"MakeNewUser","header":3697970051,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"id","type":{"kind":"simple","type":"int","optional":false,"format":257}}]},
-    {"name":"ChangeUserData","header":2132995444,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"ChangeUserData","header":2132995444,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"id","type":{"kind":"simple","type":"int","optional":false,"format":257}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"CreateShop","header":3325455170,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"AddItem","header":4264890800,"fields":[{"name":"isUnique","type":{"kind":"simple","type":"bool","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"NftTransfer","header":3656957868,"fields":[{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},
@@ -1963,12 +1967,12 @@ export class User implements Contract {
     public static readonly errors = User_errors_backward;
     public static readonly opcodes = User_opcodes;
     
-    static async init(parent: Address, id: bigint) {
-        return await User_init(parent, id);
+    static async init(parent: Address) {
+        return await User_init(parent);
     }
     
-    static async fromInit(parent: Address, id: bigint) {
-        const __gen_init = await User_init(parent, id);
+    static async fromInit(parent: Address) {
+        const __gen_init = await User_init(parent);
         const address = contractAddress(0, __gen_init);
         return new User(address, __gen_init);
     }

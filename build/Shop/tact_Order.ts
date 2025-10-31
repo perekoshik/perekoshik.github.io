@@ -1743,7 +1743,7 @@ export function dictValueParserOrder$Data(): DictionaryValue<Order$Data> {
 export type Shop$Data = {
     $$type: 'Shop$Data';
     owner: Address;
-    shopName: string;
+    name: string;
     uniqueItemsCount: bigint;
     shopId: bigint;
     ordersCount: bigint;
@@ -1754,7 +1754,7 @@ export function storeShop$Data(src: Shop$Data) {
     return (builder: Builder) => {
         const b_0 = builder;
         b_0.storeAddress(src.owner);
-        b_0.storeStringRefTail(src.shopName);
+        b_0.storeStringRefTail(src.name);
         b_0.storeUint(src.uniqueItemsCount, 256);
         b_0.storeUint(src.shopId, 256);
         const b_1 = new Builder();
@@ -1767,39 +1767,39 @@ export function storeShop$Data(src: Shop$Data) {
 export function loadShop$Data(slice: Slice) {
     const sc_0 = slice;
     const _owner = sc_0.loadAddress();
-    const _shopName = sc_0.loadStringRefTail();
+    const _name = sc_0.loadStringRefTail();
     const _uniqueItemsCount = sc_0.loadUintBig(256);
     const _shopId = sc_0.loadUintBig(256);
     const sc_1 = sc_0.loadRef().beginParse();
     const _ordersCount = sc_1.loadUintBig(256);
     const _balance = sc_1.loadCoins();
-    return { $$type: 'Shop$Data' as const, owner: _owner, shopName: _shopName, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
+    return { $$type: 'Shop$Data' as const, owner: _owner, name: _name, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
 }
 
 export function loadTupleShop$Data(source: TupleReader) {
     const _owner = source.readAddress();
-    const _shopName = source.readString();
+    const _name = source.readString();
     const _uniqueItemsCount = source.readBigNumber();
     const _shopId = source.readBigNumber();
     const _ordersCount = source.readBigNumber();
     const _balance = source.readBigNumber();
-    return { $$type: 'Shop$Data' as const, owner: _owner, shopName: _shopName, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
+    return { $$type: 'Shop$Data' as const, owner: _owner, name: _name, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
 }
 
 export function loadGetterTupleShop$Data(source: TupleReader) {
     const _owner = source.readAddress();
-    const _shopName = source.readString();
+    const _name = source.readString();
     const _uniqueItemsCount = source.readBigNumber();
     const _shopId = source.readBigNumber();
     const _ordersCount = source.readBigNumber();
     const _balance = source.readBigNumber();
-    return { $$type: 'Shop$Data' as const, owner: _owner, shopName: _shopName, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
+    return { $$type: 'Shop$Data' as const, owner: _owner, name: _name, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
 }
 
 export function storeTupleShop$Data(source: Shop$Data) {
     const builder = new TupleBuilder();
     builder.writeAddress(source.owner);
-    builder.writeString(source.shopName);
+    builder.writeString(source.name);
     builder.writeNumber(source.uniqueItemsCount);
     builder.writeNumber(source.shopId);
     builder.writeNumber(source.ordersCount);
@@ -1972,7 +1972,7 @@ const Order_types: ABIType[] = [
     {"name":"UpdateShopInfo","header":536542312,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"uniqueItemsCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"ordersCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}}]},
     {"name":"UniqueItem$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"index","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},
     {"name":"Order$Data","header":null,"fields":[{"name":"seller","type":{"kind":"simple","type":"address","optional":false}},{"name":"buyer","type":{"kind":"simple","type":"address","optional":false}},{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"priceSetted","type":{"kind":"simple","type":"bool","optional":false}},{"name":"completed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"refunded","type":{"kind":"simple","type":"bool","optional":false}}]},
-    {"name":"Shop$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}},{"name":"uniqueItemsCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"ordersCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"balance","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
+    {"name":"Shop$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"uniqueItemsCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"ordersCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"balance","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
 ]
 
 const Order_opcodes = {

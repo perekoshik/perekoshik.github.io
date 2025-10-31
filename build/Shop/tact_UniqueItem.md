@@ -126,8 +126,8 @@ TL-B: `_ seller:address buyer:address itemAddress:address id:uint256 price:coins
 Signature: `Order{seller:address,buyer:address,itemAddress:address,id:uint256,price:coins,priceSetted:bool,completed:bool,refunded:bool}`
 
 ### Shop$Data
-TL-B: `_ owner:address shopName:^string uniqueItemsCount:uint256 shopId:uint256 ordersCount:uint256 balance:coins = Shop`
-Signature: `Shop{owner:address,shopName:^string,uniqueItemsCount:uint256,shopId:uint256,ordersCount:uint256,balance:coins}`
+TL-B: `_ owner:address name:^string uniqueItemsCount:uint256 shopId:uint256 ordersCount:uint256 balance:coins = Shop`
+Signature: `Shop{owner:address,name:^string,uniqueItemsCount:uint256,shopId:uint256,ordersCount:uint256,balance:coins}`
 
 ## Get methods
 Total get methods: 4

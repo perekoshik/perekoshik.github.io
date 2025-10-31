@@ -19,6 +19,7 @@ export default function Seller() {
   const user = TWA?.initDataUnsafe?.user;
 
   const [shopTitle, setShopTitle] = useState("");
+  const [shopname, setShopName] = useState("");
 
   const { shopAddress, makeShop, shopName } = useMarketContracts();
   const { connected } = useTonConnect();
@@ -96,7 +97,7 @@ export default function Seller() {
         {user ? (
           <div>
             <input
-              value={shopTitle}
+              value={shopname}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="e.g. Genesis Shard"
               className="w-full rounded-2xl border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-brand/60"
@@ -105,7 +106,7 @@ export default function Seller() {
               type="button"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30"
               disabled={!connected}
-              onClick={() => makeShop(shopTitle, BigInt(user.id))}
+              onClick={() => makeShop(shopname, BigInt(user.id))}
             >
               Save Shop
             </button>

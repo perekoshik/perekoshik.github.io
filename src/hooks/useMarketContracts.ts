@@ -23,7 +23,7 @@ export function useMarketContracts() {
             Address.parse(wallet!)
         )
 
-        return client.open(User.fromAddress(userAddress))
+        return client.open(User.fromAddress(userAddress!))
     }, [usersFactoryContract])
 
     return {

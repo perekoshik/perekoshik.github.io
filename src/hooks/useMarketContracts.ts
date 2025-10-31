@@ -1,6 +1,4 @@
-import { FunctionSquare, Wallet } from "lucide-react";
 import { useTonClient } from "./useTonClient";
-import { useAsyncError } from "react-router-dom";
 import { useAsyncInitialize } from "./useAsyncInitialize";
 import { Address, OpenedContract } from "ton-core";
 import { UsersFactory } from "@/wrappers/UsersFactory";

@@ -6,11 +6,13 @@ import { useTonConnect } from "./useTonConnect";
 import { User } from "@/wrappers/User";
 import { ShopFactory } from "@/wrappers/ShopFactory";
 import { Shop, UpdateShopInfo } from "@/wrappers/Shop";
+import { useEffect, useState } from "react";
 
 export function useMarketContracts() {
     const {client} = useTonClient();
     const {wallet} = useTonConnect();
     const {sender} = useTonConnect();
+    const [shopName, setshopName] = useState<string>('');
 
     const usersFactoryContract = useAsyncInitialize(async () => {
         if(!client) return;
@@ -48,6 +50,17 @@ export function useMarketContracts() {
         return client.open(Shop.fromAddress(shopAddress))
     }, [shopFactoryContract]);
 
+    useEffect(() => {
+        async function getshopname() {
+            if (!shopContract) return;
+            const shopName = await shopContract.getShopName();
+            setshopName(shopName);
+        }
+        
+        getshopname();
+
+    }, [shopContract])
+
     return {
         marketAddress: userContract?.address.toString(),
         shopAddress: shopContract?.address.toString(),
@@ -64,6 +77,6 @@ export function useMarketContracts() {
                 value: toNano('0.05'),
             }, message)
         },
-        shopName: shopContract?.getShopName().toString(),
+        shopName: shopName,
     }
 }

@@ -98,7 +98,7 @@ export default function Seller() {
           <div>
             <input
               value={shopname}
-              onChange={(event) => setTitle(event.target.value)}
+              onChange={(event) => setShopName(event.target.value)}
               placeholder="e.g. Genesis Shard"
               className="w-full rounded-2xl border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-brand/60"
             />

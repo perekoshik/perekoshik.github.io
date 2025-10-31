@@ -1,5 +1,5 @@
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
-import { Address, Sender, SenderArguments } from "ton-core";
+import { Address, beginCell, Cell, Sender, SenderArguments } from "ton-core";
 
 export function useTonConnect(): {
     sender: Sender,
@@ -10,6 +10,15 @@ export function useTonConnect(): {
     const [TonConnectUI] = useTonConnectUI()
     const wallet = useTonWallet()
 
+    const createNonBouncePayload = (originalBody?: Cell) => {
+        const cell = beginCell();
+        if (originalBody) {
+            cell.storeSlice(originalBody.asSlice());
+    }
+    
+    return cell.endCell();
+};
+
     return {
         sender: {
             send: async(args: SenderArguments) => {
@@ -17,9 +26,9 @@ export function useTonConnect(): {
                     messages: [{
                         address: args.to.toString(),
                         amount: args.value.toString(),
-                        payload: args.body?.toBoc().toString('base64')
+                        payload: createNonBouncePayload(args.body!).toBoc().toString('base64')
                     }],
-                    validUntil: Date.now() + 5 * 60 * 1000,
+                    validUntil: Date.now() + 5 * 60 * 1000
                 })
             },
             address: wallet?.account.address ? Address.parse(wallet?.account.address as string) : undefined

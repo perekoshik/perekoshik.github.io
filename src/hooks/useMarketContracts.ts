@@ -20,7 +20,7 @@ export function useMarketContracts() {
         if(!usersFactoryContract || !client || !wallet) return;
 
         const userAddress = await usersFactoryContract.getUserAddress(
-            Address.parse(wallet)
+            Address.parse(wallet),
         )
 
         return client.open(User.fromAddress(userAddress))

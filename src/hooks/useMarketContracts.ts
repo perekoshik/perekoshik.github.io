@@ -63,6 +63,7 @@ export function useMarketContracts() {
             shopContract?.send(sender, {
                 value: toNano('0.05'),
             }, message)
-        }
+        },
+        shopName: shopContract?.getShopName().toString(),
     }
 }

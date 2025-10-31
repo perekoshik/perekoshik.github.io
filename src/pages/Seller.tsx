@@ -20,7 +20,7 @@ export default function Seller() {
 
   const [shopTitle, setShopTitle] = useState("");
 
-  const { shopAddress, makeShop } = useMarketContracts();
+  const { shopAddress, makeShop, shopName } = useMarketContracts();
   const { connected } = useTonConnect();
 
   const cardPreview = useMemo(() => {
@@ -100,14 +100,18 @@ export default function Seller() {
           />
         </div>
         {user ? (
-          <button
-            type="button"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30"
-            disabled={!connected}
-            onClick={() => makeShop(shopTitle, BigInt(user.id))}
-          >
-            Save Shop
-          </button>
+          <div>
+            <button
+              type="button"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30"
+              disabled={!connected}
+              onClick={() => makeShop(shopTitle, BigInt(user.id))}
+            >
+              Save Shop
+            </button>
+            <p>{shopAddress}</p>
+            <p>{shopName}</p>
+          </div>
         ) : (
           <p>
             Open inside Telegram to see your account details and manage

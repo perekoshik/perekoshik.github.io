@@ -5,12 +5,14 @@ import { Package, Star, UserRound } from "lucide-react";
 import { useTonConnect } from "@/hooks/useTonConnect";
 import { CHAIN } from "@tonconnect/ui-react";
 import { Address } from "ton-core";
+import { useMarketContracts } from "@/hooks/useMarketContracts";
 
 export default function Profile() {
   const user = TWA?.initDataUnsafe?.user;
   const avatarUrl = user?.photo_url;
   const initials = user ? buildInitials(user.first_name, user.last_name) : "DP";
   const { wallet, connected, network } = useTonConnect();
+  const { marketAddress } = useMarketContracts();
   console.log(wallet, connected, network);
 
   return (
@@ -55,6 +57,7 @@ export default function Profile() {
                   Network:
                   {network === CHAIN.MAINNET ? "mainnet" : "testnet"}
                 </span>
+                <span>MarketWallet: {marketAddress}</span>
               </div>
             ) : (
               <div className="grid gap-2 text-sm text-txt/70 sm:text-right">

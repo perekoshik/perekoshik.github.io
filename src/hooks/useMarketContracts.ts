@@ -1,11 +1,11 @@
 import { useTonClient } from "./useTonClient";
 import { useAsyncInitialize } from "./useAsyncInitialize";
-import { Address, OpenedContract, toNano } from "ton-core";
+import { Address, beginCell, OpenedContract, toNano } from "ton-core";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useTonConnect } from "./useTonConnect";
 import { User } from "@/wrappers/User";
 import { ShopFactory } from "@/wrappers/ShopFactory";
-import { Shop, UpdateShopInfo } from "@/wrappers/Shop";
+import { Shop, storeUpdateShopInfo, UpdateShopInfo } from "@/wrappers/Shop";
 import { useEffect, useState } from "react";
 
 export function useMarketContracts() {
@@ -65,6 +65,8 @@ export function useMarketContracts() {
         marketAddress: userContract?.address.toString(),
         shopAddress: shopContract?.address.toString(),
         makeShop: (name: string, id: bigint) => {
+            if (!shopContract) return;
+
             const message: UpdateShopInfo = {
                 $$type: 'UpdateShopInfo',
                 shopName: name,
@@ -73,10 +75,17 @@ export function useMarketContracts() {
                 ordersCount: 0n,
             }
 
-            shopContract?.send(sender, {
+            sender.send({
+                to: shopContract?.address,
                 value: toNano('0.05'),
-                bounce: false
-            }, message)
+                bounce: false,
+                body: beginCell().store(storeUpdateShopInfo(message)).endCell()
+            });
+
+            // shopContract?.send(sender, {
+            //     value: toNano('0.05'),
+            //     bounce: false
+            // }, message)
         },
         shopName: shopName,
     }

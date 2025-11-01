@@ -57,11 +57,21 @@ export function useMarketContracts() {
             throw new Error('Shop name cannot be empty');
         }
 
+        let walletAddress: Address;
+        try {
+            walletAddress = Address.parse(wallet);
+        } catch (error) {
+            throw new Error('Invalid wallet address format');
+        }
+
         setLoading(true);
 
         try {
-            const shopStateInit = await Shop.fromInit(Address.parse(wallet).toString({ bounceable: false, testOnly: true }));
-            
+            const shopStateInit = await Shop.fromInit(walletAddress);
+        
+            if (!shopStateInit.init) {
+                throw new Error('Failed to initialize shop contract data');
+            }
 
             const message = {
                 $$type: 'UpdateShopInfo' as const,
@@ -71,19 +81,18 @@ export function useMarketContracts() {
                 ordersCount: 0n,
             };
 
-            const shopContract = client.open(await Shop.fromInit(Address.parse(wallet).toString({ bounceable: false, testOnly: true })));
-            await shopContract.send(
-                sender, {
-                    value: toNano('0.05'),
-                    bounce: false,
-                }, {
-                    $$type: 'UpdateShopInfo' as const,
-                    shopName: shopName,
-                    shopId: id,
-                    uniqueItemsCount: 0n,
-                    ordersCount: 0n,
-                },
-            ) 
+            const shopContract = client.open(shopStateInit);
+
+            try {
+                await shopContract.send(
+                    sender, {
+                        value: toNano('0.05'),
+                        bounce: false,
+                    }, message,
+                );
+            } catch (sendError) {
+                throw new Error(`Transaction failed: ${(sendError as Error).message}`);
+            }
 
             await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -91,7 +100,13 @@ export function useMarketContracts() {
             if (!isDeployed) {
                 throw new Error('Shop contract deployment failed - contract not active');
             }
-            const retrievedName = await shopContract.getShopName();
+
+            let retrievedName: string;
+            try {
+                retrievedName = await shopContract.getShopName();
+            } catch (getError) {
+                throw new Error(`Failed to get shop data: ${(getError as Error).message}`);
+            }
             
 
             setShopAddress(shopStateInit.address.toString());

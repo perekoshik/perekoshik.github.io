@@ -86,6 +86,6 @@ export function useMarketContracts() {
     return {
         marketAddress: userContract?.address.toString(),
         shopAddress: shopContract?.address.toString(),
-        makeShop: makeShop
+        makeShop
     }
 }

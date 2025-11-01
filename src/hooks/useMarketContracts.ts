@@ -65,10 +65,13 @@ export function useMarketContracts() {
         }
 
         setLoading(true);
+        let shopStateInit;
+        let shopContract;
+        let retrievedName: string;
 
         try {
             try {
-                const shopStateInit = await Shop.fromInit(walletAddress);
+                shopStateInit = await Shop.fromInit(walletAddress);
                 if (!shopStateInit.init) {
                     throw new Error('Failed to initialize shop contract data');
                 }
@@ -79,16 +82,16 @@ export function useMarketContracts() {
         
 
 
-            const message = {
+            let message = {
                 $$type: 'UpdateShopInfo' as const,
                 shopName: shopName,
                 shopId: id,
                 uniqueItemsCount: 0n,
                 ordersCount: 0n,
             };
-
+            
             try {
-                const shopContract = client.open(shopStateInit);
+                shopContract = client.open(shopStateInit);
             } catch (openError) {
                 throw new Error(`Failed to open shop contract: ${(openError as Error).message}`);
             }
@@ -117,7 +120,6 @@ export function useMarketContracts() {
                 throw new Error('Shop contract deployment failed - contract not active');
             }
 
-            let retrievedName: string;
             try {
                 retrievedName = await shopContract.getShopName();
             } catch (getError) {

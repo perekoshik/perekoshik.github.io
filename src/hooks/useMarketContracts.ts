@@ -60,7 +60,7 @@ export function useMarketContracts() {
         setLoading(true);
 
         try {
-            const shopStateInit = await Shop.fromInit(sender.address!);
+            const shopStateInit = await Shop.fromInit(Address.parse(wallet).toRaw);
             
 
             const message = {
@@ -71,7 +71,7 @@ export function useMarketContracts() {
                 ordersCount: 0n,
             };
 
-            const shopContract = client.open(await Shop.fromInit(sender.address!));
+            const shopContract = client.open(await Shop.fromInit(Address.parse(wallet).toRaw));
             await shopContract.send(
                 sender, {
                     value: toNano('0.05'),
@@ -84,18 +84,6 @@ export function useMarketContracts() {
                     ordersCount: 0n,
                 },
             ) 
-
-            // const body = beginCell()
-            //     .store(storeUpdateShopInfo(message))
-            //     .endCell();
-
-            // await sender.send({
-            //     to: shopStateInit.address,
-            //     value: toNano('0.05'),
-            //     bounce: false,
-            //     init: shopStateInit.init,
-            //     body: body
-            // });
 
             await new Promise(resolve => setTimeout(resolve, 3000));
 

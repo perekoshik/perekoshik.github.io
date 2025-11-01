@@ -86,6 +86,28 @@ export function useMarketContracts() {
     return {
         marketAddress: userContract?.address.toString(),
         shopAddress: shopContract?.address.toString(),
-        makeShop
+        makeShop: async (shopName: string, id: bigint) => {
+            const shopStateInit = await Shop.fromInit(Address.parse(wallet!));
+            
+            const message: UpdateShopInfo = {
+                $$type: 'UpdateShopInfo',
+                shopName: shopName,
+                shopId: id,
+                uniqueItemsCount: 0n,
+                ordersCount: 0n,
+            };
+            
+            const body = beginCell()
+                .store(storeUpdateShopInfo(message))
+                .endCell();
+            
+            await sender.send({
+                to: shopStateInit.address,
+                value: toNano('0.05'),
+                bounce: false,
+                init: shopStateInit.init,
+                body: body
+            });
+        }
     }
 }

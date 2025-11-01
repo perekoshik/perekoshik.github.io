@@ -22,16 +22,8 @@ export default function Seller() {
   const { shopAddress, makeShop } = useMarketContracts();
   const { wallet, connected, network } = useTonConnect();
 
-  const [shopName, setShopName] = useState("My Shop");
-  const [shopId, setShopId] = useState("123");
-
-  const handleCreateShop = async () => {
-    try {
-      await makeShop(shopName, BigInt(user?.id || 0));
-    } catch (err) {
-      // Error already handled in hook
-    }
-  };
+  const [shopTitle, setShopTitle] = useState("");
+  const [shopname, setShopName] = useState("");
 
   const cardPreview = useMemo(() => {
     return {
@@ -106,7 +98,7 @@ export default function Seller() {
         {user ? (
           <div>
             <input
-              value={shopName}
+              value={shopname}
               onChange={(event) => setShopName(event.target.value)}
               placeholder="e.g. Genesis Shard"
               className="w-full rounded-2xl border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-brand/60"
@@ -114,12 +106,12 @@ export default function Seller() {
             <button
               type="button"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30"
-              onClick={() => makeShop(shopName, BigInt(user.id))}
+              onClick={() => makeShop(shopname, BigInt(user.id))}
             >
               Save Shop
             </button>
             <p>Shop Adress: {shopAddress}</p>
-            <p>ShopName: {shopName}</p>
+            <p>ShopName: {shopname}</p>
             <span>
               Network:
               {network === CHAIN.MAINNET ? "mainnet" : "testnet"}

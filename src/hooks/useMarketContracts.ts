@@ -1,11 +1,11 @@
 import { useTonClient } from "./useTonClient";
 import { useAsyncInitialize } from "./useAsyncInitialize";
-import { Address, beginCell, OpenedContract, toNano } from "ton-core";
+import { Address, toNano } from "ton-core";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useTonConnect } from "./useTonConnect";
 import { User } from "@/wrappers/User";
 import { ShopFactory } from "@/wrappers/ShopFactory";
-import { Shop, storeUpdateShopInfo, UpdateShopInfo } from "@/wrappers/Shop";
+import { Shop, UpdateShopInfo } from "@/wrappers/Shop";
 import { useEffect, useState } from "react";
 
 const DEFAULT_USERS_FACTORY = {
@@ -33,6 +33,8 @@ export function useMarketContracts() {
     const {client} = useTonClient();
     const {wallet, sender, network} = useTonConnect();
     const [shopName, setshopName] = useState<string>('');
+
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
     const usersFactoryContract = useAsyncInitialize(async () => {
         if(!client || !network) return;
@@ -97,7 +99,35 @@ export function useMarketContracts() {
         marketAddress: userContract?.address.toString(),
         shopAddress: shopContract?.address.toString(),
         makeShop: async (name: string, id: bigint) => {
-            if (!shopContract || !wallet) return;
+            if (!client || !wallet || !shopFactoryContract) return;
+
+            const ownerAddress = Address.parse(wallet);
+            const targetShopContract = shopContract
+                ?? client.open(Shop.fromAddress(await shopFactoryContract.getShopAddress(ownerAddress)));
+
+            let isDeployed = await client.isContractDeployed(targetShopContract.address);
+
+            if (!isDeployed) {
+                await shopFactoryContract.send(sender, {
+                    value: toNano('0.1'),
+                    bounce: false,
+                }, {
+                    $$type: 'CreateShop',
+                    shopName: name,
+                });
+
+                for (let attempt = 0; attempt < 5; attempt++) {
+                    await sleep(1000);
+                    if (await client.isContractDeployed(targetShopContract.address)) {
+                        isDeployed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!isDeployed) {
+                throw new Error('Shop contract was not deployed');
+            }
 
             const message: UpdateShopInfo = {
                 $$type: 'UpdateShopInfo',
@@ -107,17 +137,10 @@ export function useMarketContracts() {
                 ordersCount: 0n,
             }
 
-            sender.send({
-                to: shopContract?.address,
+            await targetShopContract.send(sender, {
                 value: toNano('0.05'),
                 bounce: false,
-                body: beginCell().store(storeUpdateShopInfo(message)).endCell()
-            });
-
-            // shopContract?.send(sender, {
-            //     value: toNano('0.05'),
-            //     bounce: false
-            // }, message)
+            }, message)
         },
         shopName: shopName,
     }

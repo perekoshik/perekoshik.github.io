@@ -1,6 +1,6 @@
 import { useTonClient } from "./useTonClient";
 import { useAsyncInitialize } from "./useAsyncInitialize";
-import { Address, beginCell, OpenedContract, toNano } from "ton-core";
+import { Address, beginCell, OpenedContract, toNano } from "@ton/core";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useTonConnect } from "./useTonConnect";
 import { User } from "@/wrappers/User";
@@ -62,7 +62,6 @@ export function useMarketContracts() {
         try {
             const shopStateInit = await Shop.fromInit(Address.parse(wallet));
             
-            console.log('📝 Computed shop address:', shopStateInit.address.toString());
 
             const message = {
                 $$type: 'UpdateShopInfo' as const,

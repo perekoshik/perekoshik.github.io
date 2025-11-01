@@ -79,7 +79,6 @@ export function useMarketContracts() {
                 to: shopContract?.address,
                 value: toNano('0.05'),
                 bounce: false,
-                init: Shop.fromAddress(shopContract?.address).init,
                 body: beginCell().store(storeUpdateShopInfo(message)).endCell()
             });
 

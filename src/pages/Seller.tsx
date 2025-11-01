@@ -19,21 +19,28 @@ export default function Seller() {
   const [imagePreview, setImagePreview] = useState<string>("");
   const user = TWA?.initDataUnsafe?.user;
 
-  const { shopAddress, makeShop, shopName } = useMarketContracts();
   const { wallet, connected, network } = useTonConnect();
+  const { makeShop, shopAddress, shopName, loading } = useMarketContracts();
+  const [inputShopName, setInputShopName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const [shopTitle, setShopTitle] = useState("");
-  const [shopname, setShopName] = useState("");
+  const handleCreateShop = async () => {
+    setError(null);
+    setSuccess(false);
 
-  const handleMakeShop = async () => {
-    if (!wallet || !connected || !network || !user || !shopname.trim()) {
-      alert("Please connect wallet and enter shop name");
-      return;
+    try {
+      // Создаем магазин с уникальным ID (используем timestamp)
+      const id = BigInt(user?.id ?? 0);
+      await makeShop(inputShopName, id);
+
+      setSuccess(true);
+      setInputShopName("");
+
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setError((err as Error).message);
     }
-
-    await makeShop(shopname, BigInt(user.id));
-    setShopName("");
-    alert("Shop created successfully!");
   };
 
   const cardPreview = useMemo(() => {
@@ -108,25 +115,74 @@ export default function Seller() {
         </div>
         {user ? (
           <div>
-            <input
-              value={shopname}
-              onChange={(event) => setShopName(event.target.value)}
-              placeholder="e.g. Genesis Shard"
-              className="w-full rounded-2xl border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-brand/60"
-            />
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Shop Name
+              </label>
+              <input
+                type="text"
+                value={inputShopName}
+                onChange={(e) => setInputShopName(e.target.value)}
+                placeholder="Enter your shop name..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
+              />
+            </div>
             <button
-              type="button"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30"
-              onClick={() => handleMakeShop}
+              onClick={handleCreateShop}
+              disabled={!inputShopName.trim() || loading}
+              className={`
+                    w-full py-3 px-4 rounded-md font-medium transition-all duration-300
+                    ${
+                      loading
+                        ? "bg-gray-400 cursor-not-allowed text-white"
+                        : success
+                        ? "bg-green-500 text-white scale-105"
+                        : !inputShopName.trim()
+                        ? "bg-gray-300 cursor-not-allowed text-gray-500"
+                        : "bg-blue-500 hover:bg-blue-600 text-white hover:scale-105"
+                    }
+                `}
             >
-              Save Shop
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Creating Shop...
+                </div>
+              ) : success ? (
+                "✅ Shop Created!"
+              ) : (
+                "Create Shop"
+              )}
             </button>
-            <p>Shop Adress: {shopAddress}</p>
-            <p>ShopName: {shopName ? shopName.toString() : "(empty)"}</p>
-            <span>
-              Network:
-              {network === CHAIN.MAINNET ? "mainnet" : "testnet"}
-            </span>
+
+            {error && (
+              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-red-700 text-sm">❌ {error}</p>
+              </div>
+            )}
+
+            {shopAddress && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
+                <h3 className="font-semibold text-green-800 mb-2">
+                  ✅ Shop Created Successfully!
+                </h3>
+                <p className="text-sm text-green-700">
+                  <strong>Name:</strong> {shopName}
+                </p>
+                <p className="text-sm text-green-700 break-all">
+                  <strong>Address:</strong> {shopAddress}
+                </p>
+                <a
+                  href={`https://testnet.tonscan.org/address/${shopAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-2 text-sm text-blue-600 hover:underline"
+                >
+                  View on TON Scan →
+                </a>
+              </div>
+            )}
           </div>
         ) : (
           <p>

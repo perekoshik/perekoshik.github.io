@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 export function useMarketContracts() {
     const {client} = useTonClient();
     const {wallet, sender} = useTonConnect();
+    const {connected} = useTonConnect();
 
     const usersFactoryContract = useAsyncInitialize(async () => {
         if(!client) return;
@@ -38,35 +39,43 @@ export function useMarketContracts() {
         return client.open(shopFactoryAddress) as OpenedContract<ShopFactory>;
     }, [client]);
 
-    const shopContract = useAsyncInitialize(async () => {
-        if(!shopFactoryContract || !client || !wallet) return;
+    
 
-        const shopAddress = await shopFactoryContract.getShopAddress(
-            Address.parse(wallet)
-        );
 
-        return client.open(Shop.fromAddress(shopAddress));
+    // Building Shop 
+    
+    const [shopAddress, setShopAddress] = useState<string | null>(null);
+    const [shopName, setShopName] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
 
-    }, [shopFactoryContract]);
+    const makeShop = async (shopName: string, id: bigint): Promise<string> => {
+        if (!sender || !wallet || !connected || !client) {
+            throw new Error('Wallet not connected or client not available');
+        }
 
-    const makeShop = async (name: string, id: bigint) => {
-        if (!sender || !wallet) return;
-        
+        if (!shopName.trim()) {
+            throw new Error('Shop name cannot be empty');
+        }
+
+        setLoading(true);
+
         try {
             const shopStateInit = await Shop.fromInit(Address.parse(wallet));
             
-            const message: UpdateShopInfo = {
-                $$type: 'UpdateShopInfo',
-                shopName: name,
+            console.log('📝 Computed shop address:', shopStateInit.address.toString());
+
+            const message = {
+                $$type: 'UpdateShopInfo' as const,
+                shopName: shopName,
                 shopId: id,
                 uniqueItemsCount: 0n,
                 ordersCount: 0n,
             };
-            
+
             const body = beginCell()
                 .store(storeUpdateShopInfo(message))
                 .endCell();
-            
+
             await sender.send({
                 to: shopStateInit.address,
                 value: toNano('0.05'),
@@ -74,44 +83,44 @@ export function useMarketContracts() {
                 init: shopStateInit.init,
                 body: body
             });
+
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            const isDeployed = await client.isContractDeployed(shopStateInit.address);
+            if (!isDeployed) {
+                throw new Error('Shop contract deployment failed - contract not active');
+            }
+
+            const shopContract = client.open(Shop.fromAddress(shopStateInit.address));
+            const retrievedName = await shopContract.getShopName();
             
+
+            setShopAddress(shopStateInit.address.toString());
+            setShopName(retrievedName);
+
+            return shopStateInit.address.toString();
+
         } catch (error) {
-            throw error;
+            throw new Error(`Failed to create shop: ${(error as Error).message}`);
+        } finally {
+            setLoading(false);
+        }
     };
-
-
-
-};
 
     return {
         marketAddress: userContract?.address.toString(),
-        shopAddress: shopContract?.address.toString(),
-        shopName: shopContract?.getShopName(),
-        makeShop: async (shopName: string, id: bigint) => {
-            if (!sender || !wallet) return;
-            const shopStateInit = await Shop.fromInit(Address.parse(wallet));
-            
-            const message: UpdateShopInfo = {
-                $$type: 'UpdateShopInfo',
-                shopName: shopName,
-                shopId: id,
-                uniqueItemsCount: 0n,
-                ordersCount: 0n,
-            };
-            
-            const body = beginCell()
-                .store(storeUpdateShopInfo(message))
-                .endCell();
-            
-            sender.send({
-                to: shopStateInit.address,
-                value: toNano('0.05'),
-                bounce: false,
-                init: shopStateInit.init,
-                body: body
-            });
-
-            return "success";
+        
+        shopAddress,
+        shopName,
+        loading,
+        
+        makeShop,
+        
+        reset: () => {
+            setShopAddress(null);
+            setShopName(null);
         }
     }
-}
+};
+
+    

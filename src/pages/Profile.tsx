@@ -3,7 +3,6 @@ import { TWA } from "@/lib/twa";
 import Media from "@/components/Media";
 import { Package, Star, UserRound } from "lucide-react";
 import { useTonConnect } from "@/hooks/useTonConnect";
-import { CHAIN } from "@tonconnect/ui-react";
 import { Address } from "ton-core";
 import { useMarketContracts } from "@/hooks/useMarketContracts";
 
@@ -53,8 +52,7 @@ export default function Profile() {
                   })}
                 </span>
                 <span>
-                  Network:
-                  {network === CHAIN.MAINNET ? "mainnet" : "testnet"}
+                  Network: {network ?? "unknown"}
                 </span>
                 <span>
                   MarketWallet:{" "}

@@ -10,16 +10,20 @@ import { useEffect, useState } from "react";
 
 export function useMarketContracts() {
     const {client} = useTonClient();
-    const {wallet, sender} = useTonConnect();
+    const {wallet, sender, network} = useTonConnect();
     const [shopName, setshopName] = useState<string>('');
 
     const usersFactoryContract = useAsyncInitialize(async () => {
-        if(!client) return;
+        if(!client || !network) return;
 
-        const usersFactoryContract = UsersFactory.fromAddress(Address.parse("kQApbRMD39StaHO1eJPpCG9lUGwr9k7Q5ypw0xhmKAnueFN_"))
+        const usersFactoryAddress = network === "mainnet"
+            ? "kQBgrtmFiD0RSd7aFEcPJoChkLIO9Yb4pScN4xub1W3bAX9A" // TODO: replace with real mainnet address
+            : "kQApbRMD39StaHO1eJPpCG9lUGwr9k7Q5ypw0xhmKAnueFN_";
+
+        const usersFactoryContract = UsersFactory.fromAddress(Address.parse(usersFactoryAddress))
     
         return client.open(usersFactoryContract) as OpenedContract<UsersFactory>;
-    }, [client]);
+    }, [client, network]);
 
     const userContract = useAsyncInitialize( async () => {
         if(!usersFactoryContract || !client || !wallet) return;
@@ -32,12 +36,16 @@ export function useMarketContracts() {
     }, [usersFactoryContract, client, wallet])
 
     const shopFactoryContract = useAsyncInitialize(async () => {
-        if(!client) return;
+        if(!client || !network) return;
 
-        const shopFactoryAddress = ShopFactory.fromAddress(Address.parse("kQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXgmP"))
+        const shopFactoryAddress = network === "mainnet"
+            ? "kQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXgmP" // TODO: replace with real mainnet address
+            : "kQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXgmP";
+
+        const shopFactory = ShopFactory.fromAddress(Address.parse(shopFactoryAddress))
     
-        return client.open(shopFactoryAddress) as OpenedContract<ShopFactory>;
-    }, [client]);
+        return client.open(shopFactory) as OpenedContract<ShopFactory>;
+    }, [client, network]);
 
     const shopContract = useAsyncInitialize( async () => {
         if(!shopFactoryContract || !client || !wallet) return;

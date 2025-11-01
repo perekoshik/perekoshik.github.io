@@ -64,8 +64,8 @@ export function useMarketContracts() {
     return {
         marketAddress: userContract?.address.toString(),
         shopAddress: shopContract?.address.toString(),
-        makeShop: (name: string, id: bigint) => {
-            if (!shopContract) return;
+        makeShop: async (name: string, id: bigint) => {
+            if (!shopContract || !wallet) return;
 
             const message: UpdateShopInfo = {
                 $$type: 'UpdateShopInfo',
@@ -79,6 +79,7 @@ export function useMarketContracts() {
                 to: shopContract?.address,
                 value: toNano('0.05'),
                 bounce: false,
+                init: (await Shop.fromInit(Address.parse(wallet))).init,
                 body: beginCell().store(storeUpdateShopInfo(message)).endCell()
             });
 

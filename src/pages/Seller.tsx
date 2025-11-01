@@ -5,6 +5,7 @@ import Media from "@/components/Media";
 import { useMarketContracts } from "@/hooks/useMarketContracts";
 import { useTonConnect } from "@/hooks/useTonConnect";
 import { TWA } from "@/lib/twa";
+import { CHAIN } from "@tonconnect/ui-react";
 
 const defaultImage =
   "https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80";
@@ -22,7 +23,7 @@ export default function Seller() {
   const [shopname, setShopName] = useState("");
 
   const { shopAddress, makeShop, shopName } = useMarketContracts();
-  const { connected } = useTonConnect();
+  const { wallet, connected, network } = useTonConnect();
 
   const cardPreview = useMemo(() => {
     return {
@@ -110,8 +111,12 @@ export default function Seller() {
             >
               Save Shop
             </button>
-            <p>{shopAddress}</p>
-            <p>{shopName}</p>
+            <p>Shop Adress: {shopAddress}</p>
+            <p>ShopName: {shopName}</p>
+            <span>
+              Network:
+              {network === CHAIN.MAINNET ? "mainnet" : "testnet"}
+            </span>
           </div>
         ) : (
           <p>

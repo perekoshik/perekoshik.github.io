@@ -5,6 +5,7 @@ import { Package, Star, UserRound } from "lucide-react";
 import { useTonConnect } from "@/hooks/useTonConnect";
 import { Address } from "ton-core";
 import { useMarketContracts } from "@/hooks/useMarketContracts";
+import { CHAIN } from "@tonconnect/ui-react";
 
 export default function Profile() {
   const user = TWA?.initDataUnsafe?.user;
@@ -48,12 +49,10 @@ export default function Profile() {
                   Wallet:{" "}
                   {Address.parse(wallet as string).toString({
                     bounceable: false,
-                    testOnly: network === "testnet",
+                    testOnly: network === CHAIN.TESTNET,
                   })}
                 </span>
-                <span>
-                  Network: {network ?? "unknown"}
-                </span>
+                <span>Network: {network ?? "unknown"}</span>
                 <span>
                   MarketWallet:{" "}
                   {marketAddress ? marketAddress : "Something bad("}

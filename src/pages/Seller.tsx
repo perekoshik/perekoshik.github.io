@@ -25,10 +25,15 @@ export default function Seller() {
   const [shopTitle, setShopTitle] = useState("");
   const [shopname, setShopName] = useState("");
 
-  const handleMakeShop = async (shopname: string, id: bigint) => {
-    if (!wallet || !connected || !network || !user) return;
-    await makeShop(shopname, id);
+  const handleMakeShop = async () => {
+    if (!wallet || !connected || !network || !user || !shopname.trim()) {
+      alert("Please connect wallet and enter shop name");
+      return;
+    }
+
+    await makeShop(shopname, BigInt(user.id));
     setShopName("");
+    alert("Shop created successfully!");
   };
 
   const cardPreview = useMemo(() => {
@@ -112,7 +117,7 @@ export default function Seller() {
             <button
               type="button"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30"
-              onClick={() => handleMakeShop(shopname, BigInt(user.id))}
+              onClick={() => handleMakeShop}
             >
               Save Shop
             </button>

@@ -19,7 +19,7 @@ export default function Seller() {
   const [imagePreview, setImagePreview] = useState<string>("");
   const user = TWA?.initDataUnsafe?.user;
 
-  const { shopAddress, makeShop } = useMarketContracts();
+  const { shopAddress, makeShop, shopName } = useMarketContracts();
   const { wallet, connected, network } = useTonConnect();
 
   const [shopTitle, setShopTitle] = useState("");
@@ -111,7 +111,7 @@ export default function Seller() {
               Save Shop
             </button>
             <p>Shop Adress: {shopAddress}</p>
-            <p>ShopName: {shopname}</p>
+            <p>ShopName: {shopName ? shopName.toString() : "(empty)"}</p>
             <span>
               Network:
               {network === CHAIN.MAINNET ? "mainnet" : "testnet"}

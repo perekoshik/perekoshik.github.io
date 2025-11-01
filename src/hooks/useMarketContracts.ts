@@ -86,6 +86,7 @@ export function useMarketContracts() {
     return {
         marketAddress: userContract?.address.toString(),
         shopAddress: shopContract?.address.toString(),
+        shopName: shopContract?.getShopName(),
         makeShop: async (shopName: string, id: bigint) => {
             const shopStateInit = await Shop.fromInit(Address.parse(wallet!));
             
@@ -108,6 +109,8 @@ export function useMarketContracts() {
                 init: shopStateInit.init,
                 body: body
             });
+
+            return "success";
         }
     }
 }

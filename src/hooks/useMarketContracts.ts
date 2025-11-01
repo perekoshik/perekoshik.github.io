@@ -60,7 +60,7 @@ export function useMarketContracts() {
         setLoading(true);
 
         try {
-            const shopStateInit = await Shop.fromInit(Address.parse(wallet));
+            const shopStateInit = await Shop.fromInit(sender.address!);
             
 
             const message = {
@@ -71,7 +71,7 @@ export function useMarketContracts() {
                 ordersCount: 0n,
             };
 
-            const shopContract = client.open(await Shop.fromInit(Address.parse(wallet)));
+            const shopContract = client.open(await Shop.fromInit(sender.address!));
             await shopContract.send(
                 sender, {
                     value: toNano('0.05'),

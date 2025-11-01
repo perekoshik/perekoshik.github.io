@@ -70,11 +70,12 @@ export function useMarketContracts() {
                 shopName: name,
                 shopId: id,
                 uniqueItemsCount: 0n,
-                ordersCount: 0n
+                ordersCount: 0n,
             }
 
             shopContract?.send(sender, {
                 value: toNano('0.05'),
+                bounce: false
             }, message)
         },
         shopName: shopName,

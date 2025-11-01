@@ -48,7 +48,7 @@ export default function Profile() {
                   Wallet:{" "}
                   {Address.parse(wallet as string).toString({
                     bounceable: false,
-                    testOnly: false,
+                    testOnly: network === "testnet",
                   })}
                 </span>
                 <span>

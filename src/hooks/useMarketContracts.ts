@@ -18,21 +18,11 @@ const DEFAULT_SHOP_FACTORY = {
   testnet: "kQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXgmP",
 } as const;
 
-const TESTNET_DEV_WALLETS = (import.meta.env.VITE_DEV_WALLETS_TESTNET ?? "")
-  .split(",")
-  .map((value) => value.trim())
-  .filter(Boolean)
-  .map((value) => Address.parse(value));
-
 function resolveAddress(
   network: "mainnet" | "testnet",
   envKey: "VITE_USERS_FACTORY" | "VITE_SHOP_FACTORY",
   defaults: typeof DEFAULT_USERS_FACTORY
 ) {
-  if (network === "testnet" && TESTNET_DEV_WALLETS.length) {
-    return TESTNET_DEV_WALLETS[0];
-  }
-
   const suffix = network === "mainnet" ? "_MAINNET" : "_TESTNET";
   const envValue = import.meta.env[`${envKey}${suffix}`];
   const fallback = defaults[network];

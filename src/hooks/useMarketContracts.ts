@@ -43,23 +43,9 @@ export function useMarketContracts() {
     const shopContract = useAsyncInitialize( async () => {
         if(!shopFactoryContract || !client || !wallet) return;
 
-        const shopAddress = await shopFactoryContract.getShopAddress(
-            Address.parse(wallet)
-        )
-
-        return client.open(Shop.fromAddress(shopAddress))
+        return Shop.fromInit(Address.parse(wallet));
     }, [shopFactoryContract]);
 
-    useEffect(() => {
-        async function getshopname() {
-            if (!shopContract) return;
-            const shopName = await shopContract.getShopName();
-            setshopName(shopName);
-        }
-        
-        getshopname();
-
-    }, [shopContract])
 
     return {
         marketAddress: userContract?.address.toString(),
@@ -79,7 +65,7 @@ export function useMarketContracts() {
                 to: shopContract?.address,
                 value: toNano('0.05'),
                 bounce: false,
-                init: (await Shop.fromInit(Address.parse(wallet))).init,
+                init: shopContract.init,
                 body: beginCell().store(storeUpdateShopInfo(message)).endCell()
             });
 

@@ -771,7 +771,6 @@ export function dictValueParserMakeNewUser(): DictionaryValue<MakeNewUser> {
 export type ChangeUserData = {
     $$type: 'ChangeUserData';
     name: string;
-    id: bigint;
     deliveryAddress: string;
 }
 
@@ -780,7 +779,6 @@ export function storeChangeUserData(src: ChangeUserData) {
         const b_0 = builder;
         b_0.storeUint(2132995444, 32);
         b_0.storeStringRefTail(src.name);
-        b_0.storeInt(src.id, 257);
         b_0.storeStringRefTail(src.deliveryAddress);
     };
 }
@@ -789,29 +787,25 @@ export function loadChangeUserData(slice: Slice) {
     const sc_0 = slice;
     if (sc_0.loadUint(32) !== 2132995444) { throw Error('Invalid prefix'); }
     const _name = sc_0.loadStringRefTail();
-    const _id = sc_0.loadIntBig(257);
     const _deliveryAddress = sc_0.loadStringRefTail();
-    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
 }
 
 export function loadTupleChangeUserData(source: TupleReader) {
     const _name = source.readString();
-    const _id = source.readBigNumber();
     const _deliveryAddress = source.readString();
-    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
 }
 
 export function loadGetterTupleChangeUserData(source: TupleReader) {
     const _name = source.readString();
-    const _id = source.readBigNumber();
     const _deliveryAddress = source.readString();
-    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
 }
 
 export function storeTupleChangeUserData(source: ChangeUserData) {
     const builder = new TupleBuilder();
     builder.writeString(source.name);
-    builder.writeNumber(source.id);
     builder.writeString(source.deliveryAddress);
     return builder.build();
 }
@@ -1510,73 +1504,9 @@ export function dictValueParserNewOrder(): DictionaryValue<NewOrder> {
     }
 }
 
-export type UpdateShopInfo = {
-    $$type: 'UpdateShopInfo';
-    shopName: string;
-    shopId: bigint;
-    uniqueItemsCount: bigint;
-    ordersCount: bigint;
-}
-
-export function storeUpdateShopInfo(src: UpdateShopInfo) {
-    return (builder: Builder) => {
-        const b_0 = builder;
-        b_0.storeUint(536542312, 32);
-        b_0.storeStringRefTail(src.shopName);
-        b_0.storeUint(src.shopId, 256);
-        b_0.storeUint(src.uniqueItemsCount, 256);
-        b_0.storeUint(src.ordersCount, 256);
-    };
-}
-
-export function loadUpdateShopInfo(slice: Slice) {
-    const sc_0 = slice;
-    if (sc_0.loadUint(32) !== 536542312) { throw Error('Invalid prefix'); }
-    const _shopName = sc_0.loadStringRefTail();
-    const _shopId = sc_0.loadUintBig(256);
-    const _uniqueItemsCount = sc_0.loadUintBig(256);
-    const _ordersCount = sc_0.loadUintBig(256);
-    return { $$type: 'UpdateShopInfo' as const, shopName: _shopName, shopId: _shopId, uniqueItemsCount: _uniqueItemsCount, ordersCount: _ordersCount };
-}
-
-export function loadTupleUpdateShopInfo(source: TupleReader) {
-    const _shopName = source.readString();
-    const _shopId = source.readBigNumber();
-    const _uniqueItemsCount = source.readBigNumber();
-    const _ordersCount = source.readBigNumber();
-    return { $$type: 'UpdateShopInfo' as const, shopName: _shopName, shopId: _shopId, uniqueItemsCount: _uniqueItemsCount, ordersCount: _ordersCount };
-}
-
-export function loadGetterTupleUpdateShopInfo(source: TupleReader) {
-    const _shopName = source.readString();
-    const _shopId = source.readBigNumber();
-    const _uniqueItemsCount = source.readBigNumber();
-    const _ordersCount = source.readBigNumber();
-    return { $$type: 'UpdateShopInfo' as const, shopName: _shopName, shopId: _shopId, uniqueItemsCount: _uniqueItemsCount, ordersCount: _ordersCount };
-}
-
-export function storeTupleUpdateShopInfo(source: UpdateShopInfo) {
-    const builder = new TupleBuilder();
-    builder.writeString(source.shopName);
-    builder.writeNumber(source.shopId);
-    builder.writeNumber(source.uniqueItemsCount);
-    builder.writeNumber(source.ordersCount);
-    return builder.build();
-}
-
-export function dictValueParserUpdateShopInfo(): DictionaryValue<UpdateShopInfo> {
-    return {
-        serialize: (src, builder) => {
-            builder.storeRef(beginCell().store(storeUpdateShopInfo(src)).endCell());
-        },
-        parse: (src) => {
-            return loadUpdateShopInfo(src.loadRef().beginParse());
-        }
-    }
-}
-
 export type Shop$Data = {
     $$type: 'Shop$Data';
+    parent: Address;
     owner: Address;
     shopName: string;
     uniqueItemsCount: bigint;
@@ -1588,11 +1518,12 @@ export type Shop$Data = {
 export function storeShop$Data(src: Shop$Data) {
     return (builder: Builder) => {
         const b_0 = builder;
+        b_0.storeAddress(src.parent);
         b_0.storeAddress(src.owner);
         b_0.storeStringRefTail(src.shopName);
         b_0.storeUint(src.uniqueItemsCount, 256);
-        b_0.storeUint(src.shopId, 256);
         const b_1 = new Builder();
+        b_1.storeUint(src.shopId, 256);
         b_1.storeUint(src.ordersCount, 256);
         b_1.storeCoins(src.balance);
         b_0.storeRef(b_1.endCell());
@@ -1601,38 +1532,42 @@ export function storeShop$Data(src: Shop$Data) {
 
 export function loadShop$Data(slice: Slice) {
     const sc_0 = slice;
+    const _parent = sc_0.loadAddress();
     const _owner = sc_0.loadAddress();
     const _shopName = sc_0.loadStringRefTail();
     const _uniqueItemsCount = sc_0.loadUintBig(256);
-    const _shopId = sc_0.loadUintBig(256);
     const sc_1 = sc_0.loadRef().beginParse();
+    const _shopId = sc_1.loadUintBig(256);
     const _ordersCount = sc_1.loadUintBig(256);
     const _balance = sc_1.loadCoins();
-    return { $$type: 'Shop$Data' as const, owner: _owner, shopName: _shopName, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
+    return { $$type: 'Shop$Data' as const, parent: _parent, owner: _owner, shopName: _shopName, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
 }
 
 export function loadTupleShop$Data(source: TupleReader) {
+    const _parent = source.readAddress();
     const _owner = source.readAddress();
     const _shopName = source.readString();
     const _uniqueItemsCount = source.readBigNumber();
     const _shopId = source.readBigNumber();
     const _ordersCount = source.readBigNumber();
     const _balance = source.readBigNumber();
-    return { $$type: 'Shop$Data' as const, owner: _owner, shopName: _shopName, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
+    return { $$type: 'Shop$Data' as const, parent: _parent, owner: _owner, shopName: _shopName, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
 }
 
 export function loadGetterTupleShop$Data(source: TupleReader) {
+    const _parent = source.readAddress();
     const _owner = source.readAddress();
     const _shopName = source.readString();
     const _uniqueItemsCount = source.readBigNumber();
     const _shopId = source.readBigNumber();
     const _ordersCount = source.readBigNumber();
     const _balance = source.readBigNumber();
-    return { $$type: 'Shop$Data' as const, owner: _owner, shopName: _shopName, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
+    return { $$type: 'Shop$Data' as const, parent: _parent, owner: _owner, shopName: _shopName, uniqueItemsCount: _uniqueItemsCount, shopId: _shopId, ordersCount: _ordersCount, balance: _balance };
 }
 
 export function storeTupleShop$Data(source: Shop$Data) {
     const builder = new TupleBuilder();
+    builder.writeAddress(source.parent);
     builder.writeAddress(source.owner);
     builder.writeString(source.shopName);
     builder.writeNumber(source.uniqueItemsCount);
@@ -1871,21 +1806,27 @@ export function dictValueParserShopFactory$Data(): DictionaryValue<ShopFactory$D
 
  type Shop_init_args = {
     $$type: 'Shop_init_args';
+    parent: Address;
     owner: Address;
+    shopName: string;
+    shopId: bigint;
 }
 
 function initShop_init_args(src: Shop_init_args) {
     return (builder: Builder) => {
         const b_0 = builder;
+        b_0.storeAddress(src.parent);
         b_0.storeAddress(src.owner);
+        b_0.storeStringRefTail(src.shopName);
+        b_0.storeInt(src.shopId, 257);
     };
 }
 
-async function Shop_init(owner: Address) {
-    const __code = Cell.fromHex('b5ee9c7241023801000c66000228ff008e88f4a413f4bcf2c80bed5320e303ed43d90109020271020602012003040189b83d5ed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e25515db3c6c6280d0185b851ded44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e2db3c6c618050002250201e907080188aa3bed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e25525db3c6c622d0184aabbed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e2db3c6c611603f83001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e207925f07e005d70d1ff2e0822182101ffafc68bae302218210fe3511b0bae302218210c46fecd7ba0a0b24006e365f0401d401d001d3ffd3ffd3ff5530341045443302c87f01ca0055505065cf16c85004cf1613cdcbffcbff02c8cbff01fa02cdc9ed54027a31d200d401d001fa00552031325067db3c079135e30d01a410354143c87f01ca0055505065cf16c85004cf1613cdcbffcbff02c8cbff01fa02cdc9ed54250c03fcf82823106705061034431802db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d08209312d000a7fc85982109b6fea825003cb1f01fa02ca00c9141a43307050457fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf818ae2f400c9010d2c2303d8c86f00016f8c6d6f8c8d075a1d1d1c1cce8bcbdcdbdb594b5a9cdbdb8b599a5b194b98dbdb4bda5920db3c218e22c821c10098802d01cb0701a301de019a7aa90ca630541220c000e63068a592cb07e4da11c9d0db3cf828016f2201c993216eb396016f2259ccc9e831d0120e0e0f00ba20d74a21d7499720c20022c200b18e4a036f22807f22cf31ab02a105ab025155b60820c2009c20aa0215d7185033cf164014de596f025341a1c20099c8016f025044a1aa028e123133c20099d430d020d74a21d749927020e2e2e85f03013688c87001ca0055315043cf1601cf1612810101cf00c858cf16cdc9100228ff008e88f4a413f4bcf2c80bed5320e303ed43d9111c020271121702012013150175b86c3ed44d0d200018e12fa40fa40d401d001d3fffa00d20055506c168e17fa40fa40810101d700d401d014433004d1550243007070e2db3c6c618140002220175b851ded44d0d200018e12fa40fa40d401d001d3fffa00d20055506c168e17fa40fa40810101d700d401d014433004d1550243007070e2db3c6c6181600022402016a181a0175b277bb51343480006384be903e903500740074fffe80348015541b05a385fe903e9020404075c03500740510cc0134554090c01c1c38b6cf1b1860190002230175b146fb51343480006384be903e903500740074fffe80348015541b05a385fe903e9020404075c03500740510cc0134554090c01c1c38b6cf1b18601b00022103f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e12fa40fa40d401d001d3fffa00d20055506c168e17fa40fa40810101d700d401d014433004d1550243007070e207925f07e07026d74920c21f953106d31f07de218210fdc52c75bae3022182109b6fea82bae302218210d9f8bfacba1d1e1f00ec5b358200803326f2f4f84270804027c80182107c95a1fc58cb1f01fa02c95a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0010355512c87f01ca0055505065cf165003cf16c858cf16cdcbff58fa02ca00c9ed5402aa5b05fa00d20059325067db3c5b88104610354430f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505065cf165003cf16c858cf16cdcbff58fa02ca00c9ed54202603d28f575b05fa40d20059325067db3c30338810461045443012f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505065cf165003cf16c858cf16cdcbff58fa02ca00c9ed54e037c00006c12116b0e3025f06f2c0822021220012f8425250c705f2e084003200000000556e697175654974656d207472616e7366657265640064f842c8cf8508ce70cf0b6ec98042fb0010355512c87f01ca0055505065cf165003cf16c858cf16cdcbff58fa02ca00c9ed540008fb00553004e28fe631fa40fa0059325067db3c8209312d0072087fc85982109b6fea825003cb1f01fa02ca00c9103941805a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0088104610354430e02182107ac14988ba252627280012f8425260c705f2e0840020000000005072696365207365747465640088f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505065cf16c85004cf1613cdcbffcbff02c8cbff01fa02cdc9ed5403fee302218210993e1ed5ba8ef231810101d700fa40fa405520331068105710461035103412db3c815fe2f8425a705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d0c705f2f4c87f01ca0055505065cf16c85004cf1613cdcbffcbff02c8cbff01fa02cdc9ed54e0292d3703fe31fa40d401d001fa0055203132f828f842280388c87001ca0055315034810101cf0001cf1601cf16c858cf16cdc95c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d04313720210246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb08a2e2a2b00065bcf81015e8ae2f400c901fb0004a410354403c87f01ca0055505065cf16c85004cf1613cdcbffcbff02c8cbff01fa02cdc9ed542c001a58cf8680cf8480f400f400cf81014231f828f8285888c87001ca0055315034810101cf0001cf1601cf16c858cf16cdc92e04feff00208ffa30eda2edfb01d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1cfa40fa40fa40d401d0d3fffa00d200d200d200301058105710566c188e1c810101d700fa40fa40d401d0fa403014433004d15502550270707070e209925f09e07028d74920c21fe30001c00001c121b0e30207f901202f30313600a23108d31f2182107c95a1fcba8e4131323731fa00013181114df8425240c705f2f4104655137f59c87f01ca0055705087cf165005cf165003cf1601c8cbff58fa0212ca0013ca00ca00cdc9ed54db31e009007637f842c8cf8508ce70cf0b6ec98042fb0010575514c87f01ca0055705087cf165005cf165003cf1601c8cbff58fa0212ca0013ca00ca00cdc9ed5402a282f020911b7858fac39d5cefcdb79e3fd94061efd2894ea81e3681d69d669a4b89d8bae302380782f0d4a4b54243b00b8b0fd3409d46333008e9ad093eceec5c78e7900972bea36532bae3025f07f2c082323401f830814c6107b317f2f481600e26f2f48200b637f8416f24135f0322bef2f4816a9327f2f482100bebc2002470c8598210d9f8bfac5003cb1f01cf16ca00c92459706d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00547132013301b6c855208210993e1ed55004cb1f12810101cf0001cf1601cf16c9546520706d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00104655137f013501c4817ef5f8425260c705f2f482100bebc2002470c8598210d9f8bfac5003cb1f01cf16ca00c92459706d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0055147f35004cc87f01ca0055705087cf165005cf165003cf1601c8cbff58fa0212ca0013ca00ca00cdc9ed540008e1f2c80b008801821090268e31ba8e34d401d001d3fffa0055206c3116a01035443012c87f01ca0055505065cf16c85004cf1613cdcbffcbff02c8cbff01fa02cdc9ed54e05f07f2c082320fede6');
+async function Shop_init(parent: Address, owner: Address, shopName: string, shopId: bigint) {
+    const __code = Cell.fromHex('b5ee9c7241023701000c59000228ff008e88f4a413f4bcf2c80bed5320e303ed43d90109020271020602012003040191b83d5ed44d0d200018e1efa40fa40d401d001d3ffd401d0d3ffd3fffa003010371036103510346c178e17fa40fa40d401d001810101d700553004d1550270543111e25516db3c6c7280c018db851ded44d0d200018e1efa40fa40d401d001d3ffd401d0d3ffd3fffa003010371036103510346c178e17fa40fa40d401d001810101d700553004d1550270543111e2db3c6c718050002250201e907080190aa3bed44d0d200018e1efa40fa40d401d001d3ffd401d0d3ffd3fffa003010371036103510346c178e17fa40fa40d401d001810101d700553004d1550270543111e25526db3c6c722d018caabbed44d0d200018e1efa40fa40d401d001d3ffd401d0d3ffd3fffa003010371036103510346c178e17fa40fa40d401d001810101d700553004d1550270543111e2db3c6c711503f23001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1efa40fa40d401d001d3ffd401d0d3ffd3fffa003010371036103510346c178e17fa40fa40d401d001810101d700553004d1550270543111e208925f08e006d70d1ff2e082218210fe3511b0bae302218210c46fecd7bae302210a2327028a31d200d401d001fa00552031325078db3c089136e30d01a410461035443302c87f01ca0055605076cf165004cf16c85003cf1612cdcbff01c8cbff13cbff01fa02cdc9ed54240b03fef828231078106705061034431902db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d08209312d000b7fc85982109b6fea825003cb1f01fa02ca00c9141b43307050457fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf818ae2f400c90c2b2203d8c86f00016f8c6d6f8c8d075a1d1d1c1cce8bcbdcdbdb594b5a9cdbdb8b599a5b194b98dbdb4bda5920db3c218e22c821c10098802d01cb0701a301de019a7aa90ca630541220c000e63068a592cb07e4da11c9d0db3cf828016f2201c993216eb396016f2259ccc9e831d0120d0d0e00ba20d74a21d7499720c20022c200b18e4a036f22807f22cf31ab02a105ab025155b60820c2009c20aa0215d7185033cf164014de596f025341a1c20099c8016f025044a1aa028e123133c20099d430d020d74a21d749927020e2e2e85f03013688c87001ca0055315043cf1601cf1612810101cf00c858cf16cdc90f0228ff008e88f4a413f4bcf2c80bed5320e303ed43d9101b020271111602012012140175b86c3ed44d0d200018e12fa40fa40d401d001d3fffa00d20055506c168e17fa40fa40810101d700d401d014433004d1550243007070e2db3c6c618130002220175b851ded44d0d200018e12fa40fa40d401d001d3fffa00d20055506c168e17fa40fa40810101d700d401d014433004d1550243007070e2db3c6c6181500022402016a17190175b277bb51343480006384be903e903500740074fffe80348015541b05a385fe903e9020404075c03500740510cc0134554090c01c1c38b6cf1b1860180002230175b146fb51343480006384be903e903500740074fffe80348015541b05a385fe903e9020404075c03500740510cc0134554090c01c1c38b6cf1b18601a00022103f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e12fa40fa40d401d001d3fffa00d20055506c168e17fa40fa40810101d700d401d014433004d1550243007070e207925f07e07026d74920c21f953106d31f07de218210fdc52c75bae3022182109b6fea82bae302218210d9f8bfacba1c1d1e00ec5b358200803326f2f4f84270804027c80182107c95a1fc58cb1f01fa02c95a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0010355512c87f01ca0055505065cf165003cf16c858cf16cdcbff58fa02ca00c9ed5402aa5b05fa00d20059325067db3c5b88104610354430f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505065cf165003cf16c858cf16cdcbff58fa02ca00c9ed541f2503d28f575b05fa40d20059325067db3c30338810461045443012f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505065cf165003cf16c858cf16cdcbff58fa02ca00c9ed54e037c00006c12116b0e3025f06f2c0821f20210012f8425250c705f2e084003200000000556e697175654974656d207472616e7366657265640064f842c8cf8508ce70cf0b6ec98042fb0010355512c87f01ca0055505065cf165003cf16c858cf16cdcbff58fa02ca00c9ed54000a01fb00554003d231fa40fa0059325078db3c8209312d0072097fc85982109b6fea825003cb1f01fa02ca00c9103a41905a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00881057104610354430122425260012f8425260c705f2e0840020000000005072696365207365747465640092f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055605076cf165004cf16c85003cf1612cdcbff01c8cbff13cbff01fa02cdc9ed5402ba82107ac14988bae302218210993e1ed5bae30201821090268e31ba8e3ad401d001d3fffa0055206c3117a0104610354430c87f01ca0055605076cf165004cf16c85003cf1612cdcbff01c8cbff13cbff01fa02cdc9ed54e05f08f2c082282c03fe31fa40d401d001fa0055203132f828f842290388c87001ca0055315034810101cf0001cf1601cf16c858cf16cdc95c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d04313720210246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb08a2e292a00065bcf81016e8ae2f400c901fb0005a410461035440302c87f01ca0055605076cf165004cf16c85003cf1612cdcbff01c8cbff13cbff01fa02cdc9ed542b001a58cf8680cf8480f400f400cf8101ee31810101d700fa40fa405520331079106810571046103512db3c815fe2f8425a705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d0c705f2f4c87f01ca0055605076cf165004cf16c85003cf1612cdcbff01c8cbff13cbff01fa02cdc9ed542d014231f828f8285888c87001ca0055315034810101cf0001cf1601cf16c858cf16cdc92e04feff00208ffa30eda2edfb01d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1cfa40fa40fa40d401d0d3fffa00d200d200d200301058105710566c188e1c810101d700fa40fa40d401d0fa403014433004d15502550270707070e209925f09e07028d74920c21fe30001c00001c121b0e30207f901202f30313600a23108d31f2182107c95a1fcba8e4131323731fa00013181114df8425240c705f2f4104655137f59c87f01ca0055705087cf165005cf165003cf1601c8cbff58fa0212ca0013ca00ca00cdc9ed54db31e009007637f842c8cf8508ce70cf0b6ec98042fb0010575514c87f01ca0055705087cf165005cf165003cf1601c8cbff58fa0212ca0013ca00ca00cdc9ed5402a282f020911b7858fac39d5cefcdb79e3fd94061efd2894ea81e3681d69d669a4b89d8bae302380782f0d4a4b54243b00b8b0fd3409d46333008e9ad093eceec5c78e7900972bea36532bae3025f07f2c082323401f830814c6107b317f2f481600e26f2f48200b637f8416f24135f0322bef2f4816a9327f2f482100bebc2002470c8598210d9f8bfac5003cb1f01cf16ca00c92459706d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00547132013301b6c855208210993e1ed55004cb1f12810101cf0001cf1601cf16c9546520706d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00104655137f013501c4817ef5f8425260c705f2f482100bebc2002470c8598210d9f8bfac5003cb1f01cf16ca00c92459706d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0055147f35004cc87f01ca0055705087cf165005cf165003cf1601c8cbff58fa0212ca0013ca00ca00cdc9ed540008e1f2c80be2f7d87d');
     const builder = beginCell();
     builder.storeUint(0, 1);
-    initShop_init_args({ $$type: 'Shop_init_args', owner })(builder);
+    initShop_init_args({ $$type: 'Shop_init_args', parent, owner, shopName, shopId })(builder);
     const __data = builder.endCell();
     return { code: __code, data: __data };
 }
@@ -1998,7 +1939,7 @@ const Shop_types: ABIType[] = [
     {"name":"ChangeOwner","header":2174598809,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"ChangeOwnerOk","header":846932810,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"MakeNewUser","header":3697970051,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"id","type":{"kind":"simple","type":"int","optional":false,"format":257}}]},
-    {"name":"ChangeUserData","header":2132995444,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"id","type":{"kind":"simple","type":"int","optional":false,"format":257}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"ChangeUserData","header":2132995444,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"CreateShop","header":3325455170,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"AddItem","header":4264890800,"fields":[{"name":"isUnique","type":{"kind":"simple","type":"bool","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"NftTransfer","header":3656957868,"fields":[{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},
@@ -2012,8 +1953,7 @@ const Shop_types: ABIType[] = [
     {"name":"OrderCompleted","header":2570985173,"fields":[{"name":"orderIndex","type":{"kind":"simple","type":"int","optional":false,"format":257}},{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"buyer","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"MakeOrder","header":1975255782,"fields":[{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"NewOrder","header":2418445873,"fields":[{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}},{"name":"itemIndex","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
-    {"name":"UpdateShopInfo","header":536542312,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"uniqueItemsCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"ordersCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}}]},
-    {"name":"Shop$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}},{"name":"uniqueItemsCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"ordersCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"balance","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
+    {"name":"Shop$Data","header":null,"fields":[{"name":"parent","type":{"kind":"simple","type":"address","optional":false}},{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}},{"name":"uniqueItemsCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"ordersCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"balance","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"UniqueItem$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"index","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},
     {"name":"Order$Data","header":null,"fields":[{"name":"seller","type":{"kind":"simple","type":"address","optional":false}},{"name":"buyer","type":{"kind":"simple","type":"address","optional":false}},{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"priceSetted","type":{"kind":"simple","type":"bool","optional":false}},{"name":"completed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"refunded","type":{"kind":"simple","type":"bool","optional":false}}]},
     {"name":"ShopFactory$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"shopsCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}}]},
@@ -2037,7 +1977,6 @@ const Shop_opcodes = {
     "OrderCompleted": 2570985173,
     "MakeOrder": 1975255782,
     "NewOrder": 2418445873,
-    "UpdateShopInfo": 536542312,
 }
 
 const Shop_getters: ABIGetter[] = [
@@ -2055,7 +1994,6 @@ export const Shop_getterMapping: { [key: string]: string } = {
 }
 
 const Shop_receivers: ABIReceiver[] = [
-    {"receiver":"internal","message":{"kind":"typed","type":"UpdateShopInfo"}},
     {"receiver":"internal","message":{"kind":"typed","type":"AddItem"}},
     {"receiver":"internal","message":{"kind":"typed","type":"SetUniqueItemPrice"}},
     {"receiver":"internal","message":{"kind":"typed","type":"CreateOrder"}},
@@ -2070,12 +2008,12 @@ export class Shop implements Contract {
     public static readonly errors = Shop_errors_backward;
     public static readonly opcodes = Shop_opcodes;
     
-    static async init(owner: Address) {
-        return await Shop_init(owner);
+    static async init(parent: Address, owner: Address, shopName: string, shopId: bigint) {
+        return await Shop_init(parent, owner, shopName, shopId);
     }
     
-    static async fromInit(owner: Address) {
-        const __gen_init = await Shop_init(owner);
+    static async fromInit(parent: Address, owner: Address, shopName: string, shopId: bigint) {
+        const __gen_init = await Shop_init(parent, owner, shopName, shopId);
         const address = contractAddress(0, __gen_init);
         return new Shop(address, __gen_init);
     }
@@ -2098,12 +2036,9 @@ export class Shop implements Contract {
         this.init = init;
     }
     
-    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: UpdateShopInfo | AddItem | SetUniqueItemPrice | CreateOrder | OrderCompleted | NewOrder) {
+    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: AddItem | SetUniqueItemPrice | CreateOrder | OrderCompleted | NewOrder) {
         
         let body: Cell | null = null;
-        if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'UpdateShopInfo') {
-            body = beginCell().store(storeUpdateShopInfo(message)).endCell();
-        }
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'AddItem') {
             body = beginCell().store(storeAddItem(message)).endCell();
         }

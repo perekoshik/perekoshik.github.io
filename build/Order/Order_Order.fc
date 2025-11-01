@@ -1,0 +1,457 @@
+#pragma version =0.4.6;
+#pragma allow-post-modification;
+#pragma compute-asm-ltr;
+
+;; Order_Order.headers.fc
+;;
+;; Header files for Order
+;; NOTE: declarations are sorted for optimal order
+;;
+
+;; __tact_context_get
+(int, slice, int, slice) __tact_context_get() inline;
+
+;; __tact_context_get_sender
+slice __tact_context_get_sender() inline;
+
+;; $NftTransfer$_store
+builder $NftTransfer$_store(builder build_0, (slice, int) v) inline;
+
+;; $NftTransfer$_store_cell
+cell $NftTransfer$_store_cell((slice, int) v, builder b) inline;
+
+;; $OrderCompleted$_store
+builder $OrderCompleted$_store(builder build_0, (int, slice, slice) v) inline;
+
+;; $OrderCompleted$_store_cell
+cell $OrderCompleted$_store_cell((int, slice, slice) v, builder b) inline;
+
+;; $Order$_store
+builder $Order$_store(builder build_0, (slice, slice, slice, int, int, int, int, int) v) inline;
+
+;; $Order$_load
+(slice, ((slice, slice, slice, int, int, int, int, int))) $Order$_load(slice sc_0) inline;
+
+;; $Context$_get_value
+_ $Context$_get_value((int, slice, int, slice) v) inline;
+
+;; $Order$init$_load
+(slice, ((int, slice, slice, slice))) $Order$init$_load(slice sc_0) inline;
+
+;; $Order$_contract_init
+(slice, slice, slice, int, int, int, int, int) $Order$_contract_init(int $id, slice $seller, slice $buyer, slice $itemAddress) impure inline;
+
+;; $Order$_contract_load
+(slice, slice, slice, int, int, int, int, int) $Order$_contract_load() impure inline;
+
+;; $Order$_contract_store
+() $Order$_contract_store((slice, slice, slice, int, int, int, int, int) v) impure inline;
+
+;; $SendParameters$_constructor_to_value_body
+((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_body(slice $to, int $value, cell $body) inline;
+
+;; $NftTransfer$_constructor_newOwner_isSalable
+((slice, int)) $NftTransfer$_constructor_newOwner_isSalable(slice $newOwner, int $isSalable) inline;
+
+;; $OrderCompleted$_constructor_orderIndex_buyer_itemAddress
+((int, slice, slice)) $OrderCompleted$_constructor_orderIndex_buyer_itemAddress(int $orderIndex, slice $buyer, slice $itemAddress) inline;
+
+
+;; Order_Order.stdlib.fc
+global (int, slice, int, slice) __tact_context;
+global slice __tact_context_sender;
+global cell __tact_child_contract_codes;
+global int __tact_randomized;
+
+(int, slice, int, slice) __tact_context_get() inline {
+    return __tact_context;
+}
+
+slice __tact_context_get_sender() inline {
+    return __tact_context_sender;
+}
+
+() $global_send((int, cell, cell, cell, int, slice, int) $params) impure asm """
+    NEWC
+    b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+    1 STI               // store `bounce`
+    b{000} STSLICECONST // store bounced = false and src = addr_none
+    STSLICE             // store `to`
+    SWAP
+    STGRAMS             // store `value`
+    105 PUSHINT         // 1 + 4 + 4 + 64 + 32
+    STZEROES            // store currency_collection, ihr_fee, fwd_fee, created_lt and created_at
+    // → Stack state
+    // s0: Builder
+    // s1: `data`
+    // s2: `code`
+    // s3: `body`
+    // s4: `mode`
+
+    // Group 2: Placing the Builder after code and data, then checking those for nullability
+    s2 XCHG0
+    DUP2
+    ISNULL
+    SWAP
+    ISNULL
+    AND
+    // → Stack state
+    // s0: -1 (true) if `data` and `code` are both null, 0 (false) otherwise
+    // s1: `code`
+    // s2: `data`
+    // s3: Builder
+    // s4: `body`
+    // s5: `mode`
+
+    // Group 3: Left branch of the IFELSE, executed if s0 is -1 (true)
+    <{
+        DROP2 // drop `data` and `code`, since either of those is null
+        b{0} STSLICECONST
+    }> PUSHCONT
+
+    // Group 3: Right branch of the IFELSE, executed if s0 is 0 (false)
+    <{
+        // _ split_depth:(Maybe (## 5))
+        //   special:(Maybe TickTock)
+        //   code:(Maybe ^Cell)
+        //   data:(Maybe ^Cell)
+        //   library:(Maybe ^Cell)
+        // = StateInit;
+        ROT                // place message Builder on top
+        b{10} STSLICECONST // store Maybe = true, Either = false
+        // Start composing inlined StateInit
+        b{00} STSLICECONST // store split_depth and special first
+        STDICT             // store code
+        STDICT             // store data
+        b{0} STSLICECONST  // store library
+    }> PUSHCONT
+
+    // Group 3: IFELSE that does the branching shown above
+    IFELSE
+    // → Stack state
+    // s0: Builder
+    // s1: null or StateInit
+    // s2: `body`
+    // s3: `mode`
+
+    // Group 4: Finalizing the message
+    STDICT // store `body` as ref with an extra Maybe bit, since `body` might be null
+    ENDC
+    // → Stack state
+    // s0: Cell
+    // s1: `mode`
+
+    // Group 5: Sending the message, with `mode` on top
+    SWAP
+    SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
+""";
+
+() $global_cashback(slice $to) impure asm """
+    NEWC
+    x{42_} STSLICECONST // .storeUint(0x10, 6)
+    STSLICE          // .storeAddress(to)
+    0 PUSHINT        // 0
+    111 STUR         // .storeUint(0, 111)
+                     // 4 zeros for coins and 107 zeros for lt, fees, etc.
+    ENDC
+    66 PUSHINT       // SendRemainingValue | SendIgnoreErrors
+    SENDRAWMSG
+""";
+
+;; Order_Order.storage.fc
+;;
+;; Type: Context
+;; TLB: _ bounceable:bool sender:address value:int257 raw:^slice = Context
+;;
+
+_ $Context$_get_value((int, slice, int, slice) v) inline {
+    var (v'bounceable, v'sender, v'value, v'raw) = v;
+    return v'value;
+}
+
+;;
+;; Type: SendParameters
+;; TLB: _ mode:int257 body:Maybe ^cell code:Maybe ^cell data:Maybe ^cell value:int257 to:address bounce:bool = SendParameters
+;;
+
+((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_body(slice $to, int $value, cell $body) inline {
+    return (0, $body, null(), null(), $value, $to, true);
+}
+
+;;
+;; Type: NftTransfer
+;; Header: 0xd9f8bfac
+;; TLB: nft_transfer#d9f8bfac newOwner:address isSalable:bool = NftTransfer
+;;
+
+builder $NftTransfer$_store(builder build_0, (slice, int) v) inline {
+    var (v'newOwner, v'isSalable) = v;
+    build_0 = store_uint(build_0, 3656957868, 32);
+    build_0 = build_0.store_slice(v'newOwner);
+    build_0 = build_0.store_int(v'isSalable, 1);
+    return build_0;
+}
+
+cell $NftTransfer$_store_cell((slice, int) v, builder b) inline {
+    return $NftTransfer$_store(b, v).end_cell();
+}
+
+((slice, int)) $NftTransfer$_constructor_newOwner_isSalable(slice $newOwner, int $isSalable) inline {
+    return ($newOwner, $isSalable);
+}
+
+;;
+;; Type: OrderCompleted
+;; Header: 0x993e1ed5
+;; TLB: order_completed#993e1ed5 orderIndex:int257 itemAddress:address buyer:address = OrderCompleted
+;;
+
+builder $OrderCompleted$_store(builder build_0, (int, slice, slice) v) inline {
+    var (v'orderIndex, v'itemAddress, v'buyer) = v;
+    build_0 = store_uint(build_0, 2570985173, 32);
+    build_0 = build_0.store_int(v'orderIndex, 257);
+    build_0 = build_0.store_slice(v'itemAddress);
+    build_0 = build_0.store_slice(v'buyer);
+    return build_0;
+}
+
+cell $OrderCompleted$_store_cell((int, slice, slice) v, builder b) inline {
+    return $OrderCompleted$_store(b, v).end_cell();
+}
+
+((int, slice, slice)) $OrderCompleted$_constructor_orderIndex_buyer_itemAddress(int $orderIndex, slice $buyer, slice $itemAddress) inline {
+    return ($orderIndex, $itemAddress, $buyer);
+}
+
+;;
+;; Type: Order
+;; TLB: _ seller:address buyer:address itemAddress:address id:uint256 price:coins priceSetted:bool completed:bool refunded:bool = Order
+;;
+
+builder $Order$_store(builder build_0, (slice, slice, slice, int, int, int, int, int) v) inline {
+    var (v'seller, v'buyer, v'itemAddress, v'id, v'price, v'priceSetted, v'completed, v'refunded) = v;
+    build_0 = build_0.store_slice(v'seller);
+    build_0 = build_0.store_slice(v'buyer);
+    build_0 = build_0.store_slice(v'itemAddress);
+    var build_1 = begin_cell();
+    build_1 = build_1.store_uint(v'id, 256);
+    build_1 = build_1.store_varuint16(v'price);
+    build_1 = build_1.store_int(v'priceSetted, 1);
+    build_1 = build_1.store_int(v'completed, 1);
+    build_1 = build_1.store_int(v'refunded, 1);
+    build_0 = store_builder_ref(build_0, build_1);
+    return build_0;
+}
+
+(slice, ((slice, slice, slice, int, int, int, int, int))) $Order$_load(slice sc_0) inline {
+    var v'seller = sc_0~load_msg_addr();
+    var v'buyer = sc_0~load_msg_addr();
+    var v'itemAddress = sc_0~load_msg_addr();
+    slice sc_1 = sc_0~load_ref().begin_parse();
+    var v'id = sc_1~load_uint(256);
+    var v'price = sc_1~load_varuint16();
+    var v'priceSetted = sc_1~load_int(1);
+    var v'completed = sc_1~load_int(1);
+    var v'refunded = sc_1~load_int(1);
+    return (sc_0, (v'seller, v'buyer, v'itemAddress, v'id, v'price, v'priceSetted, v'completed, v'refunded));
+}
+
+(slice, ((int, slice, slice, slice))) $Order$init$_load(slice sc_0) inline {
+    var v'id = sc_0~load_int(257);
+    var v'seller = sc_0~load_msg_addr();
+    var v'buyer = sc_0~load_msg_addr();
+    slice sc_1 = sc_0~load_ref().begin_parse();
+    var v'itemAddress = sc_1~load_msg_addr();
+    return (sc_0, (v'id, v'seller, v'buyer, v'itemAddress));
+}
+
+(slice, slice, slice, int, int, int, int, int) $Order$_contract_load() impure inline {
+    slice $sc = get_data().begin_parse();
+    int $loaded = $sc~load_int(1);
+    if ($loaded) {
+        return $sc~$Order$_load();
+    }
+    else {
+        (int $id, slice $seller, slice $buyer, slice $itemAddress) = $sc~$Order$init$_load();
+        $sc.end_parse();
+        return $Order$_contract_init($id, $seller, $buyer, $itemAddress);
+    }
+}
+
+() $Order$_contract_store((slice, slice, slice, int, int, int, int, int) v) impure inline {
+    builder b = begin_cell();
+    b = b.store_int(true, 1);
+    b = $Order$_store(b, v);
+    set_data(b.end_cell());
+}
+
+;;
+;; Contract Order functions
+;;
+
+(slice, slice, slice, int, int, int, int, int) $Order$_contract_init(int $id, slice $seller, slice $buyer, slice $itemAddress) impure inline {
+    var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded)) = (null(), null(), null(), null(), 0, false, false, false);
+    $self'seller = $seller;
+    $self'buyer = $buyer;
+    $self'id = $id;
+    $self'itemAddress = $itemAddress;
+    return ($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded);
+}
+
+;;
+;; Get methods of a Contract Order
+;;
+
+;;
+;; Routing of a Contract Order
+;;
+
+;; message opcode reader utility: only binary receivers
+;; Returns 32 bit message opcode, otherwise throws the "Invalid incoming message" exit code
+(slice, int) ~load_opcode_internal(slice s) asm( -> 1 0) "32 LDUQ 130 THROWIFNOT";
+
+() recv_internal(int msg_value, cell in_msg_cell, slice in_msg) impure {
+    
+    ;; Context
+    var cs = in_msg_cell.begin_parse();
+    cs~skip_bits(2);
+    var msg_bounceable = cs~load_int(1);
+    var msg_bounced = cs~load_int(1);
+    slice msg_sender_addr = cs~load_msg_addr();
+    __tact_context = (msg_bounceable, msg_sender_addr, msg_value, cs);
+    __tact_context_sender = msg_sender_addr;
+    
+    ;; Load contract data
+    var ($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded) = $Order$_contract_load();
+    
+    ;; Handle bounced messages
+    if (msg_bounced) { return (); }
+    int op = 0;
+    int in_msg_length = slice_bits(in_msg);
+    if (in_msg_length >= 32) {
+        op = in_msg~load_uint(32);
+        ;; Receive GetPriceResponse message
+        if (op == 0x7c95a1fc) {
+            var $msg'price = in_msg~load_varuint16();
+            throw_unless(4429, ( equal_slices_bits(__tact_context_get_sender(), $self'itemAddress) ));
+            $self'price = $msg'price;
+            $self'priceSetted = true;
+            $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
+            return ();
+        }
+        
+    }
+    ;; Receive empty message
+    if ((op == 0) & (in_msg_length <= 32)) {
+        $global_cashback(__tact_context_get_sender());
+        $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
+        return ();
+    }
+    ;; Empty Receiver and Text Receivers
+    var text_op = slice_hash(in_msg);
+    ;; Receive "pay" message
+    if (text_op == 0x20911b7858fac39d5cefcdb79e3fd94061efd2894ea81e3681d69d669a4b89d8) {
+        throw_unless(19553, (~ $self'completed));
+        throw_unless(24590, $self'priceSetted);
+        throw_unless(46647, ($Context$_get_value(__tact_context_get()) >= $self'price));
+        throw_unless(27283, $self'refunded);
+        $global_send($SendParameters$_constructor_to_value_body($self'itemAddress, 200000000, $NftTransfer$_store_cell($NftTransfer$_constructor_newOwner_isSalable($self'buyer, false), begin_cell())));
+        $global_send($SendParameters$_constructor_to_value_body($self'seller, $self'price, $OrderCompleted$_store_cell($OrderCompleted$_constructor_orderIndex_buyer_itemAddress($self'id, $self'buyer, $self'itemAddress), begin_cell())));
+        $self'completed = true;
+        $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
+        return ();
+    }
+    ;; Receive "Refund Item" message
+    if (text_op == 0xd4a4b54243b00b8b0fd3409d46333008e9ad093eceec5c78e7900972bea36532) {
+        throw_unless(32501, ( equal_slices_bits(__tact_context_get_sender(), $self'seller) ));
+        $global_send($SendParameters$_constructor_to_value_body($self'itemAddress, 200000000, $NftTransfer$_store_cell($NftTransfer$_constructor_newOwner_isSalable($self'buyer, false), begin_cell())));
+        $self'refunded = true;
+        $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
+        return ();
+    }
+    ;; Throw if not handled
+    throw(130);
+}
+
+
+() __tact_selector_hack_asm() impure asm """
+@atend @ 1 {
+        execute current@ context@ current!
+        {
+            // The core idea of this function is to save gas by avoiding unnecessary dict jump, when recv_internal/recv_external is called
+            // We want to extract recv_internal/recv_external from the dict and select needed function
+            // not by jumping to the needed function by it's index, but by using usual IF statements.
+
+            }END> b> // Close previous builder, now we have a cell of previous code on top of the stack
+
+            <{ // Start of the new code builder
+                SETCP0
+                // Swap the new code builder with the previous code, now we have previous code on top of the stack
+                swap
+                // Transform cell to slice and load first ref from the previous code, now we have the dict on top of the stack
+                <s ref@
+
+                // Extract the recv_internal from the dict
+                dup 0 swap @procdictkeylen idict@ { "internal shortcut error" abort } ifnot
+                swap
+
+                // Delete the recv_internal from the dict
+                0 swap @procdictkeylen idict- drop
+                // Delete the recv_external from the dict (it's okay if it's not there)
+                -1 swap @procdictkeylen idict- drop
+                // Delete the __tact_selector_hack from the dict
+                65535 swap @procdictkeylen idict- drop
+
+                // Bring the code builder from the bottom of the stack
+                // because if recv_external extraction is optional, and the number of elements on the stack is not fixed
+                depth 1- roll
+                // Swap with the dict from which we extracted recv_internal and (maybe) recv_external
+                swap
+
+                // Check if the dict is empty
+                dup null?
+                // Store a copy of this flag in the bottom of the stack
+                dup depth 1- -roll
+                {
+                    // If the dict is empty, just drop it (it will be null if it's empty)
+                    drop
+                }
+                {
+                    // If the dict is not empty, prepare continuation to be stored in c3
+                    <{
+                        // Save this dict as first ref in this continuation, it will be pushed in runtime by DICTPUSHCONST
+                        swap @procdictkeylen DICTPUSHCONST
+                        // Jump to the needed function by it's index
+                        DICTIGETJMPZ
+                        // If such key is not found, throw 11 along with the key as an argument
+                        11 THROWARG
+                    }> PUSHCONT
+                    // Store the continuation in c3
+                    c3 POP
+                } cond
+
+                // Function id is on top of the (runtime) stack
+                DUP IFNOTJMP:<{
+                    // place recv_internal here
+                    DROP swap @addop
+                }>
+
+                // Bring back the flag, indicating if the dict is empty or not from the bottom of the stack
+                depth 1- roll
+                {
+                    // If the dict is empty, throw 11
+                    11 THROWARG
+                }
+                {
+                    // If the dict is not empty, jump to continuation from c3
+                    c3 PUSH JMPX
+                } cond
+            }> b>
+        } : }END>c
+        current@ context! current!
+    } does @atend !
+""";
+
+() __tact_selector_hack() method_id(65535) {
+    return __tact_selector_hack_asm();
+}

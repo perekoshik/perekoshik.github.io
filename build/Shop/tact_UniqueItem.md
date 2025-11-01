@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: UniqueItem
-BoC Size: 866 bytes
+BoC Size: 846 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 31

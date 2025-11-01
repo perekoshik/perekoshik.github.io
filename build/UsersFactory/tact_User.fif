@@ -1,12 +1,9 @@
-// automatically generated from `@stdlib/std/stdlib.fc` `C:/Users/nikit/ton_projects/myWallet/MyWallet/build/UsersFactory/tact_User.fc` 
+// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ton_projects/projects/web3market/ex/build/UsersFactory/tact_User.fc` 
 PROGRAM{
   DECLPROC __tact_context_get
   DECLPROC __tact_context_get_sender
-  DECLPROC $ChangeUserData$_load_without_opcode
   DECLPROC $CreateOrder$_store
   DECLPROC $CreateOrder$_store_cell
-  DECLPROC $MakeOrder$_load_without_opcode
-  DECLPROC $Deploy$_load_without_opcode
   DECLPROC $DeployOk$_store
   DECLPROC $DeployOk$_store_cell
   DECLPROC $User$_store
@@ -34,45 +31,23 @@ PROGRAM{
   __tact_context_get_sender PROCINLINE:<{
     __tact_context_sender GETGLOB
   }>
-  $ChangeUserData$_load_without_opcode PROCINLINE:<{
-    LDREF
-    SWAP
-    CTOS
-    SWAP
-    257 PUSHINT
-    LDIX
-    LDREF
-    SWAP
-    CTOS
-    s3 s3 s0 XCHG3
-  }>
   $CreateOrder$_store PROCINLINE:<{
     2059487624 PUSHINT
     s0 s4 XCHG2
     32 STU
-    ROT
-    STSLICER
+    s1 s2 XCHG
+    STSLICE
+    SWAP
     NEWC
-    ROT
-    STSLICER
+    STSLICE
     STBREFR
     SWAP
     STVARUINT16
   }>
   $CreateOrder$_store_cell PROCINLINE:<{
-    NEWC
     3 -ROLL
     $CreateOrder$_store INLINECALLDICT
     ENDC
-  }>
-  $MakeOrder$_load_without_opcode PROCINLINE:<{
-    LDMSGADDR
-    LDVARUINT16
-    -ROT
-  }>
-  $Deploy$_load_without_opcode PROCINLINE:<{
-    64 LDU
-    SWAP
   }>
   $DeployOk$_store PROCINLINE:<{
     2952335191 PUSHINT
@@ -81,23 +56,21 @@ PROGRAM{
     64 STU
   }>
   $DeployOk$_store_cell PROCINLINE:<{
-    NEWC
     SWAP
     $DeployOk$_store INLINECALLDICT
     ENDC
   }>
   $User$_store PROCINLINE:<{
-    s4 s3 XCHG2
-    STSLICER
+    s3 s4 XCHG2
+    STSLICE
     256 STU
+    SWAP
     NEWC
-    s0 s3 XCHG2
-    STSLICER
-    s1 s2 XCHG
+    STSLICE
     STBREFR
+    SWAP
     NEWC
-    ROT
-    STSLICER
+    STSLICE
     STBREFR
   }>
   $User$_load PROCINLINE:<{
@@ -221,14 +194,21 @@ PROGRAM{
       s4 POP
       2DROP
       s2 POP
-      $ChangeUserData$_load_without_opcode INLINECALLDICT
-      s3 POP
+      LDREF
+      SWAP
+      CTOS
+      SWAP
+      257 PUSHINT
+      LDIX
+      LDREF
+      DROP
+      CTOS
       50052 PUSHINT
       __tact_context_get_sender INLINECALLDICT
-      s5 s(-1) PUXC
+      s5 PUSH
       SDEQ
       THROWANYIFNOT
-      s0 s2 XCHG
+      s1 s2 XCHG
       $User$_contract_store INLINECALLDICT
     }>
     OVER
@@ -236,12 +216,13 @@ PROGRAM{
     EQUAL
     IFJMP:<{
       NIP
-      $MakeOrder$_load_without_opcode INLINECALLDICT
-      s2 POP
-      s0 s5 s1 PUSH3
+      LDMSGADDR
+      LDVARUINT16
+      DROP
+      s1 s5 s0 PUSH3
       $CreateOrder$_constructor_itemAddress_deliveryAddress_price INLINECALLDICT
+      NEWC
       $CreateOrder$_store_cell INLINECALLDICT
-      s1 s2 XCHG
       2 PUSHINT
       $SendParameters$_constructor_to_value_body_mode INLINECALLDICT
           NEWC
@@ -317,9 +298,10 @@ PROGRAM{
     2490013878 PUSHINT
     EQUAL
     IFJMP:<{
-      $Deploy$_load_without_opcode INLINECALLDICT
-      NIP
+      64 LDU
+      DROP
       $DeployOk$_constructor_queryId INLINECALLDICT
+      NEWC
       $DeployOk$_store_cell INLINECALLDICT
       s4 s3 s0 XCHG3
       s1 s2 XCHG

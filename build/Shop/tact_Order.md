@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: Order
-BoC Size: 742 bytes
+BoC Size: 752 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 31

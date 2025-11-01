@@ -3,7 +3,7 @@ Contract: UniqueItem
 BoC Size: 866 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 32
+Total structures: 31
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -58,8 +58,8 @@ TL-B: `make_new_user#dc6a8b83 name:^string id:int257 = MakeNewUser`
 Signature: `MakeNewUser{name:^string,id:int257}`
 
 ### ChangeUserData
-TL-B: `change_user_data#7f22ed74 name:^string id:int257 deliveryAddress:^string = ChangeUserData`
-Signature: `ChangeUserData{name:^string,id:int257,deliveryAddress:^string}`
+TL-B: `change_user_data#7f22ed74 name:^string deliveryAddress:^string = ChangeUserData`
+Signature: `ChangeUserData{name:^string,deliveryAddress:^string}`
 
 ### CreateShop
 TL-B: `create_shop#c6366b42 shopName:^string = CreateShop`
@@ -113,13 +113,9 @@ Signature: `MakeOrder{itemAddress:address,price:coins}`
 TL-B: `new_order#90268e31 deliveryAddress:^string itemIndex:uint256 price:coins = NewOrder`
 Signature: `NewOrder{deliveryAddress:^string,itemIndex:uint256,price:coins}`
 
-### UpdateShopInfo
-TL-B: `update_shop_info#1ffafc68 shopName:^string shopId:uint256 uniqueItemsCount:uint256 ordersCount:uint256 = UpdateShopInfo`
-Signature: `UpdateShopInfo{shopName:^string,shopId:uint256,uniqueItemsCount:uint256,ordersCount:uint256}`
-
 ### Shop$Data
-TL-B: `_ owner:address shopName:^string uniqueItemsCount:uint256 shopId:uint256 ordersCount:uint256 balance:coins = Shop`
-Signature: `Shop{owner:address,shopName:^string,uniqueItemsCount:uint256,shopId:uint256,ordersCount:uint256,balance:coins}`
+TL-B: `_ parent:address owner:address shopName:^string uniqueItemsCount:uint256 shopId:uint256 ordersCount:uint256 balance:coins = Shop`
+Signature: `Shop{parent:address,owner:address,shopName:^string,uniqueItemsCount:uint256,shopId:uint256,ordersCount:uint256,balance:coins}`
 
 ### UniqueItem$Data
 TL-B: `_ shop:address owner:address content:^string index:uint256 price:coins isSalable:bool = UniqueItem`

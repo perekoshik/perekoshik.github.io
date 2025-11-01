@@ -1,10 +1,9 @@
-// automatically generated from `@stdlib/std/stdlib.fc` `C:/Users/nikit/ton_projects/myWallet/MyWallet/build/Shop/tact_Order.fc` 
+// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ton_projects/projects/web3market/ex/build/Shop/tact_Order.fc` 
 PROGRAM{
   DECLPROC __tact_context_get
   DECLPROC __tact_context_get_sender
   DECLPROC $NftTransfer$_store
   DECLPROC $NftTransfer$_store_cell
-  DECLPROC $GetPriceResponse$_load_without_opcode
   DECLPROC $OrderCompleted$_store
   DECLPROC $OrderCompleted$_store_cell
   DECLPROC $Order$_store
@@ -34,19 +33,13 @@ PROGRAM{
     3656957868 PUSHINT
     s0 s3 XCHG2
     32 STU
-    SWAP
-    STSLICER
+    STSLICE
     1 STI
   }>
   $NftTransfer$_store_cell PROCINLINE:<{
-    NEWC
     -ROT
     $NftTransfer$_store INLINECALLDICT
     ENDC
-  }>
-  $GetPriceResponse$_load_without_opcode PROCINLINE:<{
-    LDVARUINT16
-    SWAP
   }>
   $OrderCompleted$_store PROCINLINE:<{
     2570985173 PUSHINT
@@ -55,24 +48,21 @@ PROGRAM{
     s1 s2 XCHG
     257 PUSHINT
     STIX
-    SWAP
-    STSLICER
-    SWAP
-    STSLICER
+    STSLICE
+    STSLICE
   }>
   $OrderCompleted$_store_cell PROCINLINE:<{
-    NEWC
     3 -ROLL
     $OrderCompleted$_store INLINECALLDICT
     ENDC
   }>
   $Order$_store PROCINLINE:<{
-    s8 s7 XCHG2
-    STSLICER
-    s0 s5 XCHG2
-    STSLICER
-    s0 s3 XCHG2
-    STSLICER
+    s7 s8 XCHG2
+    STSLICE
+    s1 s5 XCHG
+    STSLICE
+    s1 s3 XCHG
+    STSLICE
     SWAP
     NEWC
     256 STU
@@ -80,8 +70,9 @@ PROGRAM{
     STVARUINT16
     s1 s2 XCHG
     1 STI
-    s1 s3 XCHG
+    s1 s2 XCHG
     1 STI
+    s1 s2 XCHG
     1 STI
     STBREFR
   }>
@@ -204,11 +195,11 @@ PROGRAM{
         s2 POP
         s7 POP
         NIP
-        $GetPriceResponse$_load_without_opcode INLINECALLDICT
-        NIP
+        LDVARUINT16
+        DROP
         4429 PUSHINT
         __tact_context_get_sender INLINECALLDICT
-        s4 s(-1) PUXC
+        s4 PUSH
         SDEQ
         THROWANYIFNOT
         s4 s6 XCHG
@@ -269,6 +260,7 @@ PROGRAM{
       s4 PUSH
       FALSE
       $NftTransfer$_constructor_newOwner_isSalable INLINECALLDICT
+      NEWC
       $NftTransfer$_store_cell INLINECALLDICT
       s4 PUSH
       -ROT
@@ -341,6 +333,7 @@ PROGRAM{
           SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
       s1 s3 s2 PUSH3
       $OrderCompleted$_constructor_orderIndex_buyer_itemAddress INLINECALLDICT
+      NEWC
       $OrderCompleted$_store_cell INLINECALLDICT
       s5 s1 s(-2) PU2XC
       $SendParameters$_constructor_to_value_body INLINECALLDICT
@@ -423,13 +416,14 @@ PROGRAM{
     IFJMP:<{
       32501 PUSHINT
       __tact_context_get_sender INLINECALLDICT
-      s6 s(-1) PUXC
+      s6 PUSH
       SDEQ
       THROWANYIFNOT
       200000000 PUSHINT
       s4 PUSH
       FALSE
       $NftTransfer$_constructor_newOwner_isSalable INLINECALLDICT
+      NEWC
       $NftTransfer$_store_cell INLINECALLDICT
       s4 PUSH
       -ROT

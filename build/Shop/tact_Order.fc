@@ -18,16 +18,13 @@ slice __tact_context_get_sender() inline;
 builder $NftTransfer$_store(builder build_0, (slice, int) v) inline;
 
 ;; $NftTransfer$_store_cell
-cell $NftTransfer$_store_cell((slice, int) v) inline;
-
-;; $GetPriceResponse$_load_without_opcode
-(slice, ((int))) $GetPriceResponse$_load_without_opcode(slice sc_0) inline;
+cell $NftTransfer$_store_cell((slice, int) v, builder b) inline;
 
 ;; $OrderCompleted$_store
 builder $OrderCompleted$_store(builder build_0, (int, slice, slice) v) inline;
 
 ;; $OrderCompleted$_store_cell
-cell $OrderCompleted$_store_cell((int, slice, slice) v) inline;
+cell $OrderCompleted$_store_cell((int, slice, slice) v, builder b) inline;
 
 ;; $Order$_store
 builder $Order$_store(builder build_0, (slice, slice, slice, int, int, int, int, int) v) inline;
@@ -195,23 +192,12 @@ builder $NftTransfer$_store(builder build_0, (slice, int) v) inline {
     return build_0;
 }
 
-cell $NftTransfer$_store_cell((slice, int) v) inline {
-    return $NftTransfer$_store(begin_cell(), v).end_cell();
+cell $NftTransfer$_store_cell((slice, int) v, builder b) inline {
+    return $NftTransfer$_store(b, v).end_cell();
 }
 
 ((slice, int)) $NftTransfer$_constructor_newOwner_isSalable(slice $newOwner, int $isSalable) inline {
     return ($newOwner, $isSalable);
-}
-
-;;
-;; Type: GetPriceResponse
-;; Header: 0x7c95a1fc
-;; TLB: get_price_response#7c95a1fc price:coins = GetPriceResponse
-;;
-
-(slice, ((int))) $GetPriceResponse$_load_without_opcode(slice sc_0) inline {
-    var v'price = sc_0~load_varuint16();
-    return (sc_0, (v'price));
 }
 
 ;;
@@ -229,8 +215,8 @@ builder $OrderCompleted$_store(builder build_0, (int, slice, slice) v) inline {
     return build_0;
 }
 
-cell $OrderCompleted$_store_cell((int, slice, slice) v) inline {
-    return $OrderCompleted$_store(begin_cell(), v).end_cell();
+cell $OrderCompleted$_store_cell((int, slice, slice) v, builder b) inline {
+    return $OrderCompleted$_store(b, v).end_cell();
 }
 
 ((int, slice, slice)) $OrderCompleted$_constructor_orderIndex_buyer_itemAddress(int $orderIndex, slice $buyer, slice $itemAddress) inline {
@@ -346,8 +332,8 @@ builder $Order$_store(builder build_0, (slice, slice, slice, int, int, int, int,
         op = in_msg~load_uint(32);
         ;; Receive GetPriceResponse message
         if (op == 0x7c95a1fc) {
-            var ($msg'price) = in_msg~$GetPriceResponse$_load_without_opcode();
-            throw_unless(4429, ( equal_slices_bits($self'itemAddress, __tact_context_get_sender()) ));
+            var $msg'price = in_msg~load_varuint16();
+            throw_unless(4429, ( equal_slices_bits(__tact_context_get_sender(), $self'itemAddress) ));
             $self'price = $msg'price;
             $self'priceSetted = true;
             $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
@@ -369,16 +355,16 @@ builder $Order$_store(builder build_0, (slice, slice, slice, int, int, int, int,
         throw_unless(24590, $self'priceSetted);
         throw_unless(46647, ($Context$_get_value(__tact_context_get()) >= $self'price));
         throw_unless(27283, $self'refunded);
-        $global_send($SendParameters$_constructor_to_value_body($self'itemAddress, 200000000, $NftTransfer$_store_cell($NftTransfer$_constructor_newOwner_isSalable($self'buyer, false))));
-        $global_send($SendParameters$_constructor_to_value_body($self'seller, $self'price, $OrderCompleted$_store_cell($OrderCompleted$_constructor_orderIndex_buyer_itemAddress($self'id, $self'buyer, $self'itemAddress))));
+        $global_send($SendParameters$_constructor_to_value_body($self'itemAddress, 200000000, $NftTransfer$_store_cell($NftTransfer$_constructor_newOwner_isSalable($self'buyer, false), begin_cell())));
+        $global_send($SendParameters$_constructor_to_value_body($self'seller, $self'price, $OrderCompleted$_store_cell($OrderCompleted$_constructor_orderIndex_buyer_itemAddress($self'id, $self'buyer, $self'itemAddress), begin_cell())));
         $self'completed = true;
         $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
         return ();
     }
     ;; Receive "Refund Item" message
     if (text_op == 0xd4a4b54243b00b8b0fd3409d46333008e9ad093eceec5c78e7900972bea36532) {
-        throw_unless(32501, ( equal_slices_bits($self'seller, __tact_context_get_sender()) ));
-        $global_send($SendParameters$_constructor_to_value_body($self'itemAddress, 200000000, $NftTransfer$_store_cell($NftTransfer$_constructor_newOwner_isSalable($self'buyer, false))));
+        throw_unless(32501, ( equal_slices_bits(__tact_context_get_sender(), $self'seller) ));
+        $global_send($SendParameters$_constructor_to_value_body($self'itemAddress, 200000000, $NftTransfer$_store_cell($NftTransfer$_constructor_newOwner_isSalable($self'buyer, false), begin_cell())));
         $self'refunded = true;
         $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
         return ();

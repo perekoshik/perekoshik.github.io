@@ -14,26 +14,17 @@
 ;; __tact_context_get_sender
 slice __tact_context_get_sender() inline;
 
-;; $ChangeUserData$_load_without_opcode
-(slice, ((slice, int, slice))) $ChangeUserData$_load_without_opcode(slice sc_0) inline;
-
 ;; $CreateOrder$_store
 builder $CreateOrder$_store(builder build_0, (slice, slice, int) v) inline;
 
 ;; $CreateOrder$_store_cell
-cell $CreateOrder$_store_cell((slice, slice, int) v) inline;
-
-;; $MakeOrder$_load_without_opcode
-(slice, ((slice, int))) $MakeOrder$_load_without_opcode(slice sc_0) inline;
-
-;; $Deploy$_load_without_opcode
-(slice, ((int))) $Deploy$_load_without_opcode(slice sc_0) inline;
+cell $CreateOrder$_store_cell((slice, slice, int) v, builder b) inline;
 
 ;; $DeployOk$_store
 builder $DeployOk$_store(builder build_0, (int) v) inline;
 
 ;; $DeployOk$_store_cell
-cell $DeployOk$_store_cell((int) v) inline;
+cell $DeployOk$_store_cell((int) v, builder b) inline;
 
 ;; $User$_store
 builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline;
@@ -242,19 +233,6 @@ _ $Context$_get_value((int, slice, int, slice) v) inline {
 }
 
 ;;
-;; Type: ChangeUserData
-;; Header: 0x7f22ed74
-;; TLB: change_user_data#7f22ed74 name:^string id:int257 deliveryAddress:^string = ChangeUserData
-;;
-
-(slice, ((slice, int, slice))) $ChangeUserData$_load_without_opcode(slice sc_0) inline {
-    var v'name = sc_0~load_ref().begin_parse();
-    var v'id = sc_0~load_int(257);
-    var v'deliveryAddress = sc_0~load_ref().begin_parse();
-    return (sc_0, (v'name, v'id, v'deliveryAddress));
-}
-
-;;
 ;; Type: CreateOrder
 ;; Header: 0x7ac14988
 ;; TLB: create_order#7ac14988 itemAddress:address deliveryAddress:^string price:coins = CreateOrder
@@ -269,35 +247,12 @@ builder $CreateOrder$_store(builder build_0, (slice, slice, int) v) inline {
     return build_0;
 }
 
-cell $CreateOrder$_store_cell((slice, slice, int) v) inline {
-    return $CreateOrder$_store(begin_cell(), v).end_cell();
+cell $CreateOrder$_store_cell((slice, slice, int) v, builder b) inline {
+    return $CreateOrder$_store(b, v).end_cell();
 }
 
 ((slice, slice, int)) $CreateOrder$_constructor_itemAddress_deliveryAddress_price(slice $itemAddress, slice $deliveryAddress, int $price) inline {
     return ($itemAddress, $deliveryAddress, $price);
-}
-
-;;
-;; Type: MakeOrder
-;; Header: 0x75bc02e6
-;; TLB: make_order#75bc02e6 itemAddress:address price:coins = MakeOrder
-;;
-
-(slice, ((slice, int))) $MakeOrder$_load_without_opcode(slice sc_0) inline {
-    var v'itemAddress = sc_0~load_msg_addr();
-    var v'price = sc_0~load_varuint16();
-    return (sc_0, (v'itemAddress, v'price));
-}
-
-;;
-;; Type: Deploy
-;; Header: 0x946a98b6
-;; TLB: deploy#946a98b6 queryId:uint64 = Deploy
-;;
-
-(slice, ((int))) $Deploy$_load_without_opcode(slice sc_0) inline {
-    var v'queryId = sc_0~load_uint(64);
-    return (sc_0, (v'queryId));
 }
 
 ;;
@@ -313,8 +268,8 @@ builder $DeployOk$_store(builder build_0, (int) v) inline {
     return build_0;
 }
 
-cell $DeployOk$_store_cell((int) v) inline {
-    return $DeployOk$_store(begin_cell(), v).end_cell();
+cell $DeployOk$_store_cell((int) v, builder b) inline {
+    return $DeployOk$_store(b, v).end_cell();
 }
 
 ((int)) $DeployOk$_constructor_queryId(int $queryId) inline {
@@ -412,8 +367,10 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
     var op = in_msg~load_opcode_internal();
     ;; Receive ChangeUserData message
     if (op == 0x7f22ed74) {
-        var ($msg'name, $msg'id, $msg'deliveryAddress) = in_msg~$ChangeUserData$_load_without_opcode();
-        throw_unless(50052, ( equal_slices_bits($self'parent, __tact_context_get_sender()) ));
+        var $msg'name = in_msg~load_ref().begin_parse();
+        var $msg'id = in_msg~load_int(257);
+        var $msg'deliveryAddress = in_msg~load_ref().begin_parse();
+        throw_unless(50052, ( equal_slices_bits(__tact_context_get_sender(), $self'parent) ));
         $self'name = $msg'name;
         $self'id = $msg'id;
         $self'deliveryAddress = $msg'deliveryAddress;
@@ -423,16 +380,17 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
     
     ;; Receive MakeOrder message
     if (op == 0x75bc02e6) {
-        var ($msg'itemAddress, $msg'price) = in_msg~$MakeOrder$_load_without_opcode();
-        $global_send($SendParameters$_constructor_to_value_body_mode($msg'itemAddress, $msg'price, $CreateOrder$_store_cell($CreateOrder$_constructor_itemAddress_deliveryAddress_price($msg'itemAddress, $self'deliveryAddress, $msg'price)), 2));
+        var $msg'itemAddress = in_msg~load_msg_addr();
+        var $msg'price = in_msg~load_varuint16();
+        $global_send($SendParameters$_constructor_to_value_body_mode($msg'itemAddress, $msg'price, $CreateOrder$_store_cell($CreateOrder$_constructor_itemAddress_deliveryAddress_price($msg'itemAddress, $self'deliveryAddress, $msg'price), begin_cell()), 2));
         $User$_contract_store(($self'parent, $self'id, $self'name, $self'deliveryAddress));
         return ();
     }
     
     ;; Receive Deploy message
     if (op == 0x946a98b6) {
-        var ($deploy'queryId) = in_msg~$Deploy$_load_without_opcode();
-        ($self'parent, $self'id, $self'name, $self'deliveryAddress)~$User$_fun_notify($DeployOk$_store_cell($DeployOk$_constructor_queryId($deploy'queryId)));
+        var $deploy'queryId = in_msg~load_uint(64);
+        ($self'parent, $self'id, $self'name, $self'deliveryAddress)~$User$_fun_notify($DeployOk$_store_cell($DeployOk$_constructor_queryId($deploy'queryId), begin_cell()));
         $User$_contract_store(($self'parent, $self'id, $self'name, $self'deliveryAddress));
         return ();
     }

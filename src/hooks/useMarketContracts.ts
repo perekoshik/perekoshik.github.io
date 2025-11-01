@@ -10,8 +10,7 @@ import { useEffect, useState } from "react";
 
 export function useMarketContracts() {
     const {client} = useTonClient();
-    const {wallet} = useTonConnect();
-    const {sender} = useTonConnect();
+    const {wallet, sender} = useTonConnect();
     const [shopName, setshopName] = useState<string>('');
 
     const usersFactoryContract = useAsyncInitialize(async () => {
@@ -30,7 +29,7 @@ export function useMarketContracts() {
         )
 
         return client.open(User.fromAddress(userAddress))
-    }, [usersFactoryContract])
+    }, [usersFactoryContract, client, wallet])
 
     const shopFactoryContract = useAsyncInitialize(async () => {
         if(!client) return;
@@ -48,7 +47,7 @@ export function useMarketContracts() {
         )
 
         return client.open(Shop.fromAddress(shopAddress))
-    }, [shopFactoryContract]);
+    }, [shopFactoryContract, client, wallet]);
 
     useEffect(() => {
         async function getshopname() {

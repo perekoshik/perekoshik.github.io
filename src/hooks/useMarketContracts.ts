@@ -8,6 +8,37 @@ import { ShopFactory } from "@/wrappers/ShopFactory";
 import { Shop, storeUpdateShopInfo, UpdateShopInfo } from "@/wrappers/Shop";
 import { useEffect, useState } from "react";
 
+const DEFAULT_USERS_FACTORY = {
+  mainnet: "kQBgrtmFiD0RSd7aFEcPJoChkLIO9Yb4pScN4xub1W3bAX9A",
+  testnet: "kQApbRMD39StaHO1eJPpCG9lUGwr9k7Q5ypw0xhmKAnueFN_",
+} as const;
+
+const DEFAULT_SHOP_FACTORY = {
+  mainnet: "kQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXgmP",
+  testnet: "kQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXgmP",
+} as const;
+
+const TESTNET_DEV_WALLETS = (import.meta.env.VITE_DEV_WALLETS_TESTNET ?? "")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean)
+  .map((value) => Address.parse(value));
+
+function resolveAddress(
+  network: "mainnet" | "testnet",
+  envKey: "VITE_USERS_FACTORY" | "VITE_SHOP_FACTORY",
+  defaults: typeof DEFAULT_USERS_FACTORY
+) {
+  if (network === "testnet" && TESTNET_DEV_WALLETS.length) {
+    return TESTNET_DEV_WALLETS[0];
+  }
+
+  const suffix = network === "mainnet" ? "_MAINNET" : "_TESTNET";
+  const envValue = import.meta.env[`${envKey}${suffix}`];
+  const fallback = defaults[network];
+  return Address.parse((envValue as string | undefined) ?? fallback);
+}
+
 export function useMarketContracts() {
     const {client} = useTonClient();
     const {wallet, sender, network} = useTonConnect();
@@ -16,11 +47,13 @@ export function useMarketContracts() {
     const usersFactoryContract = useAsyncInitialize(async () => {
         if(!client || !network) return;
 
-        const usersFactoryAddress = network === "mainnet"
-            ? "kQBgrtmFiD0RSd7aFEcPJoChkLIO9Yb4pScN4xub1W3bAX9A" // TODO: replace with real mainnet address
-            : "kQApbRMD39StaHO1eJPpCG9lUGwr9k7Q5ypw0xhmKAnueFN_";
+        const usersFactoryAddress = resolveAddress(
+            network,
+            "VITE_USERS_FACTORY",
+            DEFAULT_USERS_FACTORY
+        );
 
-        const usersFactoryContract = UsersFactory.fromAddress(Address.parse(usersFactoryAddress))
+        const usersFactoryContract = UsersFactory.fromAddress(usersFactoryAddress)
     
         return client.open(usersFactoryContract) as OpenedContract<UsersFactory>;
     }, [client, network]);
@@ -38,11 +71,13 @@ export function useMarketContracts() {
     const shopFactoryContract = useAsyncInitialize(async () => {
         if(!client || !network) return;
 
-        const shopFactoryAddress = network === "mainnet"
-            ? "kQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXgmP" // TODO: replace with real mainnet address
-            : "kQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXgmP";
+        const shopFactoryAddress = resolveAddress(
+            network,
+            "VITE_SHOP_FACTORY",
+            DEFAULT_SHOP_FACTORY
+        );
 
-        const shopFactory = ShopFactory.fromAddress(Address.parse(shopFactoryAddress))
+        const shopFactory = ShopFactory.fromAddress(shopFactoryAddress)
     
         return client.open(shopFactory) as OpenedContract<ShopFactory>;
     }, [client, network]);

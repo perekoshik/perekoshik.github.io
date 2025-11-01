@@ -1,6 +1,6 @@
 import { useTonClient } from "./useTonClient";
 import { useAsyncInitialize } from "./useAsyncInitialize";
-import { Address, beginCell, OpenedContract, toNano } from "@ton/core";
+import { Address, beginCell, OpenedContract, toNano } from "ton-core";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useTonConnect } from "./useTonConnect";
 import { User } from "@/wrappers/User";
@@ -71,17 +71,31 @@ export function useMarketContracts() {
                 ordersCount: 0n,
             };
 
-            const body = beginCell()
-                .store(storeUpdateShopInfo(message))
-                .endCell();
+            const shopContract = client.open(await Shop.fromInit(Address.parse(wallet)));
+            await shopContract.send(
+                sender, {
+                    value: toNano('0.05'),
+                    bounce: false,
+                }, {
+                    $$type: 'UpdateShopInfo' as const,
+                    shopName: shopName,
+                    shopId: id,
+                    uniqueItemsCount: 0n,
+                    ordersCount: 0n,
+                },
+            ) 
 
-            await sender.send({
-                to: shopStateInit.address,
-                value: toNano('0.05'),
-                bounce: false,
-                init: shopStateInit.init,
-                body: body
-            });
+            // const body = beginCell()
+            //     .store(storeUpdateShopInfo(message))
+            //     .endCell();
+
+            // await sender.send({
+            //     to: shopStateInit.address,
+            //     value: toNano('0.05'),
+            //     bounce: false,
+            //     init: shopStateInit.init,
+            //     body: body
+            // });
 
             await new Promise(resolve => setTimeout(resolve, 3000));
 
@@ -89,8 +103,6 @@ export function useMarketContracts() {
             if (!isDeployed) {
                 throw new Error('Shop contract deployment failed - contract not active');
             }
-
-            const shopContract = client.open(Shop.fromAddress(shopStateInit.address));
             const retrievedName = await shopContract.getShopName();
             
 

@@ -67,11 +67,17 @@ export function useMarketContracts() {
         setLoading(true);
 
         try {
-            const shopStateInit = await Shop.fromInit(walletAddress);
-        
-            if (!shopStateInit.init) {
-                throw new Error('Failed to initialize shop contract data');
+            try {
+                const shopStateInit = await Shop.fromInit(walletAddress);
+                if (!shopStateInit.init) {
+                    throw new Error('Failed to initialize shop contract data');
+                }
+            } catch (initError) {
+                throw new Error(`Failed to initialize shop contract: ${(initError as Error).message}`);
             }
+            
+        
+
 
             const message = {
                 $$type: 'UpdateShopInfo' as const,
@@ -81,7 +87,13 @@ export function useMarketContracts() {
                 ordersCount: 0n,
             };
 
-            const shopContract = client.open(shopStateInit);
+            try {
+                const shopContract = client.open(shopStateInit);
+            } catch (openError) {
+                throw new Error(`Failed to open shop contract: ${(openError as Error).message}`);
+            }
+
+            
 
             try {
                 await shopContract.send(
@@ -94,7 +106,11 @@ export function useMarketContracts() {
                 throw new Error(`Transaction failed: ${(sendError as Error).message}`);
             }
 
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            try {
+                await new Promise(resolve => setTimeout(resolve, 3000));
+            } catch (timeoutError) {
+                throw new Error(`Timeout error: ${(timeoutError as Error).message}`);
+            }
 
             const isDeployed = await client.isContractDeployed(shopStateInit.address);
             if (!isDeployed) {

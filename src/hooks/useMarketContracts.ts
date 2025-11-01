@@ -17,7 +17,7 @@ export function useMarketContracts() {
     const usersFactoryContract = useAsyncInitialize(async () => {
         if(!client) return;
 
-        const usersFactoryContract = UsersFactory.fromAddress(Address.parse("EQApbRMD39StaHO1eJPpCG9lUGwr9k7Q5ypw0xhmKAnueOj1"))
+        const usersFactoryContract = UsersFactory.fromAddress(Address.parse("kQApbRMD39StaHO1eJPpCG9lUGwr9k7Q5ypw0xhmKAnueFN_"))
     
         return client.open(usersFactoryContract) as OpenedContract<UsersFactory>;
     }, [client]);
@@ -35,7 +35,7 @@ export function useMarketContracts() {
     const shopFactoryContract = useAsyncInitialize(async () => {
         if(!client) return;
 
-        const shopFactoryAddress = ShopFactory.fromAddress(Address.parse("EQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXrIF"))
+        const shopFactoryAddress = ShopFactory.fromAddress(Address.parse("kQCiX5NxM6pBa1B8zkCD8l48JHz398OZxxay7W1b_M1iXgmP"))
     
         return client.open(shopFactoryAddress) as OpenedContract<ShopFactory>;
     }, [client]);

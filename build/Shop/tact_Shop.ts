@@ -2024,6 +2024,7 @@ export class Shop implements Contract {
     
     static async fromInit(owner: Address) {
         const __gen_init = await Shop_init(owner);
+        if (__gen_init === null) { throw new Error('init data is null'); }
         const address = contractAddress(0, __gen_init);
         return new Shop(address, __gen_init);
     }

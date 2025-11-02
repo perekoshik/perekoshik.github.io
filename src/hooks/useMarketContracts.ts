@@ -1,6 +1,6 @@
 import { useTonClient } from "./useTonClient";
 import { useAsyncInitialize } from "./useAsyncInitialize";
-import { Address, beginCell, OpenedContract, toNano } from "ton-core";
+import { Address, beginCell, OpenedContract, toNano } from "@ton/core";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useTonConnect } from "./useTonConnect";
 import { User } from "@/wrappers/User";

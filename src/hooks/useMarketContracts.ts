@@ -108,13 +108,13 @@ export function useMarketContracts() {
 
 
             try {
-                if (!shopStateInit || !shopAddress) {
+                if (!shopStateInit.init || !shopContract.address) {
                     throw new Error('Invalid shopStateInit or shopAddress');
                 }
                 await sender.send({ 
-                    to: Address.parse(shopAddress),
+                    to: shopContract.address,
                     value: toNano(0.1),
-                    init: shopContract.init,
+                    init: shopStateInit.init,
                     body: beginCell().store(storeUpdateShopInfo(message)).endCell()
                 });
             } catch (sendError) {

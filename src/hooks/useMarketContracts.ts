@@ -68,16 +68,10 @@ export function useMarketContracts() {
         let shopStateInit;
         let shopContract;
         let retrievedName: string;
-        let walletAddress1: Address;
-        try {
-            walletAddress1 = Address.parse(wallet);
-        } catch (error) {
-            throw new Error('Invalid wallet address format: ' + wallet);
-        }
 
         try {
             try {
-                shopStateInit = await Shop.fromInit(walletAddress1);
+                shopStateInit = await Shop.fromInit(walletAddress);
                 if (!shopStateInit.init) {
                     throw new Error('Failed to initialize shop contract data');
                 }

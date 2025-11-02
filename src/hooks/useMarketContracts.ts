@@ -108,26 +108,21 @@ export function useMarketContracts() {
 
 
             try {
-                await shopContract.send(
-                    sender, {
-                        value: toNano('0.1'),
-                        bounce: false,
-                    }, message,
-                );
+                await sender.send({
+                    to: shopStateInit.address,
+                    value: toNano('0.1'),
+                    bounce: false,
+                    init: shopStateInit.init,
+                    body: beginCell().store(storeUpdateShopInfo(message)).endCell(),
+                });
             } catch (sendError) {
                 throw new Error(`Transaction failed: ${(sendError as Error).message}`);
-            }
-
-            try {
-                await new Promise(resolve => setTimeout(resolve, 30000));
-            } catch (timeoutError) {
-                throw new Error(`Timeout error: ${(timeoutError as Error).message}`);
             }
 
             const isDeployed = await client.isContractDeployed(shopStateInit.address);
 
             while (!isDeployed) {
-                await new Promise(resolve => setTimeout(resolve, 10000));
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
 
             

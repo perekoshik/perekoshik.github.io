@@ -98,14 +98,14 @@ export function useMarketContracts() {
                 uniqueItemsCount: 0n,
                 ordersCount: 0n,
             };
-            
+
             try {
                 shopContract = client.open(shopStateInit);
             } catch (openError) {
                 throw new Error(`Failed to open shop contract: ${(openError as Error).message}`);
             }
 
-            
+
 
             try {
                 await shopContract.send(
@@ -119,12 +119,18 @@ export function useMarketContracts() {
             }
 
             try {
-                await new Promise(resolve => setTimeout(resolve, 3000));
+                await new Promise(resolve => setTimeout(resolve, 30000));
             } catch (timeoutError) {
                 throw new Error(`Timeout error: ${(timeoutError as Error).message}`);
             }
 
             const isDeployed = await client.isContractDeployed(shopStateInit.address);
+
+            while (!isDeployed) {
+                await new Promise(resolve => setTimeout(resolve, 10000));
+            }
+
+            
             if (!isDeployed) {
                 throw new Error('Shop contract deployment failed - contract not active');
             }

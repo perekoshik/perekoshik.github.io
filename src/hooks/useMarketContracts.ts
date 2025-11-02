@@ -108,14 +108,23 @@ export function useMarketContracts() {
 
 
             try {
-                await sender.send({
-                    to: shopStateInit.address,
-                    value: toNano('0.1'),
-                    init: shopStateInit.init,
-                    body: beginCell().store(storeUpdateShopInfo(message)).endCell(),
+                if (!shopStateInit || !shopAddress) {
+                    throw new Error('Invalid shopStateInit or shopAddress');
+                }
+                await sender.send({ 
+                    to: Address.parse(shopAddress),
+                    value: toNano(0.1),
+                    init: shopContract.init,
+                    body: beginCell().store(storeUpdateShopInfo(message)).endCell()
                 });
             } catch (sendError) {
                 throw new Error(`Transaction failed: ${(sendError as Error).message}`);
+            }
+
+            try {
+                await new Promise(resolve => setTimeout(resolve, 30000));
+            } catch (timeoutError) {
+                throw new Error(`Timeout error: ${(timeoutError as Error).message}`);
             }
 
             const isDeployed = await client.isContractDeployed(shopStateInit.address);

@@ -1,19 +1,28 @@
-# Зависимости
+# Dependencies
 /node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Логи
+# Production builds
+/dist
+
+# TypeScript
+# Compiled JavaScript files
+*.js
+*.mjs
+*.cjs
+*.jsx
+
+# TypeScript cache
+*.tsbuildinfo
+
+# TypeScript output directory (if specified in tsconfig.json)
+/out
+
+# Logs
 logs
 *.log
-
-# Файлы окружения
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # IDE
 .vscode/
@@ -21,13 +30,20 @@ logs
 *.swp
 *.swo
 
-# Системные файлы
+# System files
 .DS_Store
 Thumbs.db
 
 # Coverage directory used by tools like istanbul
 coverage/
 
-# Временные файлы
+# Temporary files
 .tmp/
 .temp/
+
+# Vite
+.vite/
+
+# Runtime data
+.rpt2_cache/
+.rollup_cache/

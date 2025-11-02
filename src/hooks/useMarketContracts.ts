@@ -111,7 +111,7 @@ export function useMarketContracts() {
                 if (!shopStateInit.init || !shopContract.address) {
                     throw new Error('Invalid shopStateInit or shopAddress');
                 }
-                await sender.send({ 
+                sender.send({ 
                     to: shopContract.address,
                     value: toNano(0.1),
                     bounce: false,

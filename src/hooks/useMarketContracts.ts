@@ -76,7 +76,7 @@ export function useMarketContracts() {
                     throw new Error('Failed to initialize shop contract data');
                 }
             } catch (initError) {
-                throw new Error(`Failed to initialize shop contract: ${(initError as Error).message}`);
+                throw new Error(`walletAddress.address: ${walletAddress.toString()} Failed to initialize shop contract: ${(initError as Error).message}`);
             }
             
         

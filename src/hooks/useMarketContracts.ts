@@ -49,8 +49,17 @@ export function useMarketContracts() {
     const [loading, setLoading] = useState(false);
 
     const makeShop = async (shopName: string, id: bigint): Promise<string> => {
-        if (!sender || !wallet || !connected || !client) {
-            throw new Error('Wallet not connected or client not available');
+        if (!sender) {
+            throw new Error('Sender not available');
+        }
+        if (!wallet) {
+            throw new Error('Wallet not available');
+        }
+        if (!client) {
+            throw new Error('Client not available');
+        }
+        if (!connected) {
+            throw new Error('Disconnected');
         }
 
         if (!shopName.trim()) {

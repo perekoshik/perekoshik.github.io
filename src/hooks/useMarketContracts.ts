@@ -118,8 +118,7 @@ export function useMarketContracts() {
                     init: {
                         code: shopStateInit.init.code,
                         data: shopStateInit.init.data
-                    },
-                    body: beginCell().store(storeUpdateShopInfo(message)).endCell()
+                    }
                 });
             } catch (sendError) {
                 throw new Error(`Transaction failed: ${(sendError as Error).message}`);

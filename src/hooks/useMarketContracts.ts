@@ -114,7 +114,10 @@ export function useMarketContracts() {
                 await sender.send({ 
                     to: shopContract.address,
                     value: toNano(0.1),
-                    init: shopStateInit.init,
+                    init: {
+                        code: shopStateInit.init.code,
+                        data: shopStateInit.init.data,
+                    },
                     body: beginCell().store(storeUpdateShopInfo(message)).endCell()
                 });
             } catch (sendError) {

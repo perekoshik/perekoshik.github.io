@@ -9,11 +9,21 @@ yarn-error.log*
 /dist
 
 # TypeScript
-# Compiled JavaScript files
+# Compiled JavaScript files (but keep config files)
 *.js
 *.mjs
 *.cjs
 *.jsx
+
+# CHANGE: Include configuration files in root directory
+# WHY: Config files (eslint.config.js, postcss.config.cjs, etc.) must be tracked in git
+# REF: User message - "eslint.config.js должен быть в кеше гита"
+!/*.config.js
+!/*.config.mjs
+!/*.config.cjs
+!/eslint.config.js
+!/vite.config.*
+!/tailwind.config.*
 
 # TypeScript cache
 *.tsbuildinfo

@@ -1,8 +1,9 @@
-import { Address, type OpenedContract, toNano } from "@ton/core";
+import { Address, type OpenedContract, toNano, beginCell } from "@ton/core";
 import { useCallback, useState } from "react";
-import { Shop } from "@/wrappers/Shop";
+import { Shop, storeUpdateShopInfo } from "@/wrappers/Shop";
 import { User } from "@/wrappers/User";
 import { UsersFactory } from "@/wrappers/UsersFactory";
+import { ShopFactory } from "@/wrappers/ShopFactory";
 import { useAsyncInitialize } from "./useAsyncInitialize";
 import { useTonClient } from "./useTonClient";
 import { useTonConnect } from "./useTonConnect";
@@ -85,7 +86,9 @@ export function useMarketContracts() {
 		setLoading(true);
 
 		try {
-			// Initialize shop contract
+			// SOLUTION: Initialize and update the shop info in a single transaction
+			// WHY: According to the specification, the contract should receive an init with
+			// an accompanying message that updates the shop info with the proper shopName and user.id
 			const shopStateInit = await Shop.fromInit(walletAddress);
 			if (!shopStateInit.init) {
 				throw new Error("Failed to initialize shop contract data");
@@ -98,16 +101,45 @@ export function useMarketContracts() {
 				throw new Error("Invalid shop contract address");
 			}
 
-			// Send the transaction to deploy the shop
-			await sender.send({
-				to: shopContract.address,
-				value: toNano(0.1),
-				bounce: false,
-				init: {
-					code: shopStateInit.init.code,
-					data: shopStateInit.init.data,
-				},
-			});
+			// SOLUTION: Handle contract initialization with update message as specified
+			// WHY: According to specification, we should check if contract is deployed and handle appropriately
+			// REF: User mentioned: "Если контракт уже задеплоен, посылать на него только месседж без инита, если нет - инит и месседж с апдейтом"
+			
+			// Create the UpdateShopInfo message with the shopName and initialize other values
+			const updateShopInfoMsg = {
+				$$type: 'UpdateShopInfo' as const,
+				shopName: shopName,          // Use the provided shop name from input
+				shopId: 0n,                  // Initialize with 0; this will likely be updated later
+				uniqueItemsCount: 0n,        // Initialize with 0
+				ordersCount: 0n              // Initialize with 0
+			};
+
+			// Check if the contract is already deployed
+			const isDeployed = await client.isContractDeployed(shopContract.address);
+			
+			if (isDeployed) {
+				// CONTRACT ALREADY DEPLOYED: Send only the update message
+				// REF: "Если контракт уже задеплоен, посылать на него только месседж без инита"
+				await shopContract.send(
+					client.open(shopContract),
+					sender,
+					{ value: toNano(0.05) }, // Smaller amount for just update
+					updateShopInfoMsg
+				);
+			} else {
+				// CONTRACT NOT DEPLOYED: Send both init and update message together
+				// REF: "если нет - инит и месседж с апдейтом"
+				await sender.send({
+					to: shopContract.address,
+					value: toNano(0.1),
+					bounce: false,
+					init: {
+						code: shopStateInit.init.code,
+						data: shopStateInit.init.data,
+					},
+					body: beginCell().store(storeUpdateShopInfo(updateShopInfoMsg)).endCell(),
+				});
+			}
 
 			// Wait for the transaction to be processed
 			const startTime = Date.now();
@@ -120,7 +152,7 @@ export function useMarketContracts() {
 					shopContract.address,
 				);
 				if (isDeployed) {
-					// Get shop name after deployment
+					// Get shop name after deployment/update
 					try {
 						const retrievedName = await shopContract.getShopName();
 

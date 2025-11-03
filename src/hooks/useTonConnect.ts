@@ -1,4 +1,9 @@
-import { Address, type SenderArguments } from "@ton/core";
+import {
+	Address,
+	beginCell,
+	type SenderArguments,
+	storeStateInit,
+} from "@ton/core";
 import {
 	type CHAIN,
 	useTonConnectUI,
@@ -22,7 +27,7 @@ export function useTonConnect(): {
 	return {
 		sender: {
 			send: async (args: SenderArguments) => {
-				// Build the message object conditionally to avoid undefined values
+				// Transform the message for TON Connect protocol
 				const message: {
 					address: string;
 					amount: string;
@@ -33,18 +38,28 @@ export function useTonConnect(): {
 					amount: args.value.toString(),
 				};
 
+				// Properly format stateInit if it exists as base64 BOC of the entire StateInit cell
 				if (args.init) {
-					message.stateInit = args.init.toString();
+					const stateInitCell = beginCell()
+						.store(storeStateInit(args.init))
+						.endCell();
+					message.stateInit = stateInitCell.toBoc().toString("base64");
 				}
 
 				if (args.body) {
+					// Convert the body to base64 string as expected by TON Connect
 					message.payload = args.body.toBoc().toString("base64");
 				}
 
-				TonConnectUI.sendTransaction({
-					messages: [message],
-					validUntil: Date.now() + 5 * 60 * 1000,
-				});
+				try {
+					await TonConnectUI.sendTransaction({
+						messages: [message],
+						validUntil: Math.floor(Date.now() / 1000) + 300, // 5 minutes from now in seconds
+					});
+				} catch (error) {
+					console.error("Error sending transaction:", error);
+					throw error; // Re-throw to handle in the calling function
+				}
 			},
 			address: wallet?.account.address
 				? Address.parse(wallet?.account.address as string)

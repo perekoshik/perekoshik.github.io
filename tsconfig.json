@@ -5,13 +5,29 @@
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "strict": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
     "noEmit": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "strict": true,
+		"alwaysStrict": true,
+    "noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"exactOptionalPropertyTypes": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"allowUnusedLabels": false,
+		"allowUnreachableCode": false,
+
+		// CHANGE: Add verbatimModuleSyntax for explicit import control
+		// WHY: Require explicit 'type' keyword for type-only imports, better bundler compatibility
+		"verbatimModuleSyntax": true,
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "build", "out"]
 }

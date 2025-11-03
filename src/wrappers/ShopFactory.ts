@@ -1,1 +1,1 @@
-export * from '../../build/ShopFactory/tact_ShopFactory';
+export * from "../../build/ShopFactory/tact_ShopFactory";

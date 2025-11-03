@@ -1,1 +1,1 @@
-export * from '../../build/Order/tact_Order';
+export * from "../../build/Order/tact_Order";

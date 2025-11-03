@@ -1,1 +1,1 @@
-export * from '../../build/UniqueItem/tact_UniqueItem';
+export * from "../../build/UniqueItem/tact_UniqueItem";

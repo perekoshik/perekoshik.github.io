@@ -162,7 +162,8 @@ export function useMarketContracts() {
 				if (isDeployed) {
 					// Get shop name after deployment/update
 					try {
-						const retrievedName = await shopContract.getShopName();
+						const deployedShop = client.open(Shop.fromAddress(shopContract.address));
+						const retrievedName = await deployedShop.getShopName();
 
 						setShopAddress(shopContract.address.toString());
 						setShopName(retrievedName);

@@ -1,11 +1,12 @@
 import { Address, beginCell, type OpenedContract, toNano } from "@ton/core";
-import { useCallback, useState } from "react";
+import { use, useCallback, useState } from "react";
 import { Shop, storeUpdateShopInfo } from "@/wrappers/Shop";
 import { User } from "@/wrappers/User";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useAsyncInitialize } from "./useAsyncInitialize";
 import { useTonClient } from "./useTonClient";
 import { useTonConnect } from "./useTonConnect";
+import { PassThrough } from "stream";
 
 export function useMarketContracts() {
 	const { client } = useTonClient();
@@ -56,6 +57,7 @@ export function useMarketContracts() {
 	const [shopAddress, setShopAddress] = useState<string | null>(null);
 	const [shopName, setShopName] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [lastLt, setLastLt] = useState<string | null>(null);
 
 	const makeShop = async (shopName: string): Promise<string> => {
 		if (!sender) {
@@ -124,6 +126,11 @@ export function useMarketContracts() {
 				// QUOTE(ТЗ): "Если контракт уже задеплоен, посылать на него только месседж без инита"
 				// REF: User screenshot showing "Invalid message type" error when creating shop
 				// SOURCE: TON SDK best practices - use sender.send() for direct message dispatch to contracts
+
+				// Get the last transaction of the contract
+				const currentShopState = await client.getContractState(shopContract.address);
+				setLastLt(currentShopState.lastTransaction?.lt.toString() || null);
+
 				await sender.send({
 					to: shopContract.address,
 					value: toNano(0.05),
@@ -159,16 +166,23 @@ export function useMarketContracts() {
 				const isDeployed = await client.isContractDeployed(
 					shopContract.address,
 				);
+				
 				if (isDeployed) {
 					// Get shop name after deployment/update
 					try {
-						const deployedShop = client.open(Shop.fromAddress(shopContract.address));
-						const retrievedName = await deployedShop.getShopName();
+						const currentShopState = await client.getContractState(shopContract.address);
+						const currentLt = currentShopState.lastTransaction?.lt.toString();
 
-						setShopAddress(shopContract.address.toString());
-						setShopName(retrievedName);
+						if (currentLt && currentLt !== lastLt) {
+							const retrievedName = await shopContract.getShopName();
+							setShopAddress(shopContract.address.toString());
+							setShopName(retrievedName);
 
-						return shopContract.address.toString();
+							return shopContract.address.toString();
+						}
+						else {
+							console.log("Waiting for shop name update...");
+						}
 					} catch (getNameError) {
 						console.error(
 							"Error getting shop name after deployment:",

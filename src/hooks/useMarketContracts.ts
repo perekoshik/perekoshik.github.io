@@ -117,10 +117,6 @@ export function useMarketContracts() {
 			// Check if the contract is already deployed
 			const isDeployed = await client.isContractDeployed(shopContract.address);
 
-			if (isDeployed && shopName === await shopContract.getShopName()) {
-				return shopContract.address.toString();
-			}
-
 			if (isDeployed) {
 				// CONTRACT ALREADY DEPLOYED: Send only the update message
 				// CHANGE: Use sender.send() instead of shopContract.send() for consistency

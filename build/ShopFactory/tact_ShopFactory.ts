@@ -1690,7 +1690,7 @@ export function dictValueParserOrder$Data(): DictionaryValue<Order$Data> {
 
 export type User$Data = {
     $$type: 'User$Data';
-    parent: Address;
+    owner: Address;
     id: bigint;
     name: string;
     deliveryAddress: string;
@@ -1699,7 +1699,7 @@ export type User$Data = {
 export function storeUser$Data(src: User$Data) {
     return (builder: Builder) => {
         const b_0 = builder;
-        b_0.storeAddress(src.parent);
+        b_0.storeAddress(src.owner);
         b_0.storeUint(src.id, 256);
         b_0.storeStringRefTail(src.name);
         b_0.storeStringRefTail(src.deliveryAddress);
@@ -1708,32 +1708,32 @@ export function storeUser$Data(src: User$Data) {
 
 export function loadUser$Data(slice: Slice) {
     const sc_0 = slice;
-    const _parent = sc_0.loadAddress();
+    const _owner = sc_0.loadAddress();
     const _id = sc_0.loadUintBig(256);
     const _name = sc_0.loadStringRefTail();
     const _deliveryAddress = sc_0.loadStringRefTail();
-    return { $$type: 'User$Data' as const, parent: _parent, id: _id, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'User$Data' as const, owner: _owner, id: _id, name: _name, deliveryAddress: _deliveryAddress };
 }
 
 export function loadTupleUser$Data(source: TupleReader) {
-    const _parent = source.readAddress();
+    const _owner = source.readAddress();
     const _id = source.readBigNumber();
     const _name = source.readString();
     const _deliveryAddress = source.readString();
-    return { $$type: 'User$Data' as const, parent: _parent, id: _id, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'User$Data' as const, owner: _owner, id: _id, name: _name, deliveryAddress: _deliveryAddress };
 }
 
 export function loadGetterTupleUser$Data(source: TupleReader) {
-    const _parent = source.readAddress();
+    const _owner = source.readAddress();
     const _id = source.readBigNumber();
     const _name = source.readString();
     const _deliveryAddress = source.readString();
-    return { $$type: 'User$Data' as const, parent: _parent, id: _id, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'User$Data' as const, owner: _owner, id: _id, name: _name, deliveryAddress: _deliveryAddress };
 }
 
 export function storeTupleUser$Data(source: User$Data) {
     const builder = new TupleBuilder();
-    builder.writeAddress(source.parent);
+    builder.writeAddress(source.owner);
     builder.writeNumber(source.id);
     builder.writeString(source.name);
     builder.writeString(source.deliveryAddress);
@@ -2083,7 +2083,6 @@ export const ShopFactory_errors = {
     136: { message: "Invalid standard address" },
     138: { message: "Not a basechain address" },
     32819: { message: "Item not salable yet" },
-    50052: { message: "Only parent can change user data" },
 } as const
 
 export const ShopFactory_errors_backward = {
@@ -2124,7 +2123,6 @@ export const ShopFactory_errors_backward = {
     "Invalid standard address": 136,
     "Not a basechain address": 138,
     "Item not salable yet": 32819,
-    "Only parent can change user data": 50052,
 } as const
 
 const ShopFactory_types: ABIType[] = [
@@ -2157,7 +2155,7 @@ const ShopFactory_types: ABIType[] = [
     {"name":"Shop$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"itemsCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"ordersCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"balance","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"Item$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"Order$Data","header":null,"fields":[{"name":"seller","type":{"kind":"simple","type":"address","optional":false}},{"name":"buyer","type":{"kind":"simple","type":"address","optional":false}},{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"completed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
-    {"name":"User$Data","header":null,"fields":[{"name":"parent","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"User$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"UniqueItem$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"index","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},
     {"name":"Deploy","header":2490013878,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"DeployOk","header":2952335191,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},

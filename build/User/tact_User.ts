@@ -1500,7 +1500,7 @@ export function dictValueParserFactoryDeploy(): DictionaryValue<FactoryDeploy> {
 
 export type User$Data = {
     $$type: 'User$Data';
-    parent: Address;
+    owner: Address;
     id: bigint;
     name: string;
     deliveryAddress: string;
@@ -1509,7 +1509,7 @@ export type User$Data = {
 export function storeUser$Data(src: User$Data) {
     return (builder: Builder) => {
         const b_0 = builder;
-        b_0.storeAddress(src.parent);
+        b_0.storeAddress(src.owner);
         b_0.storeUint(src.id, 256);
         b_0.storeStringRefTail(src.name);
         b_0.storeStringRefTail(src.deliveryAddress);
@@ -1518,32 +1518,32 @@ export function storeUser$Data(src: User$Data) {
 
 export function loadUser$Data(slice: Slice) {
     const sc_0 = slice;
-    const _parent = sc_0.loadAddress();
+    const _owner = sc_0.loadAddress();
     const _id = sc_0.loadUintBig(256);
     const _name = sc_0.loadStringRefTail();
     const _deliveryAddress = sc_0.loadStringRefTail();
-    return { $$type: 'User$Data' as const, parent: _parent, id: _id, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'User$Data' as const, owner: _owner, id: _id, name: _name, deliveryAddress: _deliveryAddress };
 }
 
 export function loadTupleUser$Data(source: TupleReader) {
-    const _parent = source.readAddress();
+    const _owner = source.readAddress();
     const _id = source.readBigNumber();
     const _name = source.readString();
     const _deliveryAddress = source.readString();
-    return { $$type: 'User$Data' as const, parent: _parent, id: _id, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'User$Data' as const, owner: _owner, id: _id, name: _name, deliveryAddress: _deliveryAddress };
 }
 
 export function loadGetterTupleUser$Data(source: TupleReader) {
-    const _parent = source.readAddress();
+    const _owner = source.readAddress();
     const _id = source.readBigNumber();
     const _name = source.readString();
     const _deliveryAddress = source.readString();
-    return { $$type: 'User$Data' as const, parent: _parent, id: _id, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'User$Data' as const, owner: _owner, id: _id, name: _name, deliveryAddress: _deliveryAddress };
 }
 
 export function storeTupleUser$Data(source: User$Data) {
     const builder = new TupleBuilder();
-    builder.writeAddress(source.parent);
+    builder.writeAddress(source.owner);
     builder.writeNumber(source.id);
     builder.writeString(source.name);
     builder.writeString(source.deliveryAddress);
@@ -1563,21 +1563,21 @@ export function dictValueParserUser$Data(): DictionaryValue<User$Data> {
 
  type User_init_args = {
     $$type: 'User_init_args';
-    parent: Address;
+    owner: Address;
 }
 
 function initUser_init_args(src: User_init_args) {
     return (builder: Builder) => {
         const b_0 = builder;
-        b_0.storeAddress(src.parent);
+        b_0.storeAddress(src.owner);
     };
 }
 
-async function User_init(parent: Address) {
-    const __code = Cell.fromHex('b5ee9c724101030100f20002d4ff00208f613001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e10fa40d3ffd401d001d401d01443306c149afa400101d1718b088b08e205925f05e003d70d1ff2e0822182107f22ed74bae302018210946a98b6bae3025f05f2c082e1f2c80b01020064345b32d401d001810101d700d430d08200c384f84225c705f2f412c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54009cd33f30c8018210aff90f5758cb1fcb3fc9443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54b93751e6');
+async function User_init(owner: Address) {
+    const __code = Cell.fromHex('b5ee9c724101030100e8000110ff0020e303f2c80b0101f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e10fa40d3ffd401d001d401d01443306c149afa400101d1718b088b08e205925f05e003d70d1ff2e0822182107f22ed74ba8e27345b32d401d001810101d700d430d012c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54e0010200ba8210946a98b6ba8e4ed33f30c8018210aff90f5758cb1fcb3fc9443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54e05f05f2c082ab0cc2f4');
     const builder = beginCell();
     builder.storeUint(0, 1);
-    initUser_init_args({ $$type: 'User_init_args', parent })(builder);
+    initUser_init_args({ $$type: 'User_init_args', owner })(builder);
     const __data = builder.endCell();
     return { code: __code, data: __data };
 }
@@ -1619,7 +1619,6 @@ export const User_errors = {
     135: { message: "Code of a contract was not found" },
     136: { message: "Invalid standard address" },
     138: { message: "Not a basechain address" },
-    50052: { message: "Only parent can change user data" },
 } as const
 
 export const User_errors_backward = {
@@ -1659,7 +1658,6 @@ export const User_errors_backward = {
     "Code of a contract was not found": 135,
     "Invalid standard address": 136,
     "Not a basechain address": 138,
-    "Only parent can change user data": 50052,
 } as const
 
 const User_types: ABIType[] = [
@@ -1690,7 +1688,7 @@ const User_types: ABIType[] = [
     {"name":"Deploy","header":2490013878,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"DeployOk","header":2952335191,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"FactoryDeploy","header":1829761339,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"cashback","type":{"kind":"simple","type":"address","optional":false}}]},
-    {"name":"User$Data","header":null,"fields":[{"name":"parent","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"User$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
 ]
 
 const User_opcodes = {
@@ -1731,12 +1729,12 @@ export class User implements Contract {
     public static readonly errors = User_errors_backward;
     public static readonly opcodes = User_opcodes;
     
-    static async init(parent: Address) {
-        return await User_init(parent);
+    static async init(owner: Address) {
+        return await User_init(owner);
     }
     
-    static async fromInit(parent: Address) {
-        const __gen_init = await User_init(parent);
+    static async fromInit(owner: Address) {
+        const __gen_init = await User_init(owner);
         const address = contractAddress(0, __gen_init);
         return new User(address, __gen_init);
     }

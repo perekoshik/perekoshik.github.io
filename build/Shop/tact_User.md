@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: User
-BoC Size: 253 bytes
+BoC Size: 243 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 34
@@ -118,8 +118,8 @@ TL-B: `_ seller:address buyer:address itemAddress:address id:uint256 completed:b
 Signature: `Order{seller:address,buyer:address,itemAddress:address,id:uint256,completed:bool,deliveryAddress:^string}`
 
 ### User$Data
-TL-B: `_ parent:address id:uint256 name:^string deliveryAddress:^string = User`
-Signature: `User{parent:address,id:uint256,name:^string,deliveryAddress:^string}`
+TL-B: `_ owner:address id:uint256 name:^string deliveryAddress:^string = User`
+Signature: `User{owner:address,id:uint256,name:^string,deliveryAddress:^string}`
 
 ### UniqueItem$Data
 TL-B: `_ shop:address owner:address content:^string index:uint256 price:coins isSalable:bool = UniqueItem`
@@ -182,7 +182,6 @@ Total get methods: 0
 * 136: Invalid standard address
 * 138: Not a basechain address
 * 32819: Item not salable yet
-* 50052: Only parent can change user data
 
 ## Trait inheritance diagram
 

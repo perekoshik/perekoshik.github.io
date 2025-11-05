@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: UsersFactory
-BoC Size: 677 bytes
+BoC Size: 667 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 29
@@ -102,8 +102,8 @@ TL-B: `order_completed#3a4c4c8f  = OrderCompleted`
 Signature: `OrderCompleted{}`
 
 ### User$Data
-TL-B: `_ parent:address id:uint256 name:^string deliveryAddress:^string = User`
-Signature: `User{parent:address,id:uint256,name:^string,deliveryAddress:^string}`
+TL-B: `_ owner:address id:uint256 name:^string deliveryAddress:^string = User`
+Signature: `User{owner:address,id:uint256,name:^string,deliveryAddress:^string}`
 
 ### Deploy
 TL-B: `deploy#946a98b6 queryId:uint64 = Deploy`
@@ -167,7 +167,6 @@ Argument: parent
 * 135: Code of a contract was not found
 * 136: Invalid standard address
 * 138: Not a basechain address
-* 50052: Only parent can change user data
 
 ## Trait inheritance diagram
 

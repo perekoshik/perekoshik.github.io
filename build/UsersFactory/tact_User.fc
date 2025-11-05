@@ -33,7 +33,7 @@ _ $Context$_get_value((int, slice, int, slice) v) inline;
 (slice, ((slice))) $User$init$_load(slice sc_0) inline;
 
 ;; $User$_contract_init
-(slice, int, slice, slice) $User$_contract_init(slice $parent) impure inline;
+(slice, int, slice, slice) $User$_contract_init(slice $owner) impure inline;
 
 ;; $User$_contract_load
 (slice, int, slice, slice) $User$_contract_load() impure inline;
@@ -94,7 +94,7 @@ int $global_myBalance() impure asm """
 """;
 
 ((slice, int, slice, slice), ()) $User$_fun_notify((slice, int, slice, slice) $self, cell $body) impure inline {
-    var (($self'parent, $self'id, $self'name, $self'deliveryAddress)) = $self;
+    var (($self'owner, $self'id, $self'name, $self'deliveryAddress)) = $self;
     slice $to = __tact_context_get_sender();
     int $bounce = false;
     if (false) {
@@ -103,11 +103,11 @@ int $global_myBalance() impure asm """
         if (($balanceBeforeMessage < 0)) {
             $global_nativeReserve(0, 0);
             $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 130, $body));
-            return (($self'parent, $self'id, $self'name, $self'deliveryAddress), ());
+            return (($self'owner, $self'id, $self'name, $self'deliveryAddress), ());
         }
     }
     $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 66, $body));
-    return (($self'parent, $self'id, $self'name, $self'deliveryAddress), ());
+    return (($self'owner, $self'id, $self'name, $self'deliveryAddress), ());
 }
 
 ;; tact_User.constants.fc
@@ -159,12 +159,12 @@ cell $DeployOk$_store_cell((int) v, builder b) inline {
 
 ;;
 ;; Type: User
-;; TLB: _ parent:address id:uint256 name:^string deliveryAddress:^string = User
+;; TLB: _ owner:address id:uint256 name:^string deliveryAddress:^string = User
 ;;
 
 builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
-    var (v'parent, v'id, v'name, v'deliveryAddress) = v;
-    build_0 = build_0.store_slice(v'parent);
+    var (v'owner, v'id, v'name, v'deliveryAddress) = v;
+    build_0 = build_0.store_slice(v'owner);
     build_0 = build_0.store_uint(v'id, 256);
     build_0 = build_0.store_builder_ref(begin_cell().store_slice(v'name));
     build_0 = build_0.store_builder_ref(begin_cell().store_slice(v'deliveryAddress));
@@ -172,16 +172,16 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
 }
 
 (slice, ((slice, int, slice, slice))) $User$_load(slice sc_0) inline {
-    var v'parent = sc_0~load_msg_addr();
+    var v'owner = sc_0~load_msg_addr();
     var v'id = sc_0~load_uint(256);
     var v'name = sc_0~load_ref().begin_parse();
     var v'deliveryAddress = sc_0~load_ref().begin_parse();
-    return (sc_0, (v'parent, v'id, v'name, v'deliveryAddress));
+    return (sc_0, (v'owner, v'id, v'name, v'deliveryAddress));
 }
 
 (slice, ((slice))) $User$init$_load(slice sc_0) inline {
-    var v'parent = sc_0~load_msg_addr();
-    return (sc_0, (v'parent));
+    var v'owner = sc_0~load_msg_addr();
+    return (sc_0, (v'owner));
 }
 
 (slice, int, slice, slice) $User$_contract_load() impure inline {
@@ -191,9 +191,9 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
         return $sc~$User$_load();
     }
     else {
-        (slice $parent) = $sc~$User$init$_load();
+        (slice $owner) = $sc~$User$init$_load();
         $sc.end_parse();
-        return $User$_contract_init($parent);
+        return $User$_contract_init($owner);
     }
 }
 
@@ -208,13 +208,13 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
 ;; Contract User functions
 ;;
 
-(slice, int, slice, slice) $User$_contract_init(slice $parent) impure inline {
-    var (($self'parent, $self'id, $self'name, $self'deliveryAddress)) = (null(), null(), null(), null());
-    $self'parent = $parent;
+(slice, int, slice, slice) $User$_contract_init(slice $owner) impure inline {
+    var (($self'owner, $self'id, $self'name, $self'deliveryAddress)) = (null(), null(), null(), null());
+    $self'owner = $owner;
     $self'id = 1;
     $self'name = __gen_slice_string_96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7();
     $self'deliveryAddress = __gen_slice_string_96a296d224f285c67bee93c30f8a309157f0daa35dc5b87e410b78630a09cfc7();
-    return ($self'parent, $self'id, $self'name, $self'deliveryAddress);
+    return ($self'owner, $self'id, $self'name, $self'deliveryAddress);
 }
 
 ;;
@@ -241,7 +241,7 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
     __tact_context_sender = msg_sender_addr;
     
     ;; Load contract data
-    var ($self'parent, $self'id, $self'name, $self'deliveryAddress) = $User$_contract_load();
+    var ($self'owner, $self'id, $self'name, $self'deliveryAddress) = $User$_contract_load();
     
     ;; Handle bounced messages
     if (msg_bounced) { return (); }
@@ -251,19 +251,18 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
         var $msg'name = in_msg~load_ref().begin_parse();
         var $msg'id = in_msg~load_int(257);
         var $msg'deliveryAddress = in_msg~load_ref().begin_parse();
-        throw_unless(50052, ( equal_slices_bits(__tact_context_get_sender(), $self'parent) ));
         $self'name = $msg'name;
         $self'id = $msg'id;
         $self'deliveryAddress = $msg'deliveryAddress;
-        $User$_contract_store(($self'parent, $self'id, $self'name, $self'deliveryAddress));
+        $User$_contract_store(($self'owner, $self'id, $self'name, $self'deliveryAddress));
         return ();
     }
     
     ;; Receive Deploy message
     if (op == 0x946a98b6) {
         var $deploy'queryId = in_msg~load_uint(64);
-        ($self'parent, $self'id, $self'name, $self'deliveryAddress)~$User$_fun_notify($DeployOk$_store_cell($DeployOk$_constructor_queryId($deploy'queryId), begin_cell()));
-        $User$_contract_store(($self'parent, $self'id, $self'name, $self'deliveryAddress));
+        ($self'owner, $self'id, $self'name, $self'deliveryAddress)~$User$_fun_notify($DeployOk$_store_cell($DeployOk$_constructor_queryId($deploy'queryId), begin_cell()));
+        $User$_contract_store(($self'owner, $self'id, $self'name, $self'deliveryAddress));
         return ();
     }
     

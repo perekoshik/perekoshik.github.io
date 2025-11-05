@@ -172,11 +172,6 @@ PROGRAM{
       LDREF
       DROP
       CTOS
-      50052 PUSHINT
-      __tact_context_get_sender INLINECALLDICT
-      s5 PUSH
-      SDEQ
-      THROWANYIFNOT
       s1 s2 XCHG
       $User$_contract_store INLINECALLDICT
     }>

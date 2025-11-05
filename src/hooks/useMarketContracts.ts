@@ -167,7 +167,10 @@ export function useMarketContracts() {
 					shopContract.address,
 				);
 
-				const isNameChaged = await shopContract.getShopName() !== shopName;
+				let isNameChaged = false;
+				if (await shopContract.getShopName() != shopName) {
+					isNameChaged = true;
+				}
 				
 				if (isDeployed && isNameChaged) {
 					// Get shop name after deployment/update

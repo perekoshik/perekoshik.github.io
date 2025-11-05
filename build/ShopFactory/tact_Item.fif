@@ -1,0 +1,595 @@
+// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ex/build/ShopFactory/tact_Item.fc` 
+PROGRAM{
+  DECLPROC __tact_context_get
+  DECLPROC __tact_context_get_sender
+  DECLPROC $NewOrder$_store
+  DECLPROC $NewOrder$_store_cell
+  DECLPROC $Item$_store
+  DECLPROC $Item$_load
+  DECLPROC $Context$_get_value
+  DECLPROC $Item$init$_load
+  DECLPROC $Order$init$_store
+  DECLPROC $Item$_contract_init
+  DECLPROC $Item$_contract_load
+  DECLPROC $Item$_contract_store
+  DECLPROC $Cell$_fun_asSlice
+  DECLPROC $global_newAddress
+  DECLPROC $global_contractAddressExt
+  DECLPROC $global_contractAddress
+  DECLPROC $MessageParameters$_constructor_bounce_to_value_mode_body
+  DECLPROC $Item$_fun_shop
+  DECLPROC $Item$_fun_id
+  DECLPROC $Item$_fun_price
+  DECLPROC $Item$_fun_imageSrc
+  DECLPROC $Item$_fun_title
+  DECLPROC $Item$_fun_description
+  DECLPROC $Item$_fun_reply
+  DECLPROC $Order$_init_child
+  DECLPROC $SendParameters$_constructor_to_value_mode_code_data
+  DECLPROC $SendParameters$_constructor_to_value_body_mode
+  DECLPROC $NewOrder$_constructor_deliveryAddress_itemIndex_price
+  102112 DECLMETHOD %shop
+  105872 DECLMETHOD %id
+  120091 DECLMETHOD %price
+  80358 DECLMETHOD %imageSrc
+  84137 DECLMETHOD %title
+  65569 DECLMETHOD %description
+  DECLPROC recv_internal
+  65535 DECLMETHOD __tact_selector_hack
+  DECLGLOBVAR __tact_context
+  DECLGLOBVAR __tact_context_sender
+  DECLGLOBVAR __tact_child_contract_codes
+  DECLGLOBVAR __tact_randomized
+  __tact_context_get PROCINLINE:<{
+    __tact_context GETGLOB
+    4 UNTUPLE
+  }>
+  __tact_context_get_sender PROCINLINE:<{
+    __tact_context_sender GETGLOB
+  }>
+  $NewOrder$_store PROCINLINE:<{
+    2418445873 PUSHINT
+    s0 s4 XCHG2
+    32 STU
+    s0 s2 XCHG
+    NEWC
+    STSLICE
+    s1 s2 XCHG
+    STBREFR
+    256 STU
+    SWAP
+    STVARUINT16
+  }>
+  $NewOrder$_store_cell PROCINLINE:<{
+    3 -ROLL
+    $NewOrder$_store INLINECALLDICT
+    ENDC
+  }>
+  $Item$_store PROCINLINE:<{
+    s5 s6 XCHG2
+    STSLICE
+    s1 s3 XCHG
+    256 STU
+    SWAP
+    STVARUINT16
+    SWAP
+    NEWC
+    STSLICE
+    STBREFR
+    NEWC
+    s0 s2 XCHG
+    NEWC
+    STSLICE
+    s1 s2 XCHG
+    STBREFR
+    s0 s2 XCHG
+    NEWC
+    STSLICE
+    s1 s2 XCHG
+    STBREFR
+    STBREFR
+  }>
+  $Item$_load PROCINLINE:<{
+    LDMSGADDR
+    256 LDU
+    LDVARUINT16
+    LDREF
+    SWAP
+    CTOS
+    SWAP
+    LDREF
+    SWAP
+    CTOS
+    LDREF
+    SWAP
+    CTOS
+    SWAP
+    LDREF
+    DROP
+    CTOS
+    s2 s6 XCHG
+    s2 s5 XCHG
+    s2 s4 XCHG
+    s2 s3 XCHG
+  }>
+  $Context$_get_value PROCINLINE:<{
+    s1 s3 XCHG
+    3 BLKDROP
+  }>
+  $Item$init$_load PROCINLINE:<{
+    LDMSGADDR
+    256 LDU
+    LDVARUINT16
+    LDREF
+    SWAP
+    CTOS
+    SWAP
+    LDREF
+    SWAP
+    CTOS
+    LDREF
+    SWAP
+    CTOS
+    SWAP
+    LDREF
+    DROP
+    CTOS
+    s2 s6 XCHG
+    s2 s5 XCHG
+    s2 s4 XCHG
+    s2 s3 XCHG
+  }>
+  $Order$init$_store PROCINLINE:<{
+    s4 s5 XCHG2
+    STSLICE
+    s1 s2 XCHG
+    STSLICE
+    STSLICE
+    SWAP
+    NEWC
+    256 STU
+    s0 s2 XCHG
+    NEWC
+    STSLICE
+    s1 s2 XCHG
+    STBREFR
+    STBREFR
+  }>
+  $Item$_contract_init PROCINLINE:<{
+  }>
+  $Item$_contract_load PROCINLINE:<{
+    c4 PUSH
+    CTOS
+    1 LDI
+    SWAP
+    IF:<{
+      $Item$_load INLINECALLDICT
+      1 6 BLKDROP2
+    }>ELSE<{
+      $Item$init$_load INLINECALLDICT
+      s0 s6 XCHG
+      ENDS
+      5 ROLL
+      $Item$_contract_init INLINECALLDICT
+    }>
+  }>
+  $Item$_contract_store PROCINLINE:<{
+    NEWC
+    TRUE
+    SWAP
+    1 STI
+    6 -ROLL
+    $Item$_store INLINECALLDICT
+    ENDC
+    c4 POP
+  }>
+  $Cell$_fun_asSlice PROCINLINE:<{
+        CTOS
+  }>
+  $global_newAddress PROCINLINE:<{
+        NEWC
+    4 PUSHINT
+    SWAP
+    3 STU
+    s1 s2 XCHG
+    8 STI
+    256 STU
+        ENDC
+    $Cell$_fun_asSlice INLINECALLDICT
+  }>
+  $global_contractAddressExt PROCINLINE:<{
+        s0 PUSH HASHCU // `data` hash
+        s2 PUSH HASHCU // `code` hash
+        SWAP2
+        CDEPTH         // `data` depth
+        SWAP
+        CDEPTH         // `code` depth
+        131380 INT     // (2 << 16) | (1 << 8) | 0x34
+        // Group 2: Composition of the Builder
+        NEWC
+        24 STU  // store refs_descriptor | bits_descriptor | data
+        16 STU  // store depth_descriptor for `code`
+        16 STU  // store depth_descriptor for `data`
+        256 STU // store `code` hash
+        256 STU // store `data` hash
+        // Group 3: SHA256 hash of the resulting Builder
+        ONE HASHEXT_SHA256
+    $global_newAddress INLINECALLDICT
+  }>
+  $global_contractAddress PROCINLINE:<{
+    0 PUSHINT
+    -ROT
+    $global_contractAddressExt INLINECALLDICT
+  }>
+  $MessageParameters$_constructor_bounce_to_value_mode_body PROCINLINE:<{
+    s3 s3 XCHG2
+    s0 s4 XCHG
+  }>
+  $Item$_fun_shop PROCREF:<{
+    s5 PUSH
+  }>
+  $Item$_fun_id PROCREF:<{
+    s4 PUSH
+  }>
+  $Item$_fun_price PROCREF:<{
+    s3 PUSH
+  }>
+  $Item$_fun_imageSrc PROCREF:<{
+    s2 PUSH
+  }>
+  $Item$_fun_title PROCREF:<{
+    OVER
+  }>
+  $Item$_fun_description PROCREF:<{
+    DUP
+  }>
+  $Item$_fun_reply PROCINLINE:<{
+    __tact_context_get_sender INLINECALLDICT
+    TRUE
+    0 PUSHINT
+    s0 s3 XCHG2
+    66 PUSHINT
+    SWAP
+    $MessageParameters$_constructor_bounce_to_value_mode_body INLINECALLDICT
+        NEWC
+        b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+        1 STI               // store `bounce`
+        b{000} STSLICECONST // store bounced = false and src = addr_none
+        STSLICE             // store `to`
+        SWAP
+        STGRAMS             // store `value`
+        106 PUSHINT         // 1 + 4 + 4 + 64 + 32 + 1
+        STZEROES
+        // → Stack state
+        // s0: Builder
+        // s1: `body`
+        // s2: `mode`
+        STDICT
+        ENDC
+        SWAP
+        SENDRAWMSG
+  }>
+  $Order$_init_child PROCREF:<{
+        B{b5ee9c720102120100027d000228ff008e88f4a413f4bcf2c80bed5320e303ed43d90102020271030402f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e207925f07e07026d74920c21f953106d31f309137e22082103a4c4c8fbae302c00006c12116b010110201200506020120090a0187bb6c2ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618070187b8ffced44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618080002210002240187b9d90ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c6180b0201200c0d0002220187b64ffda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c300e0187b462fda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c300f00022300022500465b3440347f01c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed5400728e31f842c8cf8508ce70cf0b6ec98042fb0010355512c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed54e05f06f2c082} B>boc PUSHREF
+    NEWC
+    FALSE
+    SWAP
+    1 STI
+    5 2 BLKSWAP
+    $Order$init$_store INLINECALLDICT
+    ENDC
+  }>
+  $SendParameters$_constructor_to_value_mode_code_data PROCINLINE:<{
+    s2 s4 XCHG
+    PUSHNULL
+    s1 s4 s4 XCHG3
+    s0 s3 XCHG
+    TRUE
+  }>
+  $SendParameters$_constructor_to_value_body_mode PROCINLINE:<{
+    PUSHNULL
+    s4 s2 XCHG2
+    PUSHNULL
+    s4 s2 XCHG2
+    TRUE
+  }>
+  $NewOrder$_constructor_deliveryAddress_itemIndex_price PROCINLINE:<{
+  }>
+  %shop PROC:<{
+    $Item$_contract_load INLINECALLDICT
+    $Item$_fun_shop INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %id PROC:<{
+    $Item$_contract_load INLINECALLDICT
+    $Item$_fun_id INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %price PROC:<{
+    $Item$_contract_load INLINECALLDICT
+    $Item$_fun_price INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %imageSrc PROC:<{
+    $Item$_contract_load INLINECALLDICT
+    $Item$_fun_imageSrc INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %title PROC:<{
+    $Item$_contract_load INLINECALLDICT
+    $Item$_fun_title INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %description PROC:<{
+    $Item$_contract_load INLINECALLDICT
+    $Item$_fun_description INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  recv_internal PROC:<{
+    SWAP
+    CTOS
+    2 PUSHINT
+    SDSKIPFIRST
+    1 LDI
+    1 LDI
+    LDMSGADDR
+    OVER
+    s3 s4 XCHG
+    s6 s6 XCHG2
+    4 TUPLE
+    __tact_context SETGLOB
+    s0 s2 XCHG
+    __tact_context_sender SETGLOB
+    $Item$_contract_load INLINECALLDICT
+    s0 s7 XCHG
+    IFJMP:<{
+      7 BLKDROP
+    }>
+    s0 s5 XCHG
+    32 LDUQ 130 THROWIFNOT
+    SWAP
+    2059487624 PUSHINT
+    EQUAL
+    IFJMP:<{
+      257 PUSHINT
+      LDIX
+      LDMSGADDR
+      NIP
+      LDVARUINT16
+      LDREF
+      DROP
+      CTOS
+      __tact_context_get_sender INLINECALLDICT
+          MYADDR
+      s8 PUSH
+      s0 s3 XCHG
+      s5 s5 XCPU
+      $Order$_init_child INLINECALLDICT
+      2DUP
+      $global_contractAddress INLINECALLDICT
+      s0 s2 XCHG
+      2 PUSHINT
+      s4 PUSH
+      s2 s3 XCHG2
+      $SendParameters$_constructor_to_value_mode_code_data INLINECALLDICT
+          NEWC
+          b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+          1 STI               // store `bounce`
+          b{000} STSLICECONST // store bounced = false and src = addr_none
+          STSLICE             // store `to`
+          SWAP
+          STGRAMS             // store `value`
+          105 PUSHINT         // 1 + 4 + 4 + 64 + 32
+          STZEROES            // store currency_collection, ihr_fee, fwd_fee, created_lt and created_at
+          // → Stack state
+          // s0: Builder
+          // s1: `data`
+          // s2: `code`
+          // s3: `body`
+          // s4: `mode`
+          // Group 2: Placing the Builder after code and data, then checking those for nullability
+          s2 XCHG0
+          DUP2
+          ISNULL
+          SWAP
+          ISNULL
+          AND
+          // → Stack state
+          // s0: -1 (true) if `data` and `code` are both null, 0 (false) otherwise
+          // s1: `code`
+          // s2: `data`
+          // s3: Builder
+          // s4: `body`
+          // s5: `mode`
+          // Group 3: Left branch of the IFELSE, executed if s0 is -1 (true)
+          <{
+              DROP2 // drop `data` and `code`, since either of those is null
+              b{0} STSLICECONST
+          }> PUSHCONT
+          // Group 3: Right branch of the IFELSE, executed if s0 is 0 (false)
+          <{
+              // _ split_depth:(Maybe (## 5))
+              //   special:(Maybe TickTock)
+              //   code:(Maybe ^Cell)
+              //   data:(Maybe ^Cell)
+              //   library:(Maybe ^Cell)
+              // = StateInit;
+              ROT                // place message Builder on top
+              b{10} STSLICECONST // store Maybe = true, Either = false
+              // Start composing inlined StateInit
+              b{00} STSLICECONST // store split_depth and special first
+              STDICT             // store code
+              STDICT             // store data
+              b{0} STSLICECONST  // store library
+          }> PUSHCONT
+          // Group 3: IFELSE that does the branching shown above
+          IFELSE
+          // → Stack state
+          // s0: Builder
+          // s1: null or StateInit
+          // s2: `body`
+          // s3: `mode`
+          // Group 4: Finalizing the message
+          STDICT // store `body` as ref with an extra Maybe bit, since `body` might be null
+          ENDC
+          // → Stack state
+          // s0: Cell
+          // s1: `mode`
+          // Group 5: Sending the message, with `mode` on top
+          SWAP
+          SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
+      s1 s4 s3 XCPU2
+      $NewOrder$_constructor_deliveryAddress_itemIndex_price INLINECALLDICT
+      NEWC
+      $NewOrder$_store_cell INLINECALLDICT
+      s5 PUSH
+      -ROT
+      2 PUSHINT
+      $SendParameters$_constructor_to_value_body_mode INLINECALLDICT
+          NEWC
+          b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+          1 STI               // store `bounce`
+          b{000} STSLICECONST // store bounced = false and src = addr_none
+          STSLICE             // store `to`
+          SWAP
+          STGRAMS             // store `value`
+          105 PUSHINT         // 1 + 4 + 4 + 64 + 32
+          STZEROES            // store currency_collection, ihr_fee, fwd_fee, created_lt and created_at
+          // → Stack state
+          // s0: Builder
+          // s1: `data`
+          // s2: `code`
+          // s3: `body`
+          // s4: `mode`
+          // Group 2: Placing the Builder after code and data, then checking those for nullability
+          s2 XCHG0
+          DUP2
+          ISNULL
+          SWAP
+          ISNULL
+          AND
+          // → Stack state
+          // s0: -1 (true) if `data` and `code` are both null, 0 (false) otherwise
+          // s1: `code`
+          // s2: `data`
+          // s3: Builder
+          // s4: `body`
+          // s5: `mode`
+          // Group 3: Left branch of the IFELSE, executed if s0 is -1 (true)
+          <{
+              DROP2 // drop `data` and `code`, since either of those is null
+              b{0} STSLICECONST
+          }> PUSHCONT
+          // Group 3: Right branch of the IFELSE, executed if s0 is 0 (false)
+          <{
+              // _ split_depth:(Maybe (## 5))
+              //   special:(Maybe TickTock)
+              //   code:(Maybe ^Cell)
+              //   data:(Maybe ^Cell)
+              //   library:(Maybe ^Cell)
+              // = StateInit;
+              ROT                // place message Builder on top
+              b{10} STSLICECONST // store Maybe = true, Either = false
+              // Start composing inlined StateInit
+              b{00} STSLICECONST // store split_depth and special first
+              STDICT             // store code
+              STDICT             // store data
+              b{0} STSLICECONST  // store library
+          }> PUSHCONT
+          // Group 3: IFELSE that does the branching shown above
+          IFELSE
+          // → Stack state
+          // s0: Builder
+          // s1: null or StateInit
+          // s2: `body`
+          // s3: `mode`
+          // Group 4: Finalizing the message
+          STDICT // store `body` as ref with an extra Maybe bit, since `body` might be null
+          ENDC
+          // → Stack state
+          // s0: Cell
+          // s1: `mode`
+          // Group 5: Sending the message, with `mode` on top
+          SWAP
+          SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
+          B{b5ee9c72410101010013000022000000004f726465722063726561746564fbf3bdfe} B>boc PUSHREF
+      s4 s6 XCHG
+      s3 s5 XCHG
+      s4 s3 s0 XCHG3
+      s1 s2 XCHG
+      $Item$_fun_reply INLINECALLDICT
+      $Item$_contract_store INLINECALLDICT
+    }>
+    7 BLKDROP
+    130 THROW
+  }>
+  __tact_selector_hack PROC:<{
+    @atend @ 1 {
+            execute current@ context@ current!
+            {
+                // The core idea of this function is to save gas by avoiding unnecessary dict jump, when recv_internal/recv_external is called
+                // We want to extract recv_internal/recv_external from the dict and select needed function
+                // not by jumping to the needed function by it's index, but by using usual IF statements.
+                }END> b> // Close previous builder, now we have a cell of previous code on top of the stack
+                <{ // Start of the new code builder
+                    SETCP0
+                    // Swap the new code builder with the previous code, now we have previous code on top of the stack
+                    swap
+                    // Transform cell to slice and load first ref from the previous code, now we have the dict on top of the stack
+                    <s ref@
+                    // Extract the recv_internal from the dict
+                    dup 0 swap @procdictkeylen idict@ { "internal shortcut error" abort } ifnot
+                    swap
+                    // Delete the recv_internal from the dict
+                    0 swap @procdictkeylen idict- drop
+                    // Delete the recv_external from the dict (it's okay if it's not there)
+                    -1 swap @procdictkeylen idict- drop
+                    // Delete the __tact_selector_hack from the dict
+                    65535 swap @procdictkeylen idict- drop
+                    // Bring the code builder from the bottom of the stack
+                    // because if recv_external extraction is optional, and the number of elements on the stack is not fixed
+                    depth 1- roll
+                    // Swap with the dict from which we extracted recv_internal and (maybe) recv_external
+                    swap
+                    // Check if the dict is empty
+                    dup null?
+                    // Store a copy of this flag in the bottom of the stack
+                    dup depth 1- -roll
+                    {
+                        // If the dict is empty, just drop it (it will be null if it's empty)
+                        drop
+                    }
+                    {
+                        // If the dict is not empty, prepare continuation to be stored in c3
+                        <{
+                            // Save this dict as first ref in this continuation, it will be pushed in runtime by DICTPUSHCONST
+                            swap @procdictkeylen DICTPUSHCONST
+                            // Jump to the needed function by it's index
+                            DICTIGETJMPZ
+                            // If such key is not found, throw 11 along with the key as an argument
+                            11 THROWARG
+                        }> PUSHCONT
+                        // Store the continuation in c3
+                        c3 POP
+                    } cond
+                    // Function id is on top of the (runtime) stack
+                    DUP IFNOTJMP:<{
+                        // place recv_internal here
+                        DROP swap @addop
+                    }>
+                    // Bring back the flag, indicating if the dict is empty or not from the bottom of the stack
+                    depth 1- roll
+                    {
+                        // If the dict is empty, throw 11
+                        11 THROWARG
+                    }
+                    {
+                        // If the dict is not empty, jump to continuation from c3
+                        c3 PUSH JMPX
+                    } cond
+                }> b>
+            } : }END>c
+            current@ context! current!
+        } does @atend !
+  }>
+}END>c

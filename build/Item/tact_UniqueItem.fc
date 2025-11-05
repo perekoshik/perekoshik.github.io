@@ -14,59 +14,59 @@
 ;; __tact_context_get_sender
 slice __tact_context_get_sender() inline;
 
-;; $NftTransfer$_load_without_opcode
-(slice, ((slice, int))) $NftTransfer$_load_without_opcode(slice sc_0) inline;
+;; $GetPriceResponse$_store
+builder $GetPriceResponse$_store(builder build_0, (int) v) inline;
 
-;; $CreateOrder$_load_without_opcode
-(slice, ((slice, slice, int))) $CreateOrder$_load_without_opcode(slice sc_0) inline;
-
-;; $NewOrder$_store
-builder $NewOrder$_store(builder build_0, (slice, int, int) v) inline;
-
-;; $NewOrder$_store_cell
-cell $NewOrder$_store_cell((slice, int, int) v) inline;
+;; $GetPriceResponse$_store_cell
+cell $GetPriceResponse$_store_cell((int) v, builder b) inline;
 
 ;; $UniqueItem$_store
-builder $UniqueItem$_store(builder build_0, (slice, slice, slice, int, int) v) inline;
+builder $UniqueItem$_store(builder build_0, (slice, slice, slice, int, int, int) v) inline;
 
 ;; $UniqueItem$_load
-(slice, ((slice, slice, slice, int, int))) $UniqueItem$_load(slice sc_0) inline;
+(slice, ((slice, slice, slice, int, int, int))) $UniqueItem$_load(slice sc_0) inline;
 
 ;; $Context$_get_value
 _ $Context$_get_value((int, slice, int, slice) v) inline;
 
 ;; $UniqueItem$init$_load
-(slice, ((slice, slice, slice, int, int))) $UniqueItem$init$_load(slice sc_0) inline;
+(slice, ((slice, slice, int, slice))) $UniqueItem$init$_load(slice sc_0) inline;
 
 ;; $UniqueItem$_contract_init
-(slice, slice, slice, int, int) $UniqueItem$_contract_init(slice $shop, slice $owner, slice $content, int $index, int $price) impure inline;
+(slice, slice, slice, int, int, int) $UniqueItem$_contract_init(slice $owner, slice $shop, int $index, slice $content) impure inline;
 
 ;; $UniqueItem$_contract_load
-(slice, slice, slice, int, int) $UniqueItem$_contract_load() impure inline;
+(slice, slice, slice, int, int, int) $UniqueItem$_contract_load() impure inline;
 
 ;; $UniqueItem$_contract_store
-() $UniqueItem$_contract_store((slice, slice, slice, int, int) v) impure inline;
+() $UniqueItem$_contract_store((slice, slice, slice, int, int, int) v) impure inline;
 
 ;; $MessageParameters$_constructor_bounce_to_value_mode_body
 ((int, cell, int, slice, int)) $MessageParameters$_constructor_bounce_to_value_mode_body(int $bounce, slice $to, int $value, int $mode, cell $body) inline;
 
+;; $UniqueItem$_fun_price
+((slice, slice, slice, int, int, int), int) $UniqueItem$_fun_price((slice, slice, slice, int, int, int) $self) impure inline_ref;
+
 ;; $UniqueItem$_fun_index
-((slice, slice, slice, int, int), int) $UniqueItem$_fun_index((slice, slice, slice, int, int) $self) impure inline_ref;
+((slice, slice, slice, int, int, int), int) $UniqueItem$_fun_index((slice, slice, slice, int, int, int) $self) impure inline_ref;
+
+;; $UniqueItem$_fun_content
+((slice, slice, slice, int, int, int), slice) $UniqueItem$_fun_content((slice, slice, slice, int, int, int) $self) impure inline_ref;
 
 ;; $UniqueItem$_fun_reply
-((slice, slice, slice, int, int), ()) $UniqueItem$_fun_reply((slice, slice, slice, int, int) $self, cell $body) impure inline;
+((slice, slice, slice, int, int, int), ()) $UniqueItem$_fun_reply((slice, slice, slice, int, int, int) $self, cell $body) impure inline;
 
 ;; $UniqueItem$_fun_requireOwner
-((slice, slice, slice, int, int), ()) $UniqueItem$_fun_requireOwner((slice, slice, slice, int, int) $self) impure inline_ref;
+((slice, slice, slice, int, int, int), ()) $UniqueItem$_fun_requireOwner((slice, slice, slice, int, int, int) $self) impure inline_ref;
 
 ;; $UniqueItem$_fun_owner
-((slice, slice, slice, int, int), slice) $UniqueItem$_fun_owner((slice, slice, slice, int, int) $self) impure inline_ref;
+((slice, slice, slice, int, int, int), slice) $UniqueItem$_fun_owner((slice, slice, slice, int, int, int) $self) impure inline_ref;
 
-;; $SendParameters$_constructor_to_value_body_mode
-((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_body_mode(slice $to, int $value, cell $body, int $mode) inline;
+;; $SendParameters$_constructor_to_value_mode_body
+((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_mode_body(slice $to, int $value, int $mode, cell $body) inline;
 
-;; $NewOrder$_constructor_deliveryAddress_itemIndex_price
-((slice, int, int)) $NewOrder$_constructor_deliveryAddress_itemIndex_price(slice $deliveryAddress, int $itemIndex, int $price) inline;
+;; $GetPriceResponse$_constructor_price
+((int)) $GetPriceResponse$_constructor_price(int $price) inline;
 
 
 ;; tact_UniqueItem.stdlib.fc
@@ -186,8 +186,20 @@ int $global_myBalance() impure asm """
     SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
 """;
 
-((slice, slice, slice, int, int), ()) $UniqueItem$_fun_reply((slice, slice, slice, int, int) $self, cell $body) impure inline {
-    var (($self'shop, $self'owner, $self'content, $self'index, $self'price)) = $self;
+() $global_cashback(slice $to) impure asm """
+    NEWC
+    x{42_} STSLICECONST // .storeUint(0x10, 6)
+    STSLICE          // .storeAddress(to)
+    0 PUSHINT        // 0
+    111 STUR         // .storeUint(0, 111)
+                     // 4 zeros for coins and 107 zeros for lt, fees, etc.
+    ENDC
+    66 PUSHINT       // SendRemainingValue | SendIgnoreErrors
+    SENDRAWMSG
+""";
+
+((slice, slice, slice, int, int, int), ()) $UniqueItem$_fun_reply((slice, slice, slice, int, int, int) $self, cell $body) impure inline {
+    var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
     slice $to = __tact_context_get_sender();
     int $bounce = true;
     if (false) {
@@ -196,34 +208,34 @@ int $global_myBalance() impure asm """
         if (($balanceBeforeMessage < 0)) {
             $global_nativeReserve(0, 0);
             $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 130, $body));
-            return (($self'shop, $self'owner, $self'content, $self'index, $self'price), ());
+            return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), ());
         }
     }
     $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 66, $body));
-    return (($self'shop, $self'owner, $self'content, $self'index, $self'price), ());
+    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), ());
 }
 
-((slice, slice, slice, int, int), ()) $UniqueItem$_fun_requireOwner((slice, slice, slice, int, int) $self) impure inline_ref {
-    var (($self'shop, $self'owner, $self'content, $self'index, $self'price)) = $self;
-    throw_unless(132, ( equal_slices_bits($self'owner, __tact_context_get_sender()) ));
-    return (($self'shop, $self'owner, $self'content, $self'index, $self'price), ());
+((slice, slice, slice, int, int, int), ()) $UniqueItem$_fun_requireOwner((slice, slice, slice, int, int, int) $self) impure inline_ref {
+    var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
+    throw_unless(132, ( equal_slices_bits(__tact_context_get_sender(), $self'owner) ));
+    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), ());
 }
 
-((slice, slice, slice, int, int), slice) $UniqueItem$_fun_owner((slice, slice, slice, int, int) $self) impure inline_ref {
-    var (($self'shop, $self'owner, $self'content, $self'index, $self'price)) = $self;
-    var $fresh$ret_3 = $self'owner;
-    return (($self'shop, $self'owner, $self'content, $self'index, $self'price), $fresh$ret_3);
+((slice, slice, slice, int, int, int), slice) $UniqueItem$_fun_owner((slice, slice, slice, int, int, int) $self) impure inline_ref {
+    var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
+    var $fresh$ret_38 = $self'owner;
+    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_38);
 }
 
 ;; tact_UniqueItem.constants.fc
-;; Cell LKPd1qQJY4TqmNOZFjdZEfgPHE8zDvoBKUQd7xTqXmc=
-cell __gen_cell_cell_2ca3ddd6a4096384ea98d39916375911f80f1c4f330efa0129441def14ea5e67() asm """
-    B{b5ee9c72410101010015000026000000004974656d207472616e7366657265649e490a8f} B>boc PUSHREF
+;; Cell jzY3OICbZPGqsSSPOedranCQnGI6tWiFCRTsI5w2E04=
+cell __gen_cell_cell_8f363738809b64f1aab1248f39e76b6a70909c623ab568850914ec239c36134e() asm """
+    B{b5ee9c724101010100120000200000000050726963652073657474656462f55394} B>boc PUSHREF
 """;
 
-;; Cell WHOp5/r7z1OkoDvgCS6ZiQ27q3uFmO/Vj/PxNQc6K90=
-cell __gen_cell_cell_5873a9e7fafbcf53a4a03be0092e99890dbbab7b8598efd58ff3f135073a2bdd() asm """
-    B{b5ee9c72410101010013000022000000004f726465722063726561746564fbf3bdfe} B>boc PUSHREF
+;; Cell FXkzXnItob1XjLUSd0nnKyhBlmdq7nAIjPr9lRFNrnY=
+cell __gen_cell_cell_1579335e722da1bd578cb5127749e72b284196676aee70088cfafd95114dae76() asm """
+    B{b5ee9c7241010101001b00003200000000556e697175654974656d207472616e736665726564004b0e07} B>boc PUSHREF
 """;
 
 ;; tact_UniqueItem.storage.fc
@@ -242,7 +254,7 @@ _ $Context$_get_value((int, slice, int, slice) v) inline {
 ;; TLB: _ mode:int257 body:Maybe ^cell code:Maybe ^cell data:Maybe ^cell value:int257 to:address bounce:bool = SendParameters
 ;;
 
-((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_body_mode(slice $to, int $value, cell $body, int $mode) inline {
+((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_mode_body(slice $to, int $value, int $mode, cell $body) inline {
     return ($mode, $body, null(), null(), $value, $to, true);
 }
 
@@ -256,100 +268,74 @@ _ $Context$_get_value((int, slice, int, slice) v) inline {
 }
 
 ;;
-;; Type: NftTransfer
-;; Header: 0xd9f8bfac
-;; TLB: nft_transfer#d9f8bfac newOwner:address isSalable:bool = NftTransfer
+;; Type: GetPriceResponse
+;; Header: 0x7c95a1fc
+;; TLB: get_price_response#7c95a1fc price:coins = GetPriceResponse
 ;;
 
-(slice, ((slice, int))) $NftTransfer$_load_without_opcode(slice sc_0) inline {
-    var v'newOwner = sc_0~load_msg_addr();
-    var v'isSalable = sc_0~load_int(1);
-    return (sc_0, (v'newOwner, v'isSalable));
-}
-
-;;
-;; Type: CreateOrder
-;; Header: 0x7ac14988
-;; TLB: create_order#7ac14988 itemAddress:address deliveryAddress:^string price:coins = CreateOrder
-;;
-
-(slice, ((slice, slice, int))) $CreateOrder$_load_without_opcode(slice sc_0) inline {
-    var v'itemAddress = sc_0~load_msg_addr();
-    var v'deliveryAddress = sc_0~load_ref().begin_parse();
-    var v'price = sc_0~load_varuint16();
-    return (sc_0, (v'itemAddress, v'deliveryAddress, v'price));
-}
-
-;;
-;; Type: NewOrder
-;; Header: 0x90268e31
-;; TLB: new_order#90268e31 deliveryAddress:^string itemIndex:uint256 price:coins = NewOrder
-;;
-
-builder $NewOrder$_store(builder build_0, (slice, int, int) v) inline {
-    var (v'deliveryAddress, v'itemIndex, v'price) = v;
-    build_0 = store_uint(build_0, 2418445873, 32);
-    build_0 = build_0.store_builder_ref(begin_cell().store_slice(v'deliveryAddress));
-    build_0 = build_0.store_uint(v'itemIndex, 256);
+builder $GetPriceResponse$_store(builder build_0, (int) v) inline {
+    var (v'price) = v;
+    build_0 = store_uint(build_0, 2090181116, 32);
     build_0 = build_0.store_varuint16(v'price);
     return build_0;
 }
 
-cell $NewOrder$_store_cell((slice, int, int) v) inline {
-    return $NewOrder$_store(begin_cell(), v).end_cell();
+cell $GetPriceResponse$_store_cell((int) v, builder b) inline {
+    return $GetPriceResponse$_store(b, v).end_cell();
 }
 
-((slice, int, int)) $NewOrder$_constructor_deliveryAddress_itemIndex_price(slice $deliveryAddress, int $itemIndex, int $price) inline {
-    return ($deliveryAddress, $itemIndex, $price);
+((int)) $GetPriceResponse$_constructor_price(int $price) inline {
+    return ($price);
 }
 
 ;;
 ;; Type: UniqueItem
-;; TLB: _ shop:address owner:address content:^string index:uint256 price:coins = UniqueItem
+;; TLB: _ shop:address owner:address content:^string index:uint256 price:coins isSalable:bool = UniqueItem
 ;;
 
-builder $UniqueItem$_store(builder build_0, (slice, slice, slice, int, int) v) inline {
-    var (v'shop, v'owner, v'content, v'index, v'price) = v;
+builder $UniqueItem$_store(builder build_0, (slice, slice, slice, int, int, int) v) inline {
+    var (v'shop, v'owner, v'content, v'index, v'price, v'isSalable) = v;
     build_0 = build_0.store_slice(v'shop);
     build_0 = build_0.store_slice(v'owner);
     build_0 = build_0.store_builder_ref(begin_cell().store_slice(v'content));
     build_0 = build_0.store_uint(v'index, 256);
     build_0 = build_0.store_varuint16(v'price);
+    build_0 = build_0.store_int(v'isSalable, 1);
     return build_0;
 }
 
-(slice, ((slice, slice, slice, int, int))) $UniqueItem$_load(slice sc_0) inline {
+(slice, ((slice, slice, slice, int, int, int))) $UniqueItem$_load(slice sc_0) inline {
     var v'shop = sc_0~load_msg_addr();
     var v'owner = sc_0~load_msg_addr();
     var v'content = sc_0~load_ref().begin_parse();
     var v'index = sc_0~load_uint(256);
     var v'price = sc_0~load_varuint16();
-    return (sc_0, (v'shop, v'owner, v'content, v'index, v'price));
+    var v'isSalable = sc_0~load_int(1);
+    return (sc_0, (v'shop, v'owner, v'content, v'index, v'price, v'isSalable));
 }
 
-(slice, ((slice, slice, slice, int, int))) $UniqueItem$init$_load(slice sc_0) inline {
-    var v'shop = sc_0~load_msg_addr();
+(slice, ((slice, slice, int, slice))) $UniqueItem$init$_load(slice sc_0) inline {
     var v'owner = sc_0~load_msg_addr();
-    var v'content = sc_0~load_ref().begin_parse();
+    var v'shop = sc_0~load_msg_addr();
     var v'index = sc_0~load_int(257);
-    var v'price = sc_0~load_varuint16();
-    return (sc_0, (v'shop, v'owner, v'content, v'index, v'price));
+    var v'content = sc_0~load_ref().begin_parse();
+    return (sc_0, (v'owner, v'shop, v'index, v'content));
 }
 
-(slice, slice, slice, int, int) $UniqueItem$_contract_load() impure inline {
+(slice, slice, slice, int, int, int) $UniqueItem$_contract_load() impure inline {
     slice $sc = get_data().begin_parse();
     int $loaded = $sc~load_int(1);
     if ($loaded) {
         return $sc~$UniqueItem$_load();
     }
     else {
-        (slice $shop, slice $owner, slice $content, int $index, int $price) = $sc~$UniqueItem$init$_load();
+        (slice $owner, slice $shop, int $index, slice $content) = $sc~$UniqueItem$init$_load();
         $sc.end_parse();
-        return $UniqueItem$_contract_init($shop, $owner, $content, $index, $price);
+        return $UniqueItem$_contract_init($owner, $shop, $index, $content);
     }
 }
 
-() $UniqueItem$_contract_store((slice, slice, slice, int, int) v) impure inline {
+() $UniqueItem$_contract_store((slice, slice, slice, int, int, int) v) impure inline {
     builder b = begin_cell();
     b = b.store_int(true, 1);
     b = $UniqueItem$_store(b, v);
@@ -360,29 +346,52 @@ builder $UniqueItem$_store(builder build_0, (slice, slice, slice, int, int) v) i
 ;; Contract UniqueItem functions
 ;;
 
-(slice, slice, slice, int, int) $UniqueItem$_contract_init(slice $shop, slice $owner, slice $content, int $index, int $price) impure inline {
-    var (($self'shop, $self'owner, $self'content, $self'index, $self'price)) = (null(), null(), null(), null(), null());
+(slice, slice, slice, int, int, int) $UniqueItem$_contract_init(slice $owner, slice $shop, int $index, slice $content) impure inline {
+    var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = (null(), null(), null(), null(), 0, false);
     $self'shop = $shop;
     $self'owner = $owner;
     $self'content = $content;
     $self'index = $index;
-    $self'price = $price;
-    return ($self'shop, $self'owner, $self'content, $self'index, $self'price);
+    return ($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable);
 }
 
-((slice, slice, slice, int, int), int) $UniqueItem$_fun_index((slice, slice, slice, int, int) $self) impure inline_ref {
-    var (($self'shop, $self'owner, $self'content, $self'index, $self'price)) = $self;
-    var $fresh$ret_2 = $self'index;
-    return (($self'shop, $self'owner, $self'content, $self'index, $self'price), $fresh$ret_2);
+((slice, slice, slice, int, int, int), int) $UniqueItem$_fun_price((slice, slice, slice, int, int, int) $self) impure inline_ref {
+    var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
+    var $fresh$ret_35 = $self'price;
+    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_35);
+}
+
+((slice, slice, slice, int, int, int), int) $UniqueItem$_fun_index((slice, slice, slice, int, int, int) $self) impure inline_ref {
+    var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
+    var $fresh$ret_36 = $self'index;
+    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_36);
+}
+
+((slice, slice, slice, int, int, int), slice) $UniqueItem$_fun_content((slice, slice, slice, int, int, int) $self) impure inline_ref {
+    var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
+    var $fresh$ret_37 = $self'content;
+    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_37);
 }
 
 ;;
 ;; Get methods of a Contract UniqueItem
 ;;
 
+_ %price() method_id(120091) {
+    var self = $UniqueItem$_contract_load();
+    var res = self~$UniqueItem$_fun_price();
+    return res;
+}
+
 _ %index() method_id(67267) {
     var self = $UniqueItem$_contract_load();
     var res = self~$UniqueItem$_fun_index();
+    return res;
+}
+
+_ %content() method_id(117214) {
+    var self = $UniqueItem$_contract_load();
+    var res = self~$UniqueItem$_fun_content();
     return res;
 }
 
@@ -412,30 +421,54 @@ _ %owner() method_id(83229) {
     __tact_context_sender = msg_sender_addr;
     
     ;; Load contract data
-    var ($self'shop, $self'owner, $self'content, $self'index, $self'price) = $UniqueItem$_contract_load();
+    var ($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable) = $UniqueItem$_contract_load();
     
     ;; Handle bounced messages
     if (msg_bounced) { return (); }
-    var op = in_msg~load_opcode_internal();
+    int op = 0;
+    int in_msg_length = slice_bits(in_msg);
+    if (in_msg_length >= 32) {
+        op = in_msg~load_uint(32);
+    }
+    ;; Receive GetPrice message
+    if (op == 0xfdc52c75) {
+        var $msg = empty_tuple();
+        throw_unless(32819, $self'isSalable);
+        $global_send($SendParameters$_constructor_to_value_mode_body(__tact_context_get_sender(), 0, 64, $GetPriceResponse$_store_cell($GetPriceResponse$_constructor_price($self'price), begin_cell())));
+        $UniqueItem$_contract_store(($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable));
+        return ();
+    }
+    
+    ;; Receive SetPrice message
+    if (op == 0x9b6fea82) {
+        var $msg'newPrice = in_msg~load_varuint16();
+        var $msg'isSalable = in_msg~load_int(1);
+        ($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)~$UniqueItem$_fun_requireOwner();
+        $self'price = $msg'newPrice;
+        $self'isSalable = $msg'isSalable;
+        ($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)~$UniqueItem$_fun_reply(__gen_cell_cell_8f363738809b64f1aab1248f39e76b6a70909c623ab568850914ec239c36134e());
+        $UniqueItem$_contract_store(($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable));
+        return ();
+    }
+    
     ;; Receive NftTransfer message
     if (op == 0xd9f8bfac) {
-        var ($msg'newOwner, $msg'isSalable) = in_msg~$NftTransfer$_load_without_opcode();
-        ($self'shop, $self'owner, $self'content, $self'index, $self'price)~$UniqueItem$_fun_requireOwner();
+        var $msg'newOwner = in_msg~load_msg_addr();
+        var $msg'isSalable = in_msg~load_int(1);
+        ($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)~$UniqueItem$_fun_requireOwner();
         $self'owner = $msg'newOwner;
-        ($self'shop, $self'owner, $self'content, $self'index, $self'price)~$UniqueItem$_fun_reply(__gen_cell_cell_2ca3ddd6a4096384ea98d39916375911f80f1c4f330efa0129441def14ea5e67());
-        $UniqueItem$_contract_store(($self'shop, $self'owner, $self'content, $self'index, $self'price));
+        $self'isSalable = $msg'isSalable;
+        ($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)~$UniqueItem$_fun_reply(__gen_cell_cell_1579335e722da1bd578cb5127749e72b284196676aee70088cfafd95114dae76());
+        $UniqueItem$_contract_store(($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable));
         return ();
     }
     
-    ;; Receive CreateOrder message
-    if (op == 0x7ac14988) {
-        var ($msg'itemAddress, $msg'deliveryAddress, $msg'price) = in_msg~$CreateOrder$_load_without_opcode();
-        $global_send($SendParameters$_constructor_to_value_body_mode($self'shop, $msg'price, $NewOrder$_store_cell($NewOrder$_constructor_deliveryAddress_itemIndex_price($msg'deliveryAddress, $self'index, $self'price)), 2));
-        ($self'shop, $self'owner, $self'content, $self'index, $self'price)~$UniqueItem$_fun_reply(__gen_cell_cell_5873a9e7fafbcf53a4a03be0092e99890dbbab7b8598efd58ff3f135073a2bdd());
-        $UniqueItem$_contract_store(($self'shop, $self'owner, $self'content, $self'index, $self'price));
+    ;; Receive empty message
+    if ((op == 0) & (in_msg_length <= 32)) {
+        $global_cashback(__tact_context_get_sender());
+        $UniqueItem$_contract_store(($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable));
         return ();
     }
-    
     ;; Throw if not handled
     throw(130);
 }

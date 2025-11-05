@@ -1,9 +1,9 @@
 # Tact compilation report
 Contract: Item
-BoC Size: 96 bytes
+BoC Size: 1675 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 11
+Total structures: 33
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -45,12 +45,118 @@ Signature: `VarAddress{workchain:int32,address:^slice}`
 TL-B: `_ hash:Maybe int257 = BasechainAddress`
 Signature: `BasechainAddress{hash:Maybe int257}`
 
+### ChangeOwner
+TL-B: `change_owner#819dbe99 queryId:uint64 newOwner:address = ChangeOwner`
+Signature: `ChangeOwner{queryId:uint64,newOwner:address}`
+
+### ChangeOwnerOk
+TL-B: `change_owner_ok#327b2b4a queryId:uint64 newOwner:address = ChangeOwnerOk`
+Signature: `ChangeOwnerOk{queryId:uint64,newOwner:address}`
+
+### MakeNewUser
+TL-B: `make_new_user#dc6a8b83 name:^string id:int257 = MakeNewUser`
+Signature: `MakeNewUser{name:^string,id:int257}`
+
+### ChangeUserData
+TL-B: `change_user_data#7f22ed74 name:^string id:int257 deliveryAddress:^string = ChangeUserData`
+Signature: `ChangeUserData{name:^string,id:int257,deliveryAddress:^string}`
+
+### CreateShop
+TL-B: `create_shop#c6366b42 shopName:^string = CreateShop`
+Signature: `CreateShop{shopName:^string}`
+
+### AddItem
+TL-B: `add_item#fe3511b0 price:coins imageSrc:^string title:^string description:^string = AddItem`
+Signature: `AddItem{price:coins,imageSrc:^string,title:^string,description:^string}`
+
+### NftTransfer
+TL-B: `nft_transfer#d9f8bfac newOwner:address isSalable:bool = NftTransfer`
+Signature: `NftTransfer{newOwner:address,isSalable:bool}`
+
+### CreateOrder
+TL-B: `create_order#7ac14988 orderId:int257 itemAddress:address price:coins deliveryAddress:^string = CreateOrder`
+Signature: `CreateOrder{orderId:int257,itemAddress:address,price:coins,deliveryAddress:^string}`
+
+### SetPrice
+TL-B: `set_price#9b6fea82 newPrice:coins isSalable:bool = SetPrice`
+Signature: `SetPrice{newPrice:coins,isSalable:bool}`
+
+### SetUniqueItemPrice
+TL-B: `set_unique_item_price#c46fecd7 uniqueItem:address newPrice:coins = SetUniqueItemPrice`
+Signature: `SetUniqueItemPrice{uniqueItem:address,newPrice:coins}`
+
+### GetPrice
+TL-B: `get_price#fdc52c75  = GetPrice`
+Signature: `GetPrice{}`
+
+### GetPriceResponse
+TL-B: `get_price_response#7c95a1fc price:coins = GetPriceResponse`
+Signature: `GetPriceResponse{price:coins}`
+
+### MakeOrder
+TL-B: `make_order#75bc02e6 itemAddress:address price:coins = MakeOrder`
+Signature: `MakeOrder{itemAddress:address,price:coins}`
+
+### NewOrder
+TL-B: `new_order#90268e31 deliveryAddress:^string itemIndex:uint256 price:coins = NewOrder`
+Signature: `NewOrder{deliveryAddress:^string,itemIndex:uint256,price:coins}`
+
+### UpdateShopInfo
+TL-B: `update_shop_info#ae4563e0 shopName:^string shopId:uint256 = UpdateShopInfo`
+Signature: `UpdateShopInfo{shopName:^string,shopId:uint256}`
+
+### OrderCompleted
+TL-B: `order_completed#3a4c4c8f  = OrderCompleted`
+Signature: `OrderCompleted{}`
+
+### User$Data
+TL-B: `_ parent:address id:uint256 name:^string deliveryAddress:^string = User`
+Signature: `User{parent:address,id:uint256,name:^string,deliveryAddress:^string}`
+
+### Order$Data
+TL-B: `_ seller:address buyer:address itemAddress:address id:uint256 completed:bool deliveryAddress:^string = Order`
+Signature: `Order{seller:address,buyer:address,itemAddress:address,id:uint256,completed:bool,deliveryAddress:^string}`
+
+### Deploy
+TL-B: `deploy#946a98b6 queryId:uint64 = Deploy`
+Signature: `Deploy{queryId:uint64}`
+
+### DeployOk
+TL-B: `deploy_ok#aff90f57 queryId:uint64 = DeployOk`
+Signature: `DeployOk{queryId:uint64}`
+
+### FactoryDeploy
+TL-B: `factory_deploy#6d0ff13b queryId:uint64 cashback:address = FactoryDeploy`
+Signature: `FactoryDeploy{queryId:uint64,cashback:address}`
+
+### UniqueItem$Data
+TL-B: `_ shop:address owner:address content:^string index:uint256 price:coins isSalable:bool = UniqueItem`
+Signature: `UniqueItem{shop:address,owner:address,content:^string,index:uint256,price:coins,isSalable:bool}`
+
 ### Item$Data
-TL-B: `_  = Item`
-Signature: `Item{}`
+TL-B: `_ shop:address id:uint256 price:coins imageSrc:^string title:^string description:^string = Item`
+Signature: `Item{shop:address,id:uint256,price:coins,imageSrc:^string,title:^string,description:^string}`
 
 ## Get methods
-Total get methods: 0
+Total get methods: 6
+
+## shop
+No arguments
+
+## id
+No arguments
+
+## price
+No arguments
+
+## imageSrc
+No arguments
+
+## title
+No arguments
+
+## description
+No arguments
 
 ## Exit codes
 * 2: Stack underflow
@@ -89,6 +195,8 @@ Total get methods: 0
 * 135: Code of a contract was not found
 * 136: Invalid standard address
 * 138: Not a basechain address
+* 32819: Item not salable yet
+* 50052: Only parent can change user data
 
 ## Trait inheritance diagram
 
@@ -103,4 +211,5 @@ Item --> BaseTrait
 ```mermaid
 graph TD
 Item
+Item --> Order
 ```

@@ -1,9 +1,9 @@
 # Tact compilation report
 Contract: User
-BoC Size: 380 bytes
+BoC Size: 253 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 30
+Total structures: 29
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -58,20 +58,16 @@ TL-B: `create_shop#c6366b42 shopName:^string = CreateShop`
 Signature: `CreateShop{shopName:^string}`
 
 ### AddItem
-TL-B: `add_item#fe3511b0 isUnique:bool content:^string price:coins = AddItem`
-Signature: `AddItem{isUnique:bool,content:^string,price:coins}`
+TL-B: `add_item#fe3511b0 price:coins imageSrc:^string title:^string description:^string = AddItem`
+Signature: `AddItem{price:coins,imageSrc:^string,title:^string,description:^string}`
 
 ### NftTransfer
 TL-B: `nft_transfer#d9f8bfac newOwner:address isSalable:bool = NftTransfer`
 Signature: `NftTransfer{newOwner:address,isSalable:bool}`
 
-### NftTransferNotification
-TL-B: `nft_transfer_notification#591763ee itemIndex:int257 oldOwner:address newOwner:address = NftTransferNotification`
-Signature: `NftTransferNotification{itemIndex:int257,oldOwner:address,newOwner:address}`
-
 ### CreateOrder
-TL-B: `create_order#7ac14988 itemAddress:address deliveryAddress:^string price:coins = CreateOrder`
-Signature: `CreateOrder{itemAddress:address,deliveryAddress:^string,price:coins}`
+TL-B: `create_order#7ac14988 orderId:int257 itemAddress:address price:coins deliveryAddress:^string = CreateOrder`
+Signature: `CreateOrder{orderId:int257,itemAddress:address,price:coins,deliveryAddress:^string}`
 
 ### SetPrice
 TL-B: `set_price#9b6fea82 newPrice:coins isSalable:bool = SetPrice`
@@ -89,14 +85,6 @@ Signature: `GetPrice{}`
 TL-B: `get_price_response#7c95a1fc price:coins = GetPriceResponse`
 Signature: `GetPriceResponse{price:coins}`
 
-### NftTransferSuccess
-TL-B: `nft_transfer_success#e6e77cc0  = NftTransferSuccess`
-Signature: `NftTransferSuccess{}`
-
-### OrderCompleted
-TL-B: `order_completed#993e1ed5 orderIndex:int257 itemAddress:address buyer:address = OrderCompleted`
-Signature: `OrderCompleted{orderIndex:int257,itemAddress:address,buyer:address}`
-
 ### MakeOrder
 TL-B: `make_order#75bc02e6 itemAddress:address price:coins = MakeOrder`
 Signature: `MakeOrder{itemAddress:address,price:coins}`
@@ -104,6 +92,14 @@ Signature: `MakeOrder{itemAddress:address,price:coins}`
 ### NewOrder
 TL-B: `new_order#90268e31 deliveryAddress:^string itemIndex:uint256 price:coins = NewOrder`
 Signature: `NewOrder{deliveryAddress:^string,itemIndex:uint256,price:coins}`
+
+### UpdateShopInfo
+TL-B: `update_shop_info#ae4563e0 shopName:^string shopId:uint256 = UpdateShopInfo`
+Signature: `UpdateShopInfo{shopName:^string,shopId:uint256}`
+
+### OrderCompleted
+TL-B: `order_completed#3a4c4c8f  = OrderCompleted`
+Signature: `OrderCompleted{}`
 
 ### User$Data
 TL-B: `_ parent:address id:uint256 name:^string deliveryAddress:^string = User`

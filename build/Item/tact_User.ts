@@ -771,6 +771,7 @@ export function dictValueParserMakeNewUser(): DictionaryValue<MakeNewUser> {
 export type ChangeUserData = {
     $$type: 'ChangeUserData';
     name: string;
+    id: bigint;
     deliveryAddress: string;
 }
 
@@ -779,6 +780,7 @@ export function storeChangeUserData(src: ChangeUserData) {
         const b_0 = builder;
         b_0.storeUint(2132995444, 32);
         b_0.storeStringRefTail(src.name);
+        b_0.storeInt(src.id, 257);
         b_0.storeStringRefTail(src.deliveryAddress);
     };
 }
@@ -787,25 +789,29 @@ export function loadChangeUserData(slice: Slice) {
     const sc_0 = slice;
     if (sc_0.loadUint(32) !== 2132995444) { throw Error('Invalid prefix'); }
     const _name = sc_0.loadStringRefTail();
+    const _id = sc_0.loadIntBig(257);
     const _deliveryAddress = sc_0.loadStringRefTail();
-    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
 }
 
 export function loadTupleChangeUserData(source: TupleReader) {
     const _name = source.readString();
+    const _id = source.readBigNumber();
     const _deliveryAddress = source.readString();
-    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
 }
 
 export function loadGetterTupleChangeUserData(source: TupleReader) {
     const _name = source.readString();
+    const _id = source.readBigNumber();
     const _deliveryAddress = source.readString();
-    return { $$type: 'ChangeUserData' as const, name: _name, deliveryAddress: _deliveryAddress };
+    return { $$type: 'ChangeUserData' as const, name: _name, id: _id, deliveryAddress: _deliveryAddress };
 }
 
 export function storeTupleChangeUserData(source: ChangeUserData) {
     const builder = new TupleBuilder();
     builder.writeString(source.name);
+    builder.writeNumber(source.id);
     builder.writeString(source.deliveryAddress);
     return builder.build();
 }
@@ -870,49 +876,55 @@ export function dictValueParserCreateShop(): DictionaryValue<CreateShop> {
 
 export type AddItem = {
     $$type: 'AddItem';
-    isUnique: boolean;
-    content: string;
     price: bigint;
+    imageSrc: string;
+    title: string;
+    description: string;
 }
 
 export function storeAddItem(src: AddItem) {
     return (builder: Builder) => {
         const b_0 = builder;
         b_0.storeUint(4264890800, 32);
-        b_0.storeBit(src.isUnique);
-        b_0.storeStringRefTail(src.content);
         b_0.storeCoins(src.price);
+        b_0.storeStringRefTail(src.imageSrc);
+        b_0.storeStringRefTail(src.title);
+        b_0.storeStringRefTail(src.description);
     };
 }
 
 export function loadAddItem(slice: Slice) {
     const sc_0 = slice;
     if (sc_0.loadUint(32) !== 4264890800) { throw Error('Invalid prefix'); }
-    const _isUnique = sc_0.loadBit();
-    const _content = sc_0.loadStringRefTail();
     const _price = sc_0.loadCoins();
-    return { $$type: 'AddItem' as const, isUnique: _isUnique, content: _content, price: _price };
+    const _imageSrc = sc_0.loadStringRefTail();
+    const _title = sc_0.loadStringRefTail();
+    const _description = sc_0.loadStringRefTail();
+    return { $$type: 'AddItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
 }
 
 export function loadTupleAddItem(source: TupleReader) {
-    const _isUnique = source.readBoolean();
-    const _content = source.readString();
     const _price = source.readBigNumber();
-    return { $$type: 'AddItem' as const, isUnique: _isUnique, content: _content, price: _price };
+    const _imageSrc = source.readString();
+    const _title = source.readString();
+    const _description = source.readString();
+    return { $$type: 'AddItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
 }
 
 export function loadGetterTupleAddItem(source: TupleReader) {
-    const _isUnique = source.readBoolean();
-    const _content = source.readString();
     const _price = source.readBigNumber();
-    return { $$type: 'AddItem' as const, isUnique: _isUnique, content: _content, price: _price };
+    const _imageSrc = source.readString();
+    const _title = source.readString();
+    const _description = source.readString();
+    return { $$type: 'AddItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
 }
 
 export function storeTupleAddItem(source: AddItem) {
     const builder = new TupleBuilder();
-    builder.writeBoolean(source.isUnique);
-    builder.writeString(source.content);
     builder.writeNumber(source.price);
+    builder.writeString(source.imageSrc);
+    builder.writeString(source.title);
+    builder.writeString(source.description);
     return builder.build();
 }
 
@@ -980,110 +992,57 @@ export function dictValueParserNftTransfer(): DictionaryValue<NftTransfer> {
     }
 }
 
-export type NftTransferNotification = {
-    $$type: 'NftTransferNotification';
-    itemIndex: bigint;
-    oldOwner: Address;
-    newOwner: Address;
-}
-
-export function storeNftTransferNotification(src: NftTransferNotification) {
-    return (builder: Builder) => {
-        const b_0 = builder;
-        b_0.storeUint(1494705134, 32);
-        b_0.storeInt(src.itemIndex, 257);
-        b_0.storeAddress(src.oldOwner);
-        b_0.storeAddress(src.newOwner);
-    };
-}
-
-export function loadNftTransferNotification(slice: Slice) {
-    const sc_0 = slice;
-    if (sc_0.loadUint(32) !== 1494705134) { throw Error('Invalid prefix'); }
-    const _itemIndex = sc_0.loadIntBig(257);
-    const _oldOwner = sc_0.loadAddress();
-    const _newOwner = sc_0.loadAddress();
-    return { $$type: 'NftTransferNotification' as const, itemIndex: _itemIndex, oldOwner: _oldOwner, newOwner: _newOwner };
-}
-
-export function loadTupleNftTransferNotification(source: TupleReader) {
-    const _itemIndex = source.readBigNumber();
-    const _oldOwner = source.readAddress();
-    const _newOwner = source.readAddress();
-    return { $$type: 'NftTransferNotification' as const, itemIndex: _itemIndex, oldOwner: _oldOwner, newOwner: _newOwner };
-}
-
-export function loadGetterTupleNftTransferNotification(source: TupleReader) {
-    const _itemIndex = source.readBigNumber();
-    const _oldOwner = source.readAddress();
-    const _newOwner = source.readAddress();
-    return { $$type: 'NftTransferNotification' as const, itemIndex: _itemIndex, oldOwner: _oldOwner, newOwner: _newOwner };
-}
-
-export function storeTupleNftTransferNotification(source: NftTransferNotification) {
-    const builder = new TupleBuilder();
-    builder.writeNumber(source.itemIndex);
-    builder.writeAddress(source.oldOwner);
-    builder.writeAddress(source.newOwner);
-    return builder.build();
-}
-
-export function dictValueParserNftTransferNotification(): DictionaryValue<NftTransferNotification> {
-    return {
-        serialize: (src, builder) => {
-            builder.storeRef(beginCell().store(storeNftTransferNotification(src)).endCell());
-        },
-        parse: (src) => {
-            return loadNftTransferNotification(src.loadRef().beginParse());
-        }
-    }
-}
-
 export type CreateOrder = {
     $$type: 'CreateOrder';
+    orderId: bigint;
     itemAddress: Address;
-    deliveryAddress: string;
     price: bigint;
+    deliveryAddress: string;
 }
 
 export function storeCreateOrder(src: CreateOrder) {
     return (builder: Builder) => {
         const b_0 = builder;
         b_0.storeUint(2059487624, 32);
+        b_0.storeInt(src.orderId, 257);
         b_0.storeAddress(src.itemAddress);
-        b_0.storeStringRefTail(src.deliveryAddress);
         b_0.storeCoins(src.price);
+        b_0.storeStringRefTail(src.deliveryAddress);
     };
 }
 
 export function loadCreateOrder(slice: Slice) {
     const sc_0 = slice;
     if (sc_0.loadUint(32) !== 2059487624) { throw Error('Invalid prefix'); }
+    const _orderId = sc_0.loadIntBig(257);
     const _itemAddress = sc_0.loadAddress();
-    const _deliveryAddress = sc_0.loadStringRefTail();
     const _price = sc_0.loadCoins();
-    return { $$type: 'CreateOrder' as const, itemAddress: _itemAddress, deliveryAddress: _deliveryAddress, price: _price };
+    const _deliveryAddress = sc_0.loadStringRefTail();
+    return { $$type: 'CreateOrder' as const, orderId: _orderId, itemAddress: _itemAddress, price: _price, deliveryAddress: _deliveryAddress };
 }
 
 export function loadTupleCreateOrder(source: TupleReader) {
+    const _orderId = source.readBigNumber();
     const _itemAddress = source.readAddress();
-    const _deliveryAddress = source.readString();
     const _price = source.readBigNumber();
-    return { $$type: 'CreateOrder' as const, itemAddress: _itemAddress, deliveryAddress: _deliveryAddress, price: _price };
+    const _deliveryAddress = source.readString();
+    return { $$type: 'CreateOrder' as const, orderId: _orderId, itemAddress: _itemAddress, price: _price, deliveryAddress: _deliveryAddress };
 }
 
 export function loadGetterTupleCreateOrder(source: TupleReader) {
+    const _orderId = source.readBigNumber();
     const _itemAddress = source.readAddress();
-    const _deliveryAddress = source.readString();
     const _price = source.readBigNumber();
-    return { $$type: 'CreateOrder' as const, itemAddress: _itemAddress, deliveryAddress: _deliveryAddress, price: _price };
+    const _deliveryAddress = source.readString();
+    return { $$type: 'CreateOrder' as const, orderId: _orderId, itemAddress: _itemAddress, price: _price, deliveryAddress: _deliveryAddress };
 }
 
 export function storeTupleCreateOrder(source: CreateOrder) {
     const builder = new TupleBuilder();
+    builder.writeNumber(source.orderId);
     builder.writeAddress(source.itemAddress);
-    builder.writeString(source.deliveryAddress);
     builder.writeNumber(source.price);
+    builder.writeString(source.deliveryAddress);
     return builder.build();
 }
 
@@ -1292,106 +1251,6 @@ export function dictValueParserGetPriceResponse(): DictionaryValue<GetPriceRespo
     }
 }
 
-export type NftTransferSuccess = {
-    $$type: 'NftTransferSuccess';
-}
-
-export function storeNftTransferSuccess(src: NftTransferSuccess) {
-    return (builder: Builder) => {
-        const b_0 = builder;
-        b_0.storeUint(3873930432, 32);
-    };
-}
-
-export function loadNftTransferSuccess(slice: Slice) {
-    const sc_0 = slice;
-    if (sc_0.loadUint(32) !== 3873930432) { throw Error('Invalid prefix'); }
-    return { $$type: 'NftTransferSuccess' as const };
-}
-
-export function loadTupleNftTransferSuccess(source: TupleReader) {
-    return { $$type: 'NftTransferSuccess' as const };
-}
-
-export function loadGetterTupleNftTransferSuccess(source: TupleReader) {
-    return { $$type: 'NftTransferSuccess' as const };
-}
-
-export function storeTupleNftTransferSuccess(source: NftTransferSuccess) {
-    const builder = new TupleBuilder();
-    return builder.build();
-}
-
-export function dictValueParserNftTransferSuccess(): DictionaryValue<NftTransferSuccess> {
-    return {
-        serialize: (src, builder) => {
-            builder.storeRef(beginCell().store(storeNftTransferSuccess(src)).endCell());
-        },
-        parse: (src) => {
-            return loadNftTransferSuccess(src.loadRef().beginParse());
-        }
-    }
-}
-
-export type OrderCompleted = {
-    $$type: 'OrderCompleted';
-    orderIndex: bigint;
-    itemAddress: Address;
-    buyer: Address;
-}
-
-export function storeOrderCompleted(src: OrderCompleted) {
-    return (builder: Builder) => {
-        const b_0 = builder;
-        b_0.storeUint(2570985173, 32);
-        b_0.storeInt(src.orderIndex, 257);
-        b_0.storeAddress(src.itemAddress);
-        b_0.storeAddress(src.buyer);
-    };
-}
-
-export function loadOrderCompleted(slice: Slice) {
-    const sc_0 = slice;
-    if (sc_0.loadUint(32) !== 2570985173) { throw Error('Invalid prefix'); }
-    const _orderIndex = sc_0.loadIntBig(257);
-    const _itemAddress = sc_0.loadAddress();
-    const _buyer = sc_0.loadAddress();
-    return { $$type: 'OrderCompleted' as const, orderIndex: _orderIndex, itemAddress: _itemAddress, buyer: _buyer };
-}
-
-export function loadTupleOrderCompleted(source: TupleReader) {
-    const _orderIndex = source.readBigNumber();
-    const _itemAddress = source.readAddress();
-    const _buyer = source.readAddress();
-    return { $$type: 'OrderCompleted' as const, orderIndex: _orderIndex, itemAddress: _itemAddress, buyer: _buyer };
-}
-
-export function loadGetterTupleOrderCompleted(source: TupleReader) {
-    const _orderIndex = source.readBigNumber();
-    const _itemAddress = source.readAddress();
-    const _buyer = source.readAddress();
-    return { $$type: 'OrderCompleted' as const, orderIndex: _orderIndex, itemAddress: _itemAddress, buyer: _buyer };
-}
-
-export function storeTupleOrderCompleted(source: OrderCompleted) {
-    const builder = new TupleBuilder();
-    builder.writeNumber(source.orderIndex);
-    builder.writeAddress(source.itemAddress);
-    builder.writeAddress(source.buyer);
-    return builder.build();
-}
-
-export function dictValueParserOrderCompleted(): DictionaryValue<OrderCompleted> {
-    return {
-        serialize: (src, builder) => {
-            builder.storeRef(beginCell().store(storeOrderCompleted(src)).endCell());
-        },
-        parse: (src) => {
-            return loadOrderCompleted(src.loadRef().beginParse());
-        }
-    }
-}
-
 export type MakeOrder = {
     $$type: 'MakeOrder';
     itemAddress: Address;
@@ -1504,6 +1363,100 @@ export function dictValueParserNewOrder(): DictionaryValue<NewOrder> {
     }
 }
 
+export type UpdateShopInfo = {
+    $$type: 'UpdateShopInfo';
+    shopName: string;
+    shopId: bigint;
+}
+
+export function storeUpdateShopInfo(src: UpdateShopInfo) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(2923783136, 32);
+        b_0.storeStringRefTail(src.shopName);
+        b_0.storeUint(src.shopId, 256);
+    };
+}
+
+export function loadUpdateShopInfo(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 2923783136) { throw Error('Invalid prefix'); }
+    const _shopName = sc_0.loadStringRefTail();
+    const _shopId = sc_0.loadUintBig(256);
+    return { $$type: 'UpdateShopInfo' as const, shopName: _shopName, shopId: _shopId };
+}
+
+export function loadTupleUpdateShopInfo(source: TupleReader) {
+    const _shopName = source.readString();
+    const _shopId = source.readBigNumber();
+    return { $$type: 'UpdateShopInfo' as const, shopName: _shopName, shopId: _shopId };
+}
+
+export function loadGetterTupleUpdateShopInfo(source: TupleReader) {
+    const _shopName = source.readString();
+    const _shopId = source.readBigNumber();
+    return { $$type: 'UpdateShopInfo' as const, shopName: _shopName, shopId: _shopId };
+}
+
+export function storeTupleUpdateShopInfo(source: UpdateShopInfo) {
+    const builder = new TupleBuilder();
+    builder.writeString(source.shopName);
+    builder.writeNumber(source.shopId);
+    return builder.build();
+}
+
+export function dictValueParserUpdateShopInfo(): DictionaryValue<UpdateShopInfo> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeUpdateShopInfo(src)).endCell());
+        },
+        parse: (src) => {
+            return loadUpdateShopInfo(src.loadRef().beginParse());
+        }
+    }
+}
+
+export type OrderCompleted = {
+    $$type: 'OrderCompleted';
+}
+
+export function storeOrderCompleted(src: OrderCompleted) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(978078863, 32);
+    };
+}
+
+export function loadOrderCompleted(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 978078863) { throw Error('Invalid prefix'); }
+    return { $$type: 'OrderCompleted' as const };
+}
+
+export function loadTupleOrderCompleted(source: TupleReader) {
+    return { $$type: 'OrderCompleted' as const };
+}
+
+export function loadGetterTupleOrderCompleted(source: TupleReader) {
+    return { $$type: 'OrderCompleted' as const };
+}
+
+export function storeTupleOrderCompleted(source: OrderCompleted) {
+    const builder = new TupleBuilder();
+    return builder.build();
+}
+
+export function dictValueParserOrderCompleted(): DictionaryValue<OrderCompleted> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeOrderCompleted(src)).endCell());
+        },
+        parse: (src) => {
+            return loadOrderCompleted(src.loadRef().beginParse());
+        }
+    }
+}
+
 export type User$Data = {
     $$type: 'User$Data';
     parent: Address;
@@ -1563,6 +1516,84 @@ export function dictValueParserUser$Data(): DictionaryValue<User$Data> {
         },
         parse: (src) => {
             return loadUser$Data(src.loadRef().beginParse());
+        }
+    }
+}
+
+export type Order$Data = {
+    $$type: 'Order$Data';
+    seller: Address;
+    buyer: Address;
+    itemAddress: Address;
+    id: bigint;
+    completed: boolean;
+    deliveryAddress: string;
+}
+
+export function storeOrder$Data(src: Order$Data) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeAddress(src.seller);
+        b_0.storeAddress(src.buyer);
+        b_0.storeAddress(src.itemAddress);
+        const b_1 = new Builder();
+        b_1.storeUint(src.id, 256);
+        b_1.storeBit(src.completed);
+        b_1.storeStringRefTail(src.deliveryAddress);
+        b_0.storeRef(b_1.endCell());
+    };
+}
+
+export function loadOrder$Data(slice: Slice) {
+    const sc_0 = slice;
+    const _seller = sc_0.loadAddress();
+    const _buyer = sc_0.loadAddress();
+    const _itemAddress = sc_0.loadAddress();
+    const sc_1 = sc_0.loadRef().beginParse();
+    const _id = sc_1.loadUintBig(256);
+    const _completed = sc_1.loadBit();
+    const _deliveryAddress = sc_1.loadStringRefTail();
+    return { $$type: 'Order$Data' as const, seller: _seller, buyer: _buyer, itemAddress: _itemAddress, id: _id, completed: _completed, deliveryAddress: _deliveryAddress };
+}
+
+export function loadTupleOrder$Data(source: TupleReader) {
+    const _seller = source.readAddress();
+    const _buyer = source.readAddress();
+    const _itemAddress = source.readAddress();
+    const _id = source.readBigNumber();
+    const _completed = source.readBoolean();
+    const _deliveryAddress = source.readString();
+    return { $$type: 'Order$Data' as const, seller: _seller, buyer: _buyer, itemAddress: _itemAddress, id: _id, completed: _completed, deliveryAddress: _deliveryAddress };
+}
+
+export function loadGetterTupleOrder$Data(source: TupleReader) {
+    const _seller = source.readAddress();
+    const _buyer = source.readAddress();
+    const _itemAddress = source.readAddress();
+    const _id = source.readBigNumber();
+    const _completed = source.readBoolean();
+    const _deliveryAddress = source.readString();
+    return { $$type: 'Order$Data' as const, seller: _seller, buyer: _buyer, itemAddress: _itemAddress, id: _id, completed: _completed, deliveryAddress: _deliveryAddress };
+}
+
+export function storeTupleOrder$Data(source: Order$Data) {
+    const builder = new TupleBuilder();
+    builder.writeAddress(source.seller);
+    builder.writeAddress(source.buyer);
+    builder.writeAddress(source.itemAddress);
+    builder.writeNumber(source.id);
+    builder.writeBoolean(source.completed);
+    builder.writeString(source.deliveryAddress);
+    return builder.build();
+}
+
+export function dictValueParserOrder$Data(): DictionaryValue<Order$Data> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeOrder$Data(src)).endCell());
+        },
+        parse: (src) => {
+            return loadOrder$Data(src.loadRef().beginParse());
         }
     }
 }
@@ -1721,6 +1752,7 @@ export type UniqueItem$Data = {
     content: string;
     index: bigint;
     price: bigint;
+    isSalable: boolean;
 }
 
 export function storeUniqueItem$Data(src: UniqueItem$Data) {
@@ -1731,6 +1763,7 @@ export function storeUniqueItem$Data(src: UniqueItem$Data) {
         b_0.storeStringRefTail(src.content);
         b_0.storeUint(src.index, 256);
         b_0.storeCoins(src.price);
+        b_0.storeBit(src.isSalable);
     };
 }
 
@@ -1741,7 +1774,8 @@ export function loadUniqueItem$Data(slice: Slice) {
     const _content = sc_0.loadStringRefTail();
     const _index = sc_0.loadUintBig(256);
     const _price = sc_0.loadCoins();
-    return { $$type: 'UniqueItem$Data' as const, shop: _shop, owner: _owner, content: _content, index: _index, price: _price };
+    const _isSalable = sc_0.loadBit();
+    return { $$type: 'UniqueItem$Data' as const, shop: _shop, owner: _owner, content: _content, index: _index, price: _price, isSalable: _isSalable };
 }
 
 export function loadTupleUniqueItem$Data(source: TupleReader) {
@@ -1750,7 +1784,8 @@ export function loadTupleUniqueItem$Data(source: TupleReader) {
     const _content = source.readString();
     const _index = source.readBigNumber();
     const _price = source.readBigNumber();
-    return { $$type: 'UniqueItem$Data' as const, shop: _shop, owner: _owner, content: _content, index: _index, price: _price };
+    const _isSalable = source.readBoolean();
+    return { $$type: 'UniqueItem$Data' as const, shop: _shop, owner: _owner, content: _content, index: _index, price: _price, isSalable: _isSalable };
 }
 
 export function loadGetterTupleUniqueItem$Data(source: TupleReader) {
@@ -1759,7 +1794,8 @@ export function loadGetterTupleUniqueItem$Data(source: TupleReader) {
     const _content = source.readString();
     const _index = source.readBigNumber();
     const _price = source.readBigNumber();
-    return { $$type: 'UniqueItem$Data' as const, shop: _shop, owner: _owner, content: _content, index: _index, price: _price };
+    const _isSalable = source.readBoolean();
+    return { $$type: 'UniqueItem$Data' as const, shop: _shop, owner: _owner, content: _content, index: _index, price: _price, isSalable: _isSalable };
 }
 
 export function storeTupleUniqueItem$Data(source: UniqueItem$Data) {
@@ -1769,6 +1805,7 @@ export function storeTupleUniqueItem$Data(source: UniqueItem$Data) {
     builder.writeString(source.content);
     builder.writeNumber(source.index);
     builder.writeNumber(source.price);
+    builder.writeBoolean(source.isSalable);
     return builder.build();
 }
 
@@ -1783,25 +1820,98 @@ export function dictValueParserUniqueItem$Data(): DictionaryValue<UniqueItem$Dat
     }
 }
 
+export type Item$Data = {
+    $$type: 'Item$Data';
+    shop: Address;
+    id: bigint;
+    price: bigint;
+    imageSrc: string;
+    title: string;
+    description: string;
+}
+
+export function storeItem$Data(src: Item$Data) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeAddress(src.shop);
+        b_0.storeUint(src.id, 256);
+        b_0.storeCoins(src.price);
+        b_0.storeStringRefTail(src.imageSrc);
+        b_0.storeStringRefTail(src.title);
+        b_0.storeStringRefTail(src.description);
+    };
+}
+
+export function loadItem$Data(slice: Slice) {
+    const sc_0 = slice;
+    const _shop = sc_0.loadAddress();
+    const _id = sc_0.loadUintBig(256);
+    const _price = sc_0.loadCoins();
+    const _imageSrc = sc_0.loadStringRefTail();
+    const _title = sc_0.loadStringRefTail();
+    const _description = sc_0.loadStringRefTail();
+    return { $$type: 'Item$Data' as const, shop: _shop, id: _id, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+}
+
+export function loadTupleItem$Data(source: TupleReader) {
+    const _shop = source.readAddress();
+    const _id = source.readBigNumber();
+    const _price = source.readBigNumber();
+    const _imageSrc = source.readString();
+    const _title = source.readString();
+    const _description = source.readString();
+    return { $$type: 'Item$Data' as const, shop: _shop, id: _id, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+}
+
+export function loadGetterTupleItem$Data(source: TupleReader) {
+    const _shop = source.readAddress();
+    const _id = source.readBigNumber();
+    const _price = source.readBigNumber();
+    const _imageSrc = source.readString();
+    const _title = source.readString();
+    const _description = source.readString();
+    return { $$type: 'Item$Data' as const, shop: _shop, id: _id, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+}
+
+export function storeTupleItem$Data(source: Item$Data) {
+    const builder = new TupleBuilder();
+    builder.writeAddress(source.shop);
+    builder.writeNumber(source.id);
+    builder.writeNumber(source.price);
+    builder.writeString(source.imageSrc);
+    builder.writeString(source.title);
+    builder.writeString(source.description);
+    return builder.build();
+}
+
+export function dictValueParserItem$Data(): DictionaryValue<Item$Data> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeItem$Data(src)).endCell());
+        },
+        parse: (src) => {
+            return loadItem$Data(src.loadRef().beginParse());
+        }
+    }
+}
+
  type User_init_args = {
     $$type: 'User_init_args';
     parent: Address;
-    id: bigint;
 }
 
 function initUser_init_args(src: User_init_args) {
     return (builder: Builder) => {
         const b_0 = builder;
         b_0.storeAddress(src.parent);
-        b_0.storeInt(src.id, 257);
     };
 }
 
-async function User_init(parent: Address, id: bigint) {
-    const __code = Cell.fromHex('b5ee9c72410204010001890003f2ff00208ff03001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e10fa40d3ffd401d001d401d01443306c149ffa40810101d7005902d1018b088b08e205925f05e003d70d1ff2e0822182107f22ed74bae30221821075bc02e6bae302018210946a98b6bae3025f05f2c082e1f2c80b010203006e31333301d401d001d401d012328200c384f8425240c705f2f44300c87f01ca0055305043cf16cbffc85003cf1612cdc858cf16cdc9ed5400f431fa40fa005932547051c8552082107ac149885004cb1f58cf16c858cf16cd01fa02c912726d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb004003c87f01ca0055305043cf16cbffc85003cf1612cdc858cf16cdc9ed5400a8d33f0131c8018210aff90f5758cb1fcb3fc9443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055305043cf16cbffc85003cf1612cdc858cf16cdc9ed54b110e5e4');
+async function User_init(parent: Address) {
+    const __code = Cell.fromHex('b5ee9c724101030100f20002d4ff00208f613001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e10fa40d3ffd401d001d401d01443306c149afa400101d1718b088b08e205925f05e003d70d1ff2e0822182107f22ed74bae302018210946a98b6bae3025f05f2c082e1f2c80b01020064345b32d401d001810101d700d430d08200c384f84225c705f2f412c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54009cd33f30c8018210aff90f5758cb1fcb3fc9443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54b93751e6');
     const builder = beginCell();
     builder.storeUint(0, 1);
-    initUser_init_args({ $$type: 'User_init_args', parent, id })(builder);
+    initUser_init_args({ $$type: 'User_init_args', parent })(builder);
     const __data = builder.endCell();
     return { code: __code, data: __data };
 }
@@ -1843,6 +1953,7 @@ export const User_errors = {
     135: { message: "Code of a contract was not found" },
     136: { message: "Invalid standard address" },
     138: { message: "Not a basechain address" },
+    32819: { message: "Item not salable yet" },
     50052: { message: "Only parent can change user data" },
 } as const
 
@@ -1883,6 +1994,7 @@ export const User_errors_backward = {
     "Code of a contract was not found": 135,
     "Invalid standard address": 136,
     "Not a basechain address": 138,
+    "Item not salable yet": 32819,
     "Only parent can change user data": 50052,
 } as const
 
@@ -1900,25 +2012,26 @@ const User_types: ABIType[] = [
     {"name":"ChangeOwner","header":2174598809,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"ChangeOwnerOk","header":846932810,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"MakeNewUser","header":3697970051,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"id","type":{"kind":"simple","type":"int","optional":false,"format":257}}]},
-    {"name":"ChangeUserData","header":2132995444,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"ChangeUserData","header":2132995444,"fields":[{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"id","type":{"kind":"simple","type":"int","optional":false,"format":257}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"CreateShop","header":3325455170,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}}]},
-    {"name":"AddItem","header":4264890800,"fields":[{"name":"isUnique","type":{"kind":"simple","type":"bool","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
+    {"name":"AddItem","header":4264890800,"fields":[{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"NftTransfer","header":3656957868,"fields":[{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},
-    {"name":"NftTransferNotification","header":1494705134,"fields":[{"name":"itemIndex","type":{"kind":"simple","type":"int","optional":false,"format":257}},{"name":"oldOwner","type":{"kind":"simple","type":"address","optional":false}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
-    {"name":"CreateOrder","header":2059487624,"fields":[{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
+    {"name":"CreateOrder","header":2059487624,"fields":[{"name":"orderId","type":{"kind":"simple","type":"int","optional":false,"format":257}},{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"SetPrice","header":2607803010,"fields":[{"name":"newPrice","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},
     {"name":"SetUniqueItemPrice","header":3295669463,"fields":[{"name":"uniqueItem","type":{"kind":"simple","type":"address","optional":false}},{"name":"newPrice","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"GetPrice","header":4257557621,"fields":[]},
     {"name":"GetPriceResponse","header":2090181116,"fields":[{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
-    {"name":"NftTransferSuccess","header":3873930432,"fields":[]},
-    {"name":"OrderCompleted","header":2570985173,"fields":[{"name":"orderIndex","type":{"kind":"simple","type":"int","optional":false,"format":257}},{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"buyer","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"MakeOrder","header":1975255782,"fields":[{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"NewOrder","header":2418445873,"fields":[{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}},{"name":"itemIndex","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
+    {"name":"UpdateShopInfo","header":2923783136,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}}]},
+    {"name":"OrderCompleted","header":978078863,"fields":[]},
     {"name":"User$Data","header":null,"fields":[{"name":"parent","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"Order$Data","header":null,"fields":[{"name":"seller","type":{"kind":"simple","type":"address","optional":false}},{"name":"buyer","type":{"kind":"simple","type":"address","optional":false}},{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"completed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"Deploy","header":2490013878,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"DeployOk","header":2952335191,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"FactoryDeploy","header":1829761339,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"cashback","type":{"kind":"simple","type":"address","optional":false}}]},
-    {"name":"UniqueItem$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"index","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
+    {"name":"UniqueItem$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"index","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},
+    {"name":"Item$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
 ]
 
 const User_opcodes = {
@@ -1929,16 +2042,15 @@ const User_opcodes = {
     "CreateShop": 3325455170,
     "AddItem": 4264890800,
     "NftTransfer": 3656957868,
-    "NftTransferNotification": 1494705134,
     "CreateOrder": 2059487624,
     "SetPrice": 2607803010,
     "SetUniqueItemPrice": 3295669463,
     "GetPrice": 4257557621,
     "GetPriceResponse": 2090181116,
-    "NftTransferSuccess": 3873930432,
-    "OrderCompleted": 2570985173,
     "MakeOrder": 1975255782,
     "NewOrder": 2418445873,
+    "UpdateShopInfo": 2923783136,
+    "OrderCompleted": 978078863,
     "Deploy": 2490013878,
     "DeployOk": 2952335191,
     "FactoryDeploy": 1829761339,
@@ -1952,7 +2064,6 @@ export const User_getterMapping: { [key: string]: string } = {
 
 const User_receivers: ABIReceiver[] = [
     {"receiver":"internal","message":{"kind":"typed","type":"ChangeUserData"}},
-    {"receiver":"internal","message":{"kind":"typed","type":"MakeOrder"}},
     {"receiver":"internal","message":{"kind":"typed","type":"Deploy"}},
 ]
 
@@ -1963,12 +2074,12 @@ export class User implements Contract {
     public static readonly errors = User_errors_backward;
     public static readonly opcodes = User_opcodes;
     
-    static async init(parent: Address, id: bigint) {
-        return await User_init(parent, id);
+    static async init(parent: Address) {
+        return await User_init(parent);
     }
     
-    static async fromInit(parent: Address, id: bigint) {
-        const __gen_init = await User_init(parent, id);
+    static async fromInit(parent: Address) {
+        const __gen_init = await User_init(parent);
         const address = contractAddress(0, __gen_init);
         return new User(address, __gen_init);
     }
@@ -1991,14 +2102,11 @@ export class User implements Contract {
         this.init = init;
     }
     
-    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: ChangeUserData | MakeOrder | Deploy) {
+    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: ChangeUserData | Deploy) {
         
         let body: Cell | null = null;
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'ChangeUserData') {
             body = beginCell().store(storeChangeUserData(message)).endCell();
-        }
-        if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'MakeOrder') {
-            body = beginCell().store(storeMakeOrder(message)).endCell();
         }
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'Deploy') {
             body = beginCell().store(storeDeploy(message)).endCell();

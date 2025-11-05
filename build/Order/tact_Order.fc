@@ -8,56 +8,41 @@
 ;; NOTE: declarations are sorted for optimal order
 ;;
 
-;; __tact_context_get
-(int, slice, int, slice) __tact_context_get() inline;
-
 ;; __tact_context_get_sender
 slice __tact_context_get_sender() inline;
 
-;; $NftTransfer$_store
-builder $NftTransfer$_store(builder build_0, (slice, int) v) inline;
-
-;; $NftTransfer$_store_cell
-cell $NftTransfer$_store_cell((slice, int) v) inline;
-
-;; $GetPriceResponse$_load_without_opcode
-(slice, ((int))) $GetPriceResponse$_load_without_opcode(slice sc_0) inline;
-
-;; $OrderCompleted$_store
-builder $OrderCompleted$_store(builder build_0, (int, slice, slice) v) inline;
-
-;; $OrderCompleted$_store_cell
-cell $OrderCompleted$_store_cell((int, slice, slice) v) inline;
-
 ;; $Order$_store
-builder $Order$_store(builder build_0, (slice, slice, slice, int, int, int, int, int) v) inline;
+builder $Order$_store(builder build_0, (slice, slice, slice, int, int, slice) v) inline;
 
 ;; $Order$_load
-(slice, ((slice, slice, slice, int, int, int, int, int))) $Order$_load(slice sc_0) inline;
-
-;; $Context$_get_value
-_ $Context$_get_value((int, slice, int, slice) v) inline;
+(slice, ((slice, slice, slice, int, int, slice))) $Order$_load(slice sc_0) inline;
 
 ;; $Order$init$_load
-(slice, ((int, slice, slice, slice))) $Order$init$_load(slice sc_0) inline;
+(slice, ((slice, slice, slice, int, slice))) $Order$init$_load(slice sc_0) inline;
 
 ;; $Order$_contract_init
-(slice, slice, slice, int, int, int, int, int) $Order$_contract_init(int $id, slice $seller, slice $buyer, slice $itemAddress) impure inline;
+(slice, slice, slice, int, int, slice) $Order$_contract_init(slice $seller, slice $buyer, slice $itemAddress, int $id, slice $deliveryAddress) impure inline;
 
 ;; $Order$_contract_load
-(slice, slice, slice, int, int, int, int, int) $Order$_contract_load() impure inline;
+(slice, slice, slice, int, int, slice) $Order$_contract_load() impure inline;
 
 ;; $Order$_contract_store
-() $Order$_contract_store((slice, slice, slice, int, int, int, int, int) v) impure inline;
+() $Order$_contract_store((slice, slice, slice, int, int, slice) v) impure inline;
 
-;; $SendParameters$_constructor_to_value_body
-((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_body(slice $to, int $value, cell $body) inline;
+;; $Order$_fun_seller
+((slice, slice, slice, int, int, slice), slice) $Order$_fun_seller((slice, slice, slice, int, int, slice) $self) impure inline_ref;
 
-;; $NftTransfer$_constructor_newOwner_isSalable
-((slice, int)) $NftTransfer$_constructor_newOwner_isSalable(slice $newOwner, int $isSalable) inline;
+;; $Order$_fun_buyer
+((slice, slice, slice, int, int, slice), slice) $Order$_fun_buyer((slice, slice, slice, int, int, slice) $self) impure inline_ref;
 
-;; $OrderCompleted$_constructor_orderIndex_buyer_itemAddress
-((int, slice, slice)) $OrderCompleted$_constructor_orderIndex_buyer_itemAddress(int $orderIndex, slice $buyer, slice $itemAddress) inline;
+;; $Order$_fun_itemAddress
+((slice, slice, slice, int, int, slice), slice) $Order$_fun_itemAddress((slice, slice, slice, int, int, slice) $self) impure inline_ref;
+
+;; $Order$_fun_id
+((slice, slice, slice, int, int, slice), int) $Order$_fun_id((slice, slice, slice, int, int, slice) $self) impure inline_ref;
+
+;; $Order$_fun_completed
+((slice, slice, slice, int, int, slice), int) $Order$_fun_completed((slice, slice, slice, int, int, slice) $self) impure inline_ref;
 
 
 ;; tact_Order.stdlib.fc
@@ -66,88 +51,9 @@ global slice __tact_context_sender;
 global cell __tact_child_contract_codes;
 global int __tact_randomized;
 
-(int, slice, int, slice) __tact_context_get() inline {
-    return __tact_context;
-}
-
 slice __tact_context_get_sender() inline {
     return __tact_context_sender;
 }
-
-() $global_send((int, cell, cell, cell, int, slice, int) $params) impure asm """
-    NEWC
-    b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
-    1 STI               // store `bounce`
-    b{000} STSLICECONST // store bounced = false and src = addr_none
-    STSLICE             // store `to`
-    SWAP
-    STGRAMS             // store `value`
-    105 PUSHINT         // 1 + 4 + 4 + 64 + 32
-    STZEROES            // store currency_collection, ihr_fee, fwd_fee, created_lt and created_at
-    // → Stack state
-    // s0: Builder
-    // s1: `data`
-    // s2: `code`
-    // s3: `body`
-    // s4: `mode`
-
-    // Group 2: Placing the Builder after code and data, then checking those for nullability
-    s2 XCHG0
-    DUP2
-    ISNULL
-    SWAP
-    ISNULL
-    AND
-    // → Stack state
-    // s0: -1 (true) if `data` and `code` are both null, 0 (false) otherwise
-    // s1: `code`
-    // s2: `data`
-    // s3: Builder
-    // s4: `body`
-    // s5: `mode`
-
-    // Group 3: Left branch of the IFELSE, executed if s0 is -1 (true)
-    <{
-        DROP2 // drop `data` and `code`, since either of those is null
-        b{0} STSLICECONST
-    }> PUSHCONT
-
-    // Group 3: Right branch of the IFELSE, executed if s0 is 0 (false)
-    <{
-        // _ split_depth:(Maybe (## 5))
-        //   special:(Maybe TickTock)
-        //   code:(Maybe ^Cell)
-        //   data:(Maybe ^Cell)
-        //   library:(Maybe ^Cell)
-        // = StateInit;
-        ROT                // place message Builder on top
-        b{10} STSLICECONST // store Maybe = true, Either = false
-        // Start composing inlined StateInit
-        b{00} STSLICECONST // store split_depth and special first
-        STDICT             // store code
-        STDICT             // store data
-        b{0} STSLICECONST  // store library
-    }> PUSHCONT
-
-    // Group 3: IFELSE that does the branching shown above
-    IFELSE
-    // → Stack state
-    // s0: Builder
-    // s1: null or StateInit
-    // s2: `body`
-    // s3: `mode`
-
-    // Group 4: Finalizing the message
-    STDICT // store `body` as ref with an extra Maybe bit, since `body` might be null
-    ENDC
-    // → Stack state
-    // s0: Cell
-    // s1: `mode`
-
-    // Group 5: Sending the message, with `mode` on top
-    SWAP
-    SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
-""";
 
 () $global_cashback(slice $to) impure asm """
     NEWC
@@ -163,136 +69,58 @@ slice __tact_context_get_sender() inline {
 
 ;; tact_Order.storage.fc
 ;;
-;; Type: Context
-;; TLB: _ bounceable:bool sender:address value:int257 raw:^slice = Context
-;;
-
-_ $Context$_get_value((int, slice, int, slice) v) inline {
-    var (v'bounceable, v'sender, v'value, v'raw) = v;
-    return v'value;
-}
-
-;;
-;; Type: SendParameters
-;; TLB: _ mode:int257 body:Maybe ^cell code:Maybe ^cell data:Maybe ^cell value:int257 to:address bounce:bool = SendParameters
-;;
-
-((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_body(slice $to, int $value, cell $body) inline {
-    return (0, $body, null(), null(), $value, $to, true);
-}
-
-;;
-;; Type: NftTransfer
-;; Header: 0xd9f8bfac
-;; TLB: nft_transfer#d9f8bfac newOwner:address isSalable:bool = NftTransfer
-;;
-
-builder $NftTransfer$_store(builder build_0, (slice, int) v) inline {
-    var (v'newOwner, v'isSalable) = v;
-    build_0 = store_uint(build_0, 3656957868, 32);
-    build_0 = build_0.store_slice(v'newOwner);
-    build_0 = build_0.store_int(v'isSalable, 1);
-    return build_0;
-}
-
-cell $NftTransfer$_store_cell((slice, int) v) inline {
-    return $NftTransfer$_store(begin_cell(), v).end_cell();
-}
-
-((slice, int)) $NftTransfer$_constructor_newOwner_isSalable(slice $newOwner, int $isSalable) inline {
-    return ($newOwner, $isSalable);
-}
-
-;;
-;; Type: GetPriceResponse
-;; Header: 0x7c95a1fc
-;; TLB: get_price_response#7c95a1fc price:coins = GetPriceResponse
-;;
-
-(slice, ((int))) $GetPriceResponse$_load_without_opcode(slice sc_0) inline {
-    var v'price = sc_0~load_varuint16();
-    return (sc_0, (v'price));
-}
-
-;;
-;; Type: OrderCompleted
-;; Header: 0x993e1ed5
-;; TLB: order_completed#993e1ed5 orderIndex:int257 itemAddress:address buyer:address = OrderCompleted
-;;
-
-builder $OrderCompleted$_store(builder build_0, (int, slice, slice) v) inline {
-    var (v'orderIndex, v'itemAddress, v'buyer) = v;
-    build_0 = store_uint(build_0, 2570985173, 32);
-    build_0 = build_0.store_int(v'orderIndex, 257);
-    build_0 = build_0.store_slice(v'itemAddress);
-    build_0 = build_0.store_slice(v'buyer);
-    return build_0;
-}
-
-cell $OrderCompleted$_store_cell((int, slice, slice) v) inline {
-    return $OrderCompleted$_store(begin_cell(), v).end_cell();
-}
-
-((int, slice, slice)) $OrderCompleted$_constructor_orderIndex_buyer_itemAddress(int $orderIndex, slice $buyer, slice $itemAddress) inline {
-    return ($orderIndex, $itemAddress, $buyer);
-}
-
-;;
 ;; Type: Order
-;; TLB: _ seller:address buyer:address itemAddress:address id:uint256 price:coins priceSetted:bool completed:bool refunded:bool = Order
+;; TLB: _ seller:address buyer:address itemAddress:address id:uint256 completed:bool deliveryAddress:^string = Order
 ;;
 
-builder $Order$_store(builder build_0, (slice, slice, slice, int, int, int, int, int) v) inline {
-    var (v'seller, v'buyer, v'itemAddress, v'id, v'price, v'priceSetted, v'completed, v'refunded) = v;
+builder $Order$_store(builder build_0, (slice, slice, slice, int, int, slice) v) inline {
+    var (v'seller, v'buyer, v'itemAddress, v'id, v'completed, v'deliveryAddress) = v;
     build_0 = build_0.store_slice(v'seller);
     build_0 = build_0.store_slice(v'buyer);
     build_0 = build_0.store_slice(v'itemAddress);
     var build_1 = begin_cell();
     build_1 = build_1.store_uint(v'id, 256);
-    build_1 = build_1.store_varuint16(v'price);
-    build_1 = build_1.store_int(v'priceSetted, 1);
     build_1 = build_1.store_int(v'completed, 1);
-    build_1 = build_1.store_int(v'refunded, 1);
+    build_1 = build_1.store_builder_ref(begin_cell().store_slice(v'deliveryAddress));
     build_0 = store_builder_ref(build_0, build_1);
     return build_0;
 }
 
-(slice, ((slice, slice, slice, int, int, int, int, int))) $Order$_load(slice sc_0) inline {
+(slice, ((slice, slice, slice, int, int, slice))) $Order$_load(slice sc_0) inline {
     var v'seller = sc_0~load_msg_addr();
     var v'buyer = sc_0~load_msg_addr();
     var v'itemAddress = sc_0~load_msg_addr();
     slice sc_1 = sc_0~load_ref().begin_parse();
     var v'id = sc_1~load_uint(256);
-    var v'price = sc_1~load_varuint16();
-    var v'priceSetted = sc_1~load_int(1);
     var v'completed = sc_1~load_int(1);
-    var v'refunded = sc_1~load_int(1);
-    return (sc_0, (v'seller, v'buyer, v'itemAddress, v'id, v'price, v'priceSetted, v'completed, v'refunded));
+    var v'deliveryAddress = sc_1~load_ref().begin_parse();
+    return (sc_0, (v'seller, v'buyer, v'itemAddress, v'id, v'completed, v'deliveryAddress));
 }
 
-(slice, ((int, slice, slice, slice))) $Order$init$_load(slice sc_0) inline {
-    var v'id = sc_0~load_int(257);
+(slice, ((slice, slice, slice, int, slice))) $Order$init$_load(slice sc_0) inline {
     var v'seller = sc_0~load_msg_addr();
     var v'buyer = sc_0~load_msg_addr();
+    var v'itemAddress = sc_0~load_msg_addr();
     slice sc_1 = sc_0~load_ref().begin_parse();
-    var v'itemAddress = sc_1~load_msg_addr();
-    return (sc_0, (v'id, v'seller, v'buyer, v'itemAddress));
+    var v'id = sc_1~load_uint(256);
+    var v'deliveryAddress = sc_1~load_ref().begin_parse();
+    return (sc_0, (v'seller, v'buyer, v'itemAddress, v'id, v'deliveryAddress));
 }
 
-(slice, slice, slice, int, int, int, int, int) $Order$_contract_load() impure inline {
+(slice, slice, slice, int, int, slice) $Order$_contract_load() impure inline {
     slice $sc = get_data().begin_parse();
     int $loaded = $sc~load_int(1);
     if ($loaded) {
         return $sc~$Order$_load();
     }
     else {
-        (int $id, slice $seller, slice $buyer, slice $itemAddress) = $sc~$Order$init$_load();
+        (slice $seller, slice $buyer, slice $itemAddress, int $id, slice $deliveryAddress) = $sc~$Order$init$_load();
         $sc.end_parse();
-        return $Order$_contract_init($id, $seller, $buyer, $itemAddress);
+        return $Order$_contract_init($seller, $buyer, $itemAddress, $id, $deliveryAddress);
     }
 }
 
-() $Order$_contract_store((slice, slice, slice, int, int, int, int, int) v) impure inline {
+() $Order$_contract_store((slice, slice, slice, int, int, slice) v) impure inline {
     builder b = begin_cell();
     b = b.store_int(true, 1);
     b = $Order$_store(b, v);
@@ -303,18 +131,79 @@ builder $Order$_store(builder build_0, (slice, slice, slice, int, int, int, int,
 ;; Contract Order functions
 ;;
 
-(slice, slice, slice, int, int, int, int, int) $Order$_contract_init(int $id, slice $seller, slice $buyer, slice $itemAddress) impure inline {
-    var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded)) = (null(), null(), null(), null(), 0, false, false, false);
+(slice, slice, slice, int, int, slice) $Order$_contract_init(slice $seller, slice $buyer, slice $itemAddress, int $id, slice $deliveryAddress) impure inline {
+    var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = (null(), null(), null(), null(), false, null());
     $self'seller = $seller;
     $self'buyer = $buyer;
-    $self'id = $id;
     $self'itemAddress = $itemAddress;
-    return ($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded);
+    $self'id = $id;
+    $self'deliveryAddress = $deliveryAddress;
+    return ($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress);
+}
+
+((slice, slice, slice, int, int, slice), slice) $Order$_fun_seller((slice, slice, slice, int, int, slice) $self) impure inline_ref {
+    var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = $self;
+    var $fresh$ret_13 = $self'seller;
+    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_13);
+}
+
+((slice, slice, slice, int, int, slice), slice) $Order$_fun_buyer((slice, slice, slice, int, int, slice) $self) impure inline_ref {
+    var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = $self;
+    var $fresh$ret_14 = $self'buyer;
+    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_14);
+}
+
+((slice, slice, slice, int, int, slice), slice) $Order$_fun_itemAddress((slice, slice, slice, int, int, slice) $self) impure inline_ref {
+    var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = $self;
+    var $fresh$ret_15 = $self'itemAddress;
+    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_15);
+}
+
+((slice, slice, slice, int, int, slice), int) $Order$_fun_id((slice, slice, slice, int, int, slice) $self) impure inline_ref {
+    var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = $self;
+    var $fresh$ret_16 = $self'id;
+    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_16);
+}
+
+((slice, slice, slice, int, int, slice), int) $Order$_fun_completed((slice, slice, slice, int, int, slice) $self) impure inline_ref {
+    var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = $self;
+    var $fresh$ret_17 = $self'completed;
+    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_17);
 }
 
 ;;
 ;; Get methods of a Contract Order
 ;;
+
+_ %seller() method_id(123671) {
+    var self = $Order$_contract_load();
+    var res = self~$Order$_fun_seller();
+    return res;
+}
+
+_ %buyer() method_id(86012) {
+    var self = $Order$_contract_load();
+    var res = self~$Order$_fun_buyer();
+    return res;
+}
+
+_ %itemAddress() method_id(119423) {
+    var self = $Order$_contract_load();
+    var res = self~$Order$_fun_itemAddress();
+    return res;
+}
+
+_ %id() method_id(105872) {
+    var self = $Order$_contract_load();
+    var res = self~$Order$_fun_id();
+    return res;
+}
+
+_ %completed() method_id(79554) {
+    var self = $Order$_contract_load();
+    var res = self~$Order$_fun_completed();
+    return res;
+}
 
 ;;
 ;; Routing of a Contract Order
@@ -336,7 +225,7 @@ builder $Order$_store(builder build_0, (slice, slice, slice, int, int, int, int,
     __tact_context_sender = msg_sender_addr;
     
     ;; Load contract data
-    var ($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded) = $Order$_contract_load();
+    var ($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress) = $Order$_contract_load();
     
     ;; Handle bounced messages
     if (msg_bounced) { return (); }
@@ -344,43 +233,19 @@ builder $Order$_store(builder build_0, (slice, slice, slice, int, int, int, int,
     int in_msg_length = slice_bits(in_msg);
     if (in_msg_length >= 32) {
         op = in_msg~load_uint(32);
-        ;; Receive GetPriceResponse message
-        if (op == 0x7c95a1fc) {
-            var ($msg'price) = in_msg~$GetPriceResponse$_load_without_opcode();
-            throw_unless(4429, ( equal_slices_bits($self'itemAddress, __tact_context_get_sender()) ));
-            $self'price = $msg'price;
-            $self'priceSetted = true;
-            $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
-            return ();
-        }
-        
     }
+    ;; Receive OrderCompleted message
+    if (op == 978078863) {
+        var $msg = empty_tuple();
+        $self'completed = true;
+        $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress));
+        return ();
+    }
+    
     ;; Receive empty message
     if ((op == 0) & (in_msg_length <= 32)) {
         $global_cashback(__tact_context_get_sender());
-        $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
-        return ();
-    }
-    ;; Empty Receiver and Text Receivers
-    var text_op = slice_hash(in_msg);
-    ;; Receive "pay" message
-    if (text_op == 0x20911b7858fac39d5cefcdb79e3fd94061efd2894ea81e3681d69d669a4b89d8) {
-        throw_unless(19553, (~ $self'completed));
-        throw_unless(24590, $self'priceSetted);
-        throw_unless(46647, ($Context$_get_value(__tact_context_get()) >= $self'price));
-        throw_unless(27283, $self'refunded);
-        $global_send($SendParameters$_constructor_to_value_body($self'itemAddress, 200000000, $NftTransfer$_store_cell($NftTransfer$_constructor_newOwner_isSalable($self'buyer, false))));
-        $global_send($SendParameters$_constructor_to_value_body($self'seller, $self'price, $OrderCompleted$_store_cell($OrderCompleted$_constructor_orderIndex_buyer_itemAddress($self'id, $self'buyer, $self'itemAddress))));
-        $self'completed = true;
-        $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
-        return ();
-    }
-    ;; Receive "Refund Item" message
-    if (text_op == 0xd4a4b54243b00b8b0fd3409d46333008e9ad093eceec5c78e7900972bea36532) {
-        throw_unless(32501, ( equal_slices_bits($self'seller, __tact_context_get_sender()) ));
-        $global_send($SendParameters$_constructor_to_value_body($self'itemAddress, 200000000, $NftTransfer$_store_cell($NftTransfer$_constructor_newOwner_isSalable($self'buyer, false))));
-        $self'refunded = true;
-        $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'price, $self'priceSetted, $self'completed, $self'refunded));
+        $Order$_contract_store(($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress));
         return ();
     }
     ;; Throw if not handled

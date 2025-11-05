@@ -1,10 +1,7 @@
-// automatically generated from `@stdlib/std/stdlib.fc` `C:/Users/nikit/ton_projects/myWallet/MyWallet/build/UniqueItem/tact_UniqueItem.fc` 
+// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ex/build/UniqueItem/tact_UniqueItem.fc` 
 PROGRAM{
   DECLPROC __tact_context_get
   DECLPROC __tact_context_get_sender
-  DECLPROC $NftTransfer$_load_without_opcode
-  DECLPROC $SetPrice$_load_without_opcode
-  DECLPROC $GetPrice$_load_without_opcode
   DECLPROC $GetPriceResponse$_store
   DECLPROC $GetPriceResponse$_store_cell
   DECLPROC $UniqueItem$_store
@@ -40,19 +37,6 @@ PROGRAM{
   __tact_context_get_sender PROCINLINE:<{
     __tact_context_sender GETGLOB
   }>
-  $NftTransfer$_load_without_opcode PROCINLINE:<{
-    LDMSGADDR
-    1 LDI
-    -ROT
-  }>
-  $SetPrice$_load_without_opcode PROCINLINE:<{
-    LDVARUINT16
-    1 LDI
-    -ROT
-  }>
-  $GetPrice$_load_without_opcode PROCINLINE:<{
-    PUSHNULL
-  }>
   $GetPriceResponse$_store PROCINLINE:<{
     2090181116 PUSHINT
     ROT
@@ -61,22 +45,21 @@ PROGRAM{
     STVARUINT16
   }>
   $GetPriceResponse$_store_cell PROCINLINE:<{
-    NEWC
     SWAP
     $GetPriceResponse$_store INLINECALLDICT
     ENDC
   }>
   $UniqueItem$_store PROCINLINE:<{
-    s6 s5 XCHG2
-    STSLICER
-    s0 s3 XCHG2
-    STSLICER
+    s5 s6 XCHG2
+    STSLICE
+    s1 s3 XCHG
+    STSLICE
+    SWAP
     NEWC
-    ROT
-    STSLICER
+    STSLICE
     STBREFR
     256 STU
-    ROT
+    SWAP
     STVARUINT16
     1 STI
   }>
@@ -179,7 +162,7 @@ PROGRAM{
   }>
   $UniqueItem$_fun_requireOwner PROCREF:<{
     __tact_context_get_sender INLINECALLDICT
-    s5 s(-1) PUXC
+    s5 PUSH
     SDEQ
     132 THROWIFNOT
   }>
@@ -260,6 +243,7 @@ PROGRAM{
       64 PUSHINT
       s7 PUSH
       $GetPriceResponse$_constructor_price INLINECALLDICT
+      NEWC
       $GetPriceResponse$_store_cell INLINECALLDICT
       $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
           NEWC
@@ -338,8 +322,9 @@ PROGRAM{
     IFJMP:<{
       2DROP
       s0 s5 XCHG
-      $SetPrice$_load_without_opcode INLINECALLDICT
-      s2 POP
+      LDVARUINT16
+      1 LDI
+      DROP
       s6 s7 XCHG2
       $UniqueItem$_fun_requireOwner INLINECALLDICT
       2DROP
@@ -347,6 +332,7 @@ PROGRAM{
       s4 s6 XCHG
       s3 s5 XCHG
       s4 s3 s0 XCHG3
+      s1 s2 XCHG
       $UniqueItem$_fun_reply INLINECALLDICT
       $UniqueItem$_contract_store INLINECALLDICT
     }>
@@ -356,15 +342,15 @@ PROGRAM{
     IFJMP:<{
       2DROP
       s0 s5 XCHG
-      $NftTransfer$_load_without_opcode INLINECALLDICT
-      s2 POP
+      LDMSGADDR
+      1 LDI
+      DROP
       s6 s7 XCHG2
       $UniqueItem$_fun_requireOwner INLINECALLDICT
       DROP
       s3 POP
           B{b5ee9c7241010101001b00003200000000556e697175654974656d207472616e736665726564004b0e07} B>boc PUSHREF
       s4 s6 XCHG
-      s4 s5 XCHG
       s4 s3 s0 XCHG3
       s1 s2 XCHG
       $UniqueItem$_fun_reply INLINECALLDICT

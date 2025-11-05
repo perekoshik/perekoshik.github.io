@@ -14,20 +14,11 @@
 ;; __tact_context_get_sender
 slice __tact_context_get_sender() inline;
 
-;; $NftTransfer$_load_without_opcode
-(slice, ((slice, int))) $NftTransfer$_load_without_opcode(slice sc_0) inline;
-
-;; $SetPrice$_load_without_opcode
-(slice, ((int, int))) $SetPrice$_load_without_opcode(slice sc_0) inline;
-
-;; $GetPrice$_load_without_opcode
-(slice, (tuple)) $GetPrice$_load_without_opcode(slice sc_0) inline;
-
 ;; $GetPriceResponse$_store
 builder $GetPriceResponse$_store(builder build_0, (int) v) inline;
 
 ;; $GetPriceResponse$_store_cell
-cell $GetPriceResponse$_store_cell((int) v) inline;
+cell $GetPriceResponse$_store_cell((int) v, builder b) inline;
 
 ;; $UniqueItem$_store
 builder $UniqueItem$_store(builder build_0, (slice, slice, slice, int, int, int) v) inline;
@@ -226,7 +217,7 @@ int $global_myBalance() impure asm """
 
 ((slice, slice, slice, int, int, int), ()) $UniqueItem$_fun_requireOwner((slice, slice, slice, int, int, int) $self) impure inline_ref {
     var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
-    throw_unless(132, ( equal_slices_bits($self'owner, __tact_context_get_sender()) ));
+    throw_unless(132, ( equal_slices_bits(__tact_context_get_sender(), $self'owner) ));
     return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), ());
 }
 
@@ -277,40 +268,6 @@ _ $Context$_get_value((int, slice, int, slice) v) inline {
 }
 
 ;;
-;; Type: NftTransfer
-;; Header: 0xd9f8bfac
-;; TLB: nft_transfer#d9f8bfac newOwner:address isSalable:bool = NftTransfer
-;;
-
-(slice, ((slice, int))) $NftTransfer$_load_without_opcode(slice sc_0) inline {
-    var v'newOwner = sc_0~load_msg_addr();
-    var v'isSalable = sc_0~load_int(1);
-    return (sc_0, (v'newOwner, v'isSalable));
-}
-
-;;
-;; Type: SetPrice
-;; Header: 0x9b6fea82
-;; TLB: set_price#9b6fea82 newPrice:coins isSalable:bool = SetPrice
-;;
-
-(slice, ((int, int))) $SetPrice$_load_without_opcode(slice sc_0) inline {
-    var v'newPrice = sc_0~load_varuint16();
-    var v'isSalable = sc_0~load_int(1);
-    return (sc_0, (v'newPrice, v'isSalable));
-}
-
-;;
-;; Type: GetPrice
-;; Header: 0xfdc52c75
-;; TLB: get_price#fdc52c75  = GetPrice
-;;
-
-(slice, (tuple)) $GetPrice$_load_without_opcode(slice sc_0) inline {
-    return (sc_0, null());
-}
-
-;;
 ;; Type: GetPriceResponse
 ;; Header: 0x7c95a1fc
 ;; TLB: get_price_response#7c95a1fc price:coins = GetPriceResponse
@@ -323,8 +280,8 @@ builder $GetPriceResponse$_store(builder build_0, (int) v) inline {
     return build_0;
 }
 
-cell $GetPriceResponse$_store_cell((int) v) inline {
-    return $GetPriceResponse$_store(begin_cell(), v).end_cell();
+cell $GetPriceResponse$_store_cell((int) v, builder b) inline {
+    return $GetPriceResponse$_store(b, v).end_cell();
 }
 
 ((int)) $GetPriceResponse$_constructor_price(int $price) inline {
@@ -475,16 +432,17 @@ _ %owner() method_id(83229) {
     }
     ;; Receive GetPrice message
     if (op == 0xfdc52c75) {
-        var $msg = in_msg~$GetPrice$_load_without_opcode();
+        var $msg = empty_tuple();
         throw_unless(32819, $self'isSalable);
-        $global_send($SendParameters$_constructor_to_value_mode_body(__tact_context_get_sender(), 0, 64, $GetPriceResponse$_store_cell($GetPriceResponse$_constructor_price($self'price))));
+        $global_send($SendParameters$_constructor_to_value_mode_body(__tact_context_get_sender(), 0, 64, $GetPriceResponse$_store_cell($GetPriceResponse$_constructor_price($self'price), begin_cell())));
         $UniqueItem$_contract_store(($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable));
         return ();
     }
     
     ;; Receive SetPrice message
     if (op == 0x9b6fea82) {
-        var ($msg'newPrice, $msg'isSalable) = in_msg~$SetPrice$_load_without_opcode();
+        var $msg'newPrice = in_msg~load_varuint16();
+        var $msg'isSalable = in_msg~load_int(1);
         ($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)~$UniqueItem$_fun_requireOwner();
         $self'price = $msg'newPrice;
         $self'isSalable = $msg'isSalable;
@@ -495,7 +453,8 @@ _ %owner() method_id(83229) {
     
     ;; Receive NftTransfer message
     if (op == 0xd9f8bfac) {
-        var ($msg'newOwner, $msg'isSalable) = in_msg~$NftTransfer$_load_without_opcode();
+        var $msg'newOwner = in_msg~load_msg_addr();
+        var $msg'isSalable = in_msg~load_int(1);
         ($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)~$UniqueItem$_fun_requireOwner();
         $self'owner = $msg'newOwner;
         $self'isSalable = $msg'isSalable;

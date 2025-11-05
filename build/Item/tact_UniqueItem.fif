@@ -1,11 +1,9 @@
-// automatically generated from `@stdlib/std/stdlib.fc` `C:/Users/nikit/ton_projects/myWallet/MyWallet/build/Item/tact_UniqueItem.fc` 
+// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ex/build/Item/tact_UniqueItem.fc` 
 PROGRAM{
   DECLPROC __tact_context_get
   DECLPROC __tact_context_get_sender
-  DECLPROC $NftTransfer$_load_without_opcode
-  DECLPROC $CreateOrder$_load_without_opcode
-  DECLPROC $NewOrder$_store
-  DECLPROC $NewOrder$_store_cell
+  DECLPROC $GetPriceResponse$_store
+  DECLPROC $GetPriceResponse$_store_cell
   DECLPROC $UniqueItem$_store
   DECLPROC $UniqueItem$_load
   DECLPROC $Context$_get_value
@@ -14,13 +12,17 @@ PROGRAM{
   DECLPROC $UniqueItem$_contract_load
   DECLPROC $UniqueItem$_contract_store
   DECLPROC $MessageParameters$_constructor_bounce_to_value_mode_body
+  DECLPROC $UniqueItem$_fun_price
   DECLPROC $UniqueItem$_fun_index
+  DECLPROC $UniqueItem$_fun_content
   DECLPROC $UniqueItem$_fun_reply
   DECLPROC $UniqueItem$_fun_requireOwner
   DECLPROC $UniqueItem$_fun_owner
-  DECLPROC $SendParameters$_constructor_to_value_body_mode
-  DECLPROC $NewOrder$_constructor_deliveryAddress_itemIndex_price
+  DECLPROC $SendParameters$_constructor_to_value_mode_body
+  DECLPROC $GetPriceResponse$_constructor_price
+  120091 DECLMETHOD %price
   67267 DECLMETHOD %index
+  117214 DECLMETHOD %content
   83229 DECLMETHOD %owner
   DECLPROC recv_internal
   65535 DECLMETHOD __tact_selector_hack
@@ -35,52 +37,31 @@ PROGRAM{
   __tact_context_get_sender PROCINLINE:<{
     __tact_context_sender GETGLOB
   }>
-  $NftTransfer$_load_without_opcode PROCINLINE:<{
-    LDMSGADDR
-    1 LDI
-    -ROT
-  }>
-  $CreateOrder$_load_without_opcode PROCINLINE:<{
-    LDMSGADDR
-    LDREF
-    SWAP
-    CTOS
-    SWAP
-    LDVARUINT16
-    3 -ROLL
-  }>
-  $NewOrder$_store PROCINLINE:<{
-    2418445873 PUSHINT
-    s0 s4 XCHG2
+  $GetPriceResponse$_store PROCINLINE:<{
+    2090181116 PUSHINT
+    ROT
     32 STU
-    NEWC
-    s0 s3 XCHG2
-    STSLICER
-    s1 s2 XCHG
-    STBREFR
-    256 STU
     SWAP
     STVARUINT16
   }>
-  $NewOrder$_store_cell PROCINLINE:<{
-    NEWC
-    3 -ROLL
-    $NewOrder$_store INLINECALLDICT
+  $GetPriceResponse$_store_cell PROCINLINE:<{
+    SWAP
+    $GetPriceResponse$_store INLINECALLDICT
     ENDC
   }>
   $UniqueItem$_store PROCINLINE:<{
-    s5 s4 XCHG2
-    STSLICER
-    ROT
-    STSLICER
+    s5 s6 XCHG2
+    STSLICE
+    s1 s3 XCHG
+    STSLICE
+    SWAP
     NEWC
-    ROT
-    STSLICER
+    STSLICE
     STBREFR
-    s1 s2 XCHG
     256 STU
     SWAP
     STVARUINT16
+    1 STI
   }>
   $UniqueItem$_load PROCINLINE:<{
     LDMSGADDR
@@ -91,7 +72,8 @@ PROGRAM{
     SWAP
     256 LDU
     LDVARUINT16
-    5 -ROLL
+    1 LDI
+    6 -ROLL
   }>
   $Context$_get_value PROCINLINE:<{
     s1 s3 XCHG
@@ -100,16 +82,18 @@ PROGRAM{
   $UniqueItem$init$_load PROCINLINE:<{
     LDMSGADDR
     LDMSGADDR
+    257 PUSHINT
+    LDIX
     LDREF
     SWAP
     CTOS
-    SWAP
-    257 PUSHINT
-    LDIX
-    LDVARUINT16
-    5 -ROLL
+    s1 s4 XCHG
+    s3 s3 s0 XCHG3
   }>
   $UniqueItem$_contract_init PROCINLINE:<{
+    s3 s0 s0 XCHG3
+    0 PUSHINT
+    FALSE
   }>
   $UniqueItem$_contract_load PROCINLINE:<{
     c4 PUSH
@@ -118,12 +102,12 @@ PROGRAM{
     SWAP
     IF:<{
       $UniqueItem$_load INLINECALLDICT
-      1 5 BLKDROP2
+      1 6 BLKDROP2
     }>ELSE<{
       $UniqueItem$init$_load INLINECALLDICT
-      s0 s5 XCHG
+      s0 s4 XCHG
       ENDS
-      4 ROLL
+      3 ROLL
       $UniqueItem$_contract_init INLINECALLDICT
     }>
   }>
@@ -132,7 +116,7 @@ PROGRAM{
     TRUE
     SWAP
     1 STI
-    5 -ROLL
+    6 -ROLL
     $UniqueItem$_store INLINECALLDICT
     ENDC
     c4 POP
@@ -141,8 +125,14 @@ PROGRAM{
     s3 s3 XCHG2
     s0 s4 XCHG
   }>
-  $UniqueItem$_fun_index PROCREF:<{
+  $UniqueItem$_fun_price PROCREF:<{
     OVER
+  }>
+  $UniqueItem$_fun_index PROCREF:<{
+    s2 PUSH
+  }>
+  $UniqueItem$_fun_content PROCREF:<{
+    s3 PUSH
   }>
   $UniqueItem$_fun_reply PROCINLINE:<{
     __tact_context_get_sender INLINECALLDICT
@@ -172,31 +162,41 @@ PROGRAM{
   }>
   $UniqueItem$_fun_requireOwner PROCREF:<{
     __tact_context_get_sender INLINECALLDICT
-    s4 s(-1) PUXC
+    s5 PUSH
     SDEQ
     132 THROWIFNOT
   }>
   $UniqueItem$_fun_owner PROCREF:<{
-    s3 PUSH
+    s4 PUSH
   }>
-  $SendParameters$_constructor_to_value_body_mode PROCINLINE:<{
+  $SendParameters$_constructor_to_value_mode_body PROCINLINE:<{
+    2SWAP
     PUSHNULL
-    s4 s2 XCHG2
     PUSHNULL
-    s4 s2 XCHG2
+    s0 s0 s3 XCHG3
     TRUE
   }>
-  $NewOrder$_constructor_deliveryAddress_itemIndex_price PROCINLINE:<{
+  $GetPriceResponse$_constructor_price PROCINLINE:<{
+  }>
+  %price PROC:<{
+    $UniqueItem$_contract_load INLINECALLDICT
+    $UniqueItem$_fun_price INLINECALLDICT
+    6 1 BLKDROP2
   }>
   %index PROC:<{
     $UniqueItem$_contract_load INLINECALLDICT
     $UniqueItem$_fun_index INLINECALLDICT
-    5 1 BLKDROP2
+    6 1 BLKDROP2
+  }>
+  %content PROC:<{
+    $UniqueItem$_contract_load INLINECALLDICT
+    $UniqueItem$_fun_content INLINECALLDICT
+    6 1 BLKDROP2
   }>
   %owner PROC:<{
     $UniqueItem$_contract_load INLINECALLDICT
     $UniqueItem$_fun_owner INLINECALLDICT
-    5 1 BLKDROP2
+    6 1 BLKDROP2
   }>
   recv_internal PROC:<{
     SWAP
@@ -214,44 +214,38 @@ PROGRAM{
     s0 s2 XCHG
     __tact_context_sender SETGLOB
     $UniqueItem$_contract_load INLINECALLDICT
-    s0 s6 XCHG
+    s0 s7 XCHG
     IFJMP:<{
-      6 BLKDROP
+      7 BLKDROP
     }>
-    s0 s4 XCHG
-    32 LDUQ 130 THROWIFNOT
+    0 PUSHINT
+    s6 PUSH
+    SBITS
+    DUP
+    31 GTINT
+    IF:<{
+      NIP
+      s0 s6 XCHG
+      32 LDU
+      s0 s7 XCHG
+    }>
     OVER
-    3656957868 PUSHINT
+    4257557621 PUSHINT
     EQUAL
     IFJMP:<{
-      NIP
-      $NftTransfer$_load_without_opcode INLINECALLDICT
-      DROP
-      NIP
-      s3 s4 XCHG
-      s1 s3 s5 XCHG3
-      $UniqueItem$_fun_requireOwner INLINECALLDICT
-      s3 POP
-          B{b5ee9c72410101010015000026000000004974656d207472616e7366657265649e490a8f} B>boc PUSHREF
-      s4 s5 XCHG
-      s1 s3 s0 XCHG3
-      $UniqueItem$_fun_reply INLINECALLDICT
-      $UniqueItem$_contract_store INLINECALLDICT
-    }>
-    SWAP
-    2059487624 PUSHINT
-    EQUAL
-    IFJMP:<{
-      $CreateOrder$_load_without_opcode INLINECALLDICT
-      s3 POP
-      NIP
-      s5 s6 PUSH2
-      $NewOrder$_constructor_deliveryAddress_itemIndex_price INLINECALLDICT
-      $NewOrder$_store_cell INLINECALLDICT
-      s4 PUSH
-      -ROT
-      2 PUSHINT
-      $SendParameters$_constructor_to_value_body_mode INLINECALLDICT
+      2DROP
+      s5 POP
+      32819 PUSHINT
+      s6 PUSH
+      THROWANYIFNOT
+      __tact_context_get_sender INLINECALLDICT
+      0 PUSHINT
+      64 PUSHINT
+      s7 PUSH
+      $GetPriceResponse$_constructor_price INLINECALLDICT
+      NEWC
+      $GetPriceResponse$_store_cell INLINECALLDICT
+      $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
           NEWC
           b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
           1 STI               // store `bounce`
@@ -318,10 +312,69 @@ PROGRAM{
           // Group 5: Sending the message, with `mode` on top
           SWAP
           SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
-          B{b5ee9c72410101010013000022000000004f726465722063726561746564fbf3bdfe} B>boc PUSHREF
+      s3 s5 XCHG
+      2 3 BLKSWAP
+      $UniqueItem$_contract_store INLINECALLDICT
+    }>
+    OVER
+    2607803010 PUSHINT
+    EQUAL
+    IFJMP:<{
+      2DROP
+      s0 s5 XCHG
+      LDVARUINT16
+      1 LDI
+      DROP
+      s6 s7 XCHG2
+      $UniqueItem$_fun_requireOwner INLINECALLDICT
+      2DROP
+          B{b5ee9c724101010100120000200000000050726963652073657474656462f55394} B>boc PUSHREF
+      s4 s6 XCHG
       s3 s5 XCHG
       s4 s3 s0 XCHG3
+      s1 s2 XCHG
       $UniqueItem$_fun_reply INLINECALLDICT
+      $UniqueItem$_contract_store INLINECALLDICT
+    }>
+    OVER
+    3656957868 PUSHINT
+    EQUAL
+    IFJMP:<{
+      2DROP
+      s0 s5 XCHG
+      LDMSGADDR
+      1 LDI
+      DROP
+      s6 s7 XCHG2
+      $UniqueItem$_fun_requireOwner INLINECALLDICT
+      DROP
+      s3 POP
+          B{b5ee9c7241010101001b00003200000000556e697175654974656d207472616e736665726564004b0e07} B>boc PUSHREF
+      s4 s6 XCHG
+      s4 s3 s0 XCHG3
+      s1 s2 XCHG
+      $UniqueItem$_fun_reply INLINECALLDICT
+      $UniqueItem$_contract_store INLINECALLDICT
+    }>
+    s7 POP
+    0 EQINT
+    s0 s6 XCHG
+    33 LESSINT
+    s1 s6 XCHG
+    AND
+    IFJMP:<{
+      __tact_context_get_sender INLINECALLDICT
+          NEWC
+          x{42_} STSLICECONST // .storeUint(0x10, 6)
+          STSLICE          // .storeAddress(to)
+          0 PUSHINT        // 0
+          111 STUR         // .storeUint(0, 111)
+                           // 4 zeros for coins and 107 zeros for lt, fees, etc.
+          ENDC
+          66 PUSHINT       // SendRemainingValue | SendIgnoreErrors
+          SENDRAWMSG
+      s3 s5 XCHG
+      2 3 BLKSWAP
       $UniqueItem$_contract_store INLINECALLDICT
     }>
     6 BLKDROP

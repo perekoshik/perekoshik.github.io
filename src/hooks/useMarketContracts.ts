@@ -57,7 +57,6 @@ export function useMarketContracts() {
 	const [shopAddress, setShopAddress] = useState<string | null>(null);
 	const [shopName, setShopName] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
-	const [lastLt, setLastLt] = useState<string | null>(null);
 
 	const makeShop = async (shopName: string): Promise<string> => {
 		if (!sender) {
@@ -118,6 +117,10 @@ export function useMarketContracts() {
 			// Check if the contract is already deployed
 			const isDeployed = await client.isContractDeployed(shopContract.address);
 
+			if (isDeployed && shopName === await shopContract.getShopName()) {
+				return shopContract.address.toString();
+			}
+
 			if (isDeployed) {
 				// CONTRACT ALREADY DEPLOYED: Send only the update message
 				// CHANGE: Use sender.send() instead of shopContract.send() for consistency
@@ -127,9 +130,6 @@ export function useMarketContracts() {
 				// REF: User screenshot showing "Invalid message type" error when creating shop
 				// SOURCE: TON SDK best practices - use sender.send() for direct message dispatch to contracts
 
-				// Get the last transaction of the contract
-				const currentShopState = await client.getContractState(shopContract.address);
-				setLastLt(currentShopState.lastTransaction?.lt.toString() || null);
 
 				await sender.send({
 					to: shopContract.address,
@@ -166,23 +166,17 @@ export function useMarketContracts() {
 				const isDeployed = await client.isContractDeployed(
 					shopContract.address,
 				);
+
+				const isNameChaged = await shopContract.getShopName() !== shopName;
 				
-				if (isDeployed) {
+				if (isDeployed && isNameChaged) {
 					// Get shop name after deployment/update
 					try {
-						const currentShopState = await client.getContractState(shopContract.address);
-						const currentLt = currentShopState.lastTransaction?.lt.toString();
+						const retrievedName = await shopContract.getShopName();
+						setShopAddress(shopContract.address.toString());
+						setShopName(retrievedName);
 
-						if (currentLt && currentLt !== lastLt) {
-							const retrievedName = await shopContract.getShopName();
-							setShopAddress(shopContract.address.toString());
-							setShopName(retrievedName);
-
-							return shopContract.address.toString();
-						}
-						else {
-							console.log("Waiting for shop name update...");
-						}
+						return shopContract.address.toString();
 					} catch (getNameError) {
 						console.error(
 							"Error getting shop name after deployment:",
@@ -207,9 +201,12 @@ export function useMarketContracts() {
 	return {
 		marketAddress: userContract?.address.toString(),
 
+		// shop
 		shopAddress,
 		shopName,
 		loading,
+		isShopDeployed: !!shopAddress,
+
 
 		makeShop,
 
@@ -217,5 +214,6 @@ export function useMarketContracts() {
 			setShopAddress(null);
 			setShopName(null);
 		},
+
 	};
 }

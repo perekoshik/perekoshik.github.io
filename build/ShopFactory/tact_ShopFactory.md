@@ -1,9 +1,9 @@
 # Tact compilation report
 Contract: ShopFactory
-BoC Size: 3823 bytes
+BoC Size: 3014 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 31
+Total structures: 35
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -58,28 +58,24 @@ TL-B: `make_new_user#dc6a8b83 name:^string id:int257 = MakeNewUser`
 Signature: `MakeNewUser{name:^string,id:int257}`
 
 ### ChangeUserData
-TL-B: `change_user_data#7f22ed74 name:^string deliveryAddress:^string = ChangeUserData`
-Signature: `ChangeUserData{name:^string,deliveryAddress:^string}`
+TL-B: `change_user_data#7f22ed74 name:^string id:int257 deliveryAddress:^string = ChangeUserData`
+Signature: `ChangeUserData{name:^string,id:int257,deliveryAddress:^string}`
 
 ### CreateShop
 TL-B: `create_shop#c6366b42 shopName:^string = CreateShop`
 Signature: `CreateShop{shopName:^string}`
 
 ### AddItem
-TL-B: `add_item#fe3511b0 isUnique:bool content:^string price:coins = AddItem`
-Signature: `AddItem{isUnique:bool,content:^string,price:coins}`
+TL-B: `add_item#fe3511b0 price:coins imageSrc:^string title:^string description:^string = AddItem`
+Signature: `AddItem{price:coins,imageSrc:^string,title:^string,description:^string}`
 
 ### NftTransfer
 TL-B: `nft_transfer#d9f8bfac newOwner:address isSalable:bool = NftTransfer`
 Signature: `NftTransfer{newOwner:address,isSalable:bool}`
 
-### NftTransferNotification
-TL-B: `nft_transfer_notification#591763ee itemIndex:int257 oldOwner:address newOwner:address = NftTransferNotification`
-Signature: `NftTransferNotification{itemIndex:int257,oldOwner:address,newOwner:address}`
-
 ### CreateOrder
-TL-B: `create_order#7ac14988 itemAddress:address deliveryAddress:^string price:coins = CreateOrder`
-Signature: `CreateOrder{itemAddress:address,deliveryAddress:^string,price:coins}`
+TL-B: `create_order#7ac14988 orderId:int257 itemAddress:address price:coins deliveryAddress:^string = CreateOrder`
+Signature: `CreateOrder{orderId:int257,itemAddress:address,price:coins,deliveryAddress:^string}`
 
 ### SetPrice
 TL-B: `set_price#9b6fea82 newPrice:coins isSalable:bool = SetPrice`
@@ -97,14 +93,6 @@ Signature: `GetPrice{}`
 TL-B: `get_price_response#7c95a1fc price:coins = GetPriceResponse`
 Signature: `GetPriceResponse{price:coins}`
 
-### NftTransferSuccess
-TL-B: `nft_transfer_success#e6e77cc0  = NftTransferSuccess`
-Signature: `NftTransferSuccess{}`
-
-### OrderCompleted
-TL-B: `order_completed#993e1ed5 orderIndex:int257 itemAddress:address buyer:address = OrderCompleted`
-Signature: `OrderCompleted{orderIndex:int257,itemAddress:address,buyer:address}`
-
 ### MakeOrder
 TL-B: `make_order#75bc02e6 itemAddress:address price:coins = MakeOrder`
 Signature: `MakeOrder{itemAddress:address,price:coins}`
@@ -113,17 +101,45 @@ Signature: `MakeOrder{itemAddress:address,price:coins}`
 TL-B: `new_order#90268e31 deliveryAddress:^string itemIndex:uint256 price:coins = NewOrder`
 Signature: `NewOrder{deliveryAddress:^string,itemIndex:uint256,price:coins}`
 
+### UpdateShopInfo
+TL-B: `update_shop_info#ae4563e0 shopName:^string shopId:uint256 = UpdateShopInfo`
+Signature: `UpdateShopInfo{shopName:^string,shopId:uint256}`
+
+### OrderCompleted
+TL-B: `order_completed#3a4c4c8f  = OrderCompleted`
+Signature: `OrderCompleted{}`
+
 ### Shop$Data
-TL-B: `_ parent:address owner:address shopName:^string uniqueItemsCount:uint256 shopId:uint256 ordersCount:uint256 balance:coins = Shop`
-Signature: `Shop{parent:address,owner:address,shopName:^string,uniqueItemsCount:uint256,shopId:uint256,ordersCount:uint256,balance:coins}`
+TL-B: `_ owner:address name:^string itemsCount:uint256 shopId:uint256 ordersCount:uint256 balance:coins = Shop`
+Signature: `Shop{owner:address,name:^string,itemsCount:uint256,shopId:uint256,ordersCount:uint256,balance:coins}`
+
+### Item$Data
+TL-B: `_ shop:address id:uint256 price:coins imageSrc:^string title:^string description:^string = Item`
+Signature: `Item{shop:address,id:uint256,price:coins,imageSrc:^string,title:^string,description:^string}`
+
+### Order$Data
+TL-B: `_ seller:address buyer:address itemAddress:address id:uint256 completed:bool deliveryAddress:^string = Order`
+Signature: `Order{seller:address,buyer:address,itemAddress:address,id:uint256,completed:bool,deliveryAddress:^string}`
+
+### User$Data
+TL-B: `_ parent:address id:uint256 name:^string deliveryAddress:^string = User`
+Signature: `User{parent:address,id:uint256,name:^string,deliveryAddress:^string}`
 
 ### UniqueItem$Data
 TL-B: `_ shop:address owner:address content:^string index:uint256 price:coins isSalable:bool = UniqueItem`
 Signature: `UniqueItem{shop:address,owner:address,content:^string,index:uint256,price:coins,isSalable:bool}`
 
-### Order$Data
-TL-B: `_ seller:address buyer:address itemAddress:address id:uint256 price:coins priceSetted:bool completed:bool refunded:bool = Order`
-Signature: `Order{seller:address,buyer:address,itemAddress:address,id:uint256,price:coins,priceSetted:bool,completed:bool,refunded:bool}`
+### Deploy
+TL-B: `deploy#946a98b6 queryId:uint64 = Deploy`
+Signature: `Deploy{queryId:uint64}`
+
+### DeployOk
+TL-B: `deploy_ok#aff90f57 queryId:uint64 = DeployOk`
+Signature: `DeployOk{queryId:uint64}`
+
+### FactoryDeploy
+TL-B: `factory_deploy#6d0ff13b queryId:uint64 cashback:address = FactoryDeploy`
+Signature: `FactoryDeploy{queryId:uint64,cashback:address}`
 
 ### ShopFactory$Data
 TL-B: `_ owner:address shopsCount:uint256 = ShopFactory`
@@ -180,14 +196,8 @@ No arguments
 * 135: Code of a contract was not found
 * 136: Invalid standard address
 * 138: Not a basechain address
-* 4429: Invalid sender
-* 19553: Order already completed
-* 24546: Invalid data
-* 24590: Price not setted yet
-* 27283: Item has been refunded for some reason
-* 32501: Only seller can refund the item
 * 32819: Item not salable yet
-* 46647: Insufficient payment
+* 50052: Only parent can change user data
 
 ## Trait inheritance diagram
 
@@ -205,8 +215,9 @@ Ownable --> BaseTrait
 graph TD
 ShopFactory
 ShopFactory --> Shop
-Shop --> UniqueItem
+Shop --> Item
+Item --> Order
 Shop --> Order
-ShopFactory --> UniqueItem
+ShopFactory --> Item
 ShopFactory --> Order
 ```

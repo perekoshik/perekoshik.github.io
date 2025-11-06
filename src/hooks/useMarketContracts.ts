@@ -68,7 +68,8 @@ export function useMarketContracts() {
 	
 			if (isDeployed) {
 				console.log("CONTRACT IS ALREADY DEPLOYED");
-				setShopName(shopContract.getShopName().toString());
+				const retrievedName = await shopContract.getShopName();
+				setShopName(retrievedName);
 				setShopAddress(shopContract.address.toString());
 			}
 		}

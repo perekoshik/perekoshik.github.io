@@ -58,6 +58,25 @@ export function useMarketContracts() {
 	const [shopName, setShopName] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 
+	const getShopInfo = async () => {
+		try {
+			if (!wallet || !client) return;
+			const shopStateInit = await Shop.fromInit(Address.parse(wallet));
+			const shopContract = client.open(shopStateInit);
+			const isDeployed = await client.isContractDeployed(shopContract.address);
+	
+			if (isDeployed) {
+				setShopName(shopContract.getShopName().toString());
+				setShopAddress(shopContract.address.toString());
+			}
+		}
+		catch {
+			setShopName("Hello, User!");
+			if (wallet && client) setShopAddress(client.open( await Shop.fromInit(Address.parse(wallet))).address.toString());
+		}
+	}
+
+
 	const makeShop = async (shopName1: string): Promise<string> => {
 		if (!sender) {
 			throw new Error("Sender not available");
@@ -201,6 +220,7 @@ export function useMarketContracts() {
 		marketAddress: userContract?.address.toString(),
 
 		// shop
+		getShopInfo,
 		shopAddress,
 		shopName,
 		loading,

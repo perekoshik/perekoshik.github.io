@@ -191,13 +191,8 @@ export function useMarketContracts() {
 				const isDeployed = await client.isContractDeployed(
 					shopContract.address,
 				);
-
-				let isNameChaged = false;
-				if (await shopContract.getShopName() != shopName1) {
-					isNameChaged = true;
-				}
 				
-				if (isDeployed && isNameChaged) {
+				if (isDeployed) {
 					// Get shop name after deployment/update
 					try {
 						const retrievedName = await shopContract.getShopName();
@@ -234,7 +229,7 @@ export function useMarketContracts() {
 		setShopItemsCount(await shopContract.getItemsCount());
 	};
 	getShopItemsCount();
-	
+
 
 	return {
 		//user

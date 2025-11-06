@@ -9,7 +9,6 @@ import { useTonConnect } from "./useTonConnect";
 import { PassThrough } from "stream";
 
 export function useMarketContracts() {
-	console.clear();
 	const { client } = useTonClient();
 	const { wallet, sender } = useTonConnect();
 	const { connected } = useTonConnect();
@@ -79,6 +78,7 @@ export function useMarketContracts() {
 			if (wallet && client) setShopAddress(client.open( await Shop.fromInit(Address.parse(wallet))).address.toString());
 		}
 	}
+	getShopInfo();
 
 
 	const makeShop = async (shopName1: string): Promise<string> => {

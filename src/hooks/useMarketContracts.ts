@@ -181,7 +181,7 @@ export function useMarketContracts() {
 			const timeout = 120000; // 2 minute timeout
 
 			while (Date.now() - startTime < timeout) {
-				await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second interval
+				await new Promise((resolve) => setTimeout(resolve, 10000)); // 2 second interval
 
 				const isDeployed = await client.isContractDeployed(
 					shopContract.address,

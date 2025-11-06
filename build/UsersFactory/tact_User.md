@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: User
-BoC Size: 243 bytes
+BoC Size: 307 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 29
@@ -122,7 +122,10 @@ TL-B: `_ owner:address quantityOfUsers:uint256 = UsersFactory`
 Signature: `UsersFactory{owner:address,quantityOfUsers:uint256}`
 
 ## Get methods
-Total get methods: 0
+Total get methods: 1
+
+## deliveryAddress
+No arguments
 
 ## Exit codes
 * 2: Stack underflow

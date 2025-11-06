@@ -4,9 +4,8 @@ import Card from "@/components/Card";
 import { useMarketContracts } from "@/hooks/useMarketContracts";
 import { useTonConnect } from "@/hooks/useTonConnect";
 import { TWA } from "@/lib/twa";
-import { Integer } from "@tact-lang/compiler/dist/asm/logs/grammar";
 
-export const defaultImage =
+const defaultImage =
   "https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80";
 
 // CHANGE: Highlight item structure with unique ID
@@ -14,7 +13,7 @@ export const defaultImage =
 // REF: CLAUDE.md:8 - "Никогда не использовать eslint-disable"
 type Highlight = { id: string; text: string };
 
-export default function Seller() {
+export default function AddItem() {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
@@ -24,37 +23,6 @@ export default function Seller() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const user = TWA?.initDataUnsafe?.user;
-
-  const { connected } = useTonConnect();
-  const {
-    makeShop,
-    shopAddress,
-    shopName,
-    loading,
-    isShopDeployed,
-    shopItemsCount,
-  } = useMarketContracts();
-  const [inputShopName, setInputShopName] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-
-  const handleCreateShop = async () => {
-    setError(null);
-    setSuccess(false);
-
-    try {
-      // Создаем магазин с уникальным ID (используем timestamp)
-      await makeShop(inputShopName);
-
-      setSuccess(true);
-      setInputShopName("");
-
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      setError((err as Error).message);
-    }
-  };
-
   const cardPreview = useMemo(() => {
     const preview: {
       id: string;
@@ -130,123 +98,6 @@ export default function Seller() {
           before appearing in the marketplace.
         </p>
       </header>
-
-      {isShopDeployed && (
-        <div className="glass rounded-3xl p-5 sm:p-6">
-          <div className="space-y-2">
-            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">
-              Your shop
-            </div>
-            <div className="text-lg font-semibold">
-              <span className="text-txt/60">Shop name: {shopName}</span>
-              <span className="text-txt/60 ml-2">Address: {shopAddress}</span>
-              <span className="text-txt/60 ml-2">Shop Id: {user?.id}</span>
-              <span className="text-txt/60 ml-2">
-                Items: {shopItemsCount?.toString()}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="glass rounded-3xl p-5 sm:p-6">
-        <div className="space-y-2">
-          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">
-            Create your shop
-          </div>
-        </div>
-        {user ? (
-          <div>
-            {!connected && (
-              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                <p className="text-yellow-700 text-sm">
-                  ⚠️ Please connect your wallet to create a shop
-                </p>
-              </div>
-            )}
-            <div className="mb-4">
-              <label
-                htmlFor="shop-name-input"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Shop Name
-              </label>
-              <input
-                id="shop-name-input"
-                type="text"
-                value={inputShopName}
-                onChange={(e) => setInputShopName(e.target.value)}
-                placeholder="Enter your shop name..."
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                disabled={loading || !connected}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={handleCreateShop}
-              disabled={!inputShopName.trim() || loading || !connected}
-              className={`
-                    w-full py-3 px-4 rounded-md font-medium transition-all duration-300
-                    ${
-                      loading
-                        ? "bg-gray-400 cursor-not-allowed text-white"
-                        : success
-                        ? "bg-green-500 text-white scale-105"
-                        : !connected
-                        ? "bg-gray-300 cursor-not-allowed text-gray-500"
-                        : !inputShopName.trim()
-                        ? "bg-gray-300 cursor-not-allowed text-gray-500"
-                        : "bg-blue-500 hover:bg-blue-600 text-white hover:scale-105"
-                    }
-                `}
-            >
-              {loading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  Creating Shop...
-                </div>
-              ) : success ? (
-                "✅ Shop Created!"
-              ) : (
-                "Create Shop"
-              )}
-            </button>
-
-            {error && (
-              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-red-700 text-sm">❌ {error}</p>
-              </div>
-            )}
-
-            {shopAddress && (
-              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-md">
-                <h3 className="font-semibold text-green-800 mb-2">
-                  ✅ Shop Created Successfully!
-                </h3>
-                <p className="text-sm text-green-700">
-                  <strong>Name:</strong> {shopName}
-                </p>
-                <p className="text-sm text-green-700 break-all">
-                  <strong>Address:</strong> {shopAddress}
-                </p>
-                <a
-                  href={`https://testnet.tonscan.org/address/${shopAddress}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-2 text-sm text-blue-600 hover:underline"
-                >
-                  View on TON Scan →
-                </a>
-              </div>
-            )}
-          </div>
-        ) : (
-          <p>
-            Open inside Telegram to see your account details and manage
-            purchases.
-          </p>
-        )}
-      </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <section className="space-y-6">

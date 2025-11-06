@@ -59,6 +59,7 @@ export function useMarketContracts() {
 	const [shopAddress, setShopAddress] = useState<string | null>(null);
 	const [shopName, setShopName] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
+	const [shopItemsCount, setShopItemsCount] = useState<BigInt | null>(null);
 
 	const getShopInfo = async () => {
 		try {
@@ -225,7 +226,18 @@ export function useMarketContracts() {
 		}
 	};
 
+	const getShopItemsCount = async () => {
+		if (!wallet || !client) return "";
+		const shopStateInit = await Shop.fromInit(Address.parse(wallet));
+		const shopContract = client.open(shopStateInit);
+
+		setShopItemsCount(await shopContract.getItemsCount());
+	};
+	getShopItemsCount();
+	
+
 	return {
+		//user
 		marketAddress: userContract?.address.toString(),
 
 		// shop
@@ -234,14 +246,8 @@ export function useMarketContracts() {
 		shopName,
 		loading,
 		isShopDeployed: !!shopAddress,
-
-
 		makeShop,
-
-		reset: () => {
-			setShopAddress(null);
-			setShopName(null);
-		},
+		shopItemsCount,
 
 	};
 }

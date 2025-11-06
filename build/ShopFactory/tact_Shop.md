@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: Shop
-BoC Size: 2309 bytes
+BoC Size: 2607 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 35
@@ -146,9 +146,21 @@ TL-B: `_ owner:address shopsCount:uint256 = ShopFactory`
 Signature: `ShopFactory{owner:address,shopsCount:uint256}`
 
 ## Get methods
-Total get methods: 2
+Total get methods: 6
 
 ## shopName
+No arguments
+
+## shopId
+No arguments
+
+## itemsCount
+No arguments
+
+## ordersCount
+No arguments
+
+## balance
 No arguments
 
 ## owner

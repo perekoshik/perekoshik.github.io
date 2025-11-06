@@ -2037,7 +2037,7 @@ function initUser_init_args(src: User_init_args) {
 }
 
 async function User_init(owner: Address) {
-    const __code = Cell.fromHex('b5ee9c724101030100e8000110ff0020e303f2c80b0101f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e10fa40d3ffd401d001d401d01443306c149afa400101d1718b088b08e205925f05e003d70d1ff2e0822182107f22ed74ba8e27345b32d401d001810101d700d430d012c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54e0010200ba8210946a98b6ba8e4ed33f30c8018210aff90f5758cb1fcb3fc9443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54e05f05f2c082ab0cc2f4');
+    const __code = Cell.fromHex('b5ee9c7241020501000127000228ff008e88f4a413f4bcf2c80bed5320e303ed43d901030157a67a51fb513434800063843e9034fff50074007500740510cc1b0526be900040745c62c222c238b6cf1b10600200022001f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e10fa40d3ffd401d001d401d01443306c149afa400101d1718b088b08e205925f05e003d70d1ff2e0822182107f22ed74ba8e27345b32d401d001810101d700d430d012c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54e0010400ba8210946a98b6ba8e4ed33f30c8018210aff90f5758cb1fcb3fc9443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54e05f05f2c082b3a6ef4d');
     const builder = beginCell();
     builder.storeUint(0, 1);
     initUser_init_args({ $$type: 'User_init_args', owner })(builder);
@@ -2186,9 +2186,11 @@ const User_opcodes = {
 }
 
 const User_getters: ABIGetter[] = [
+    {"name":"deliveryAddress","methodId":125255,"arguments":[],"returnType":{"kind":"simple","type":"string","optional":false}},
 ]
 
 export const User_getterMapping: { [key: string]: string } = {
+    'deliveryAddress': 'getDeliveryAddress',
 }
 
 const User_receivers: ABIReceiver[] = [
@@ -2244,6 +2246,13 @@ export class User implements Contract {
         
         await provider.internal(via, { ...args, body: body });
         
+    }
+    
+    async getDeliveryAddress(provider: ContractProvider) {
+        const builder = new TupleBuilder();
+        const source = (await provider.get('deliveryAddress', builder.build())).stack;
+        const result = source.readString();
+        return result;
     }
     
 }

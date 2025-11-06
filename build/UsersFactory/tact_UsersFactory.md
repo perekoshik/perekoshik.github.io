@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: UsersFactory
-BoC Size: 667 bytes
+BoC Size: 727 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 29

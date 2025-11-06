@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: User
-BoC Size: 243 bytes
+BoC Size: 307 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 33
@@ -138,7 +138,10 @@ TL-B: `_ shop:address id:uint256 price:coins imageSrc:^string title:^string desc
 Signature: `Item{shop:address,id:uint256,price:coins,imageSrc:^string,title:^string,description:^string}`
 
 ## Get methods
-Total get methods: 0
+Total get methods: 1
+
+## deliveryAddress
+No arguments
 
 ## Exit codes
 * 2: Stack underflow

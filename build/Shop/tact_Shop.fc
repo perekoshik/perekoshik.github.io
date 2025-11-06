@@ -50,6 +50,18 @@ slice $global_contractAddress((cell, cell) $s) impure inline;
 ;; $Shop$_fun_shopName
 ((slice, slice, int, int, int, int), slice) $Shop$_fun_shopName((slice, slice, int, int, int, int) $self) impure inline_ref;
 
+;; $Shop$_fun_shopId
+((slice, slice, int, int, int, int), int) $Shop$_fun_shopId((slice, slice, int, int, int, int) $self) impure inline_ref;
+
+;; $Shop$_fun_itemsCount
+((slice, slice, int, int, int, int), int) $Shop$_fun_itemsCount((slice, slice, int, int, int, int) $self) impure inline_ref;
+
+;; $Shop$_fun_ordersCount
+((slice, slice, int, int, int, int), int) $Shop$_fun_ordersCount((slice, slice, int, int, int, int) $self) impure inline_ref;
+
+;; $Shop$_fun_balance
+((slice, slice, int, int, int, int), int) $Shop$_fun_balance((slice, slice, int, int, int, int) $self) impure inline_ref;
+
 ;; $Shop$_fun_requireOwner
 ((slice, slice, int, int, int, int), ()) $Shop$_fun_requireOwner((slice, slice, int, int, int, int) $self) impure inline_ref;
 
@@ -211,8 +223,8 @@ slice $global_myAddress() impure asm """
 
 ((slice, slice, int, int, int, int), slice) $Shop$_fun_owner((slice, slice, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
-    var $fresh$ret_84 = $self'owner;
-    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_84);
+    var $fresh$ret_109 = $self'owner;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_109);
 }
 
 ;; tact_Shop.constants.fc
@@ -336,8 +348,32 @@ builder $Shop$_store(builder build_0, (slice, slice, int, int, int, int) v) inli
 
 ((slice, slice, int, int, int, int), slice) $Shop$_fun_shopName((slice, slice, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
-    var $fresh$ret_83 = $self'name;
-    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_83);
+    var $fresh$ret_104 = $self'name;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_104);
+}
+
+((slice, slice, int, int, int, int), int) $Shop$_fun_shopId((slice, slice, int, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+    var $fresh$ret_105 = $self'shopId;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_105);
+}
+
+((slice, slice, int, int, int, int), int) $Shop$_fun_itemsCount((slice, slice, int, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+    var $fresh$ret_106 = $self'itemsCount;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_106);
+}
+
+((slice, slice, int, int, int, int), int) $Shop$_fun_ordersCount((slice, slice, int, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+    var $fresh$ret_107 = $self'ordersCount;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_107);
+}
+
+((slice, slice, int, int, int, int), int) $Shop$_fun_balance((slice, slice, int, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+    var $fresh$ret_108 = $self'balance;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_108);
 }
 
 ;;
@@ -347,6 +383,30 @@ builder $Shop$_store(builder build_0, (slice, slice, int, int, int, int) v) inli
 _ %shopName() method_id(130747) {
     var self = $Shop$_contract_load();
     var res = self~$Shop$_fun_shopName();
+    return res;
+}
+
+_ %shopId() method_id(89807) {
+    var self = $Shop$_contract_load();
+    var res = self~$Shop$_fun_shopId();
+    return res;
+}
+
+_ %itemsCount() method_id(71951) {
+    var self = $Shop$_contract_load();
+    var res = self~$Shop$_fun_itemsCount();
+    return res;
+}
+
+_ %ordersCount() method_id(130541) {
+    var self = $Shop$_contract_load();
+    var res = self~$Shop$_fun_ordersCount();
+    return res;
+}
+
+_ %balance() method_id(104128) {
+    var self = $Shop$_contract_load();
+    var res = self~$Shop$_fun_balance();
     return res;
 }
 

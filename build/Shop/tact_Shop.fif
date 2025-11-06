@@ -14,10 +14,18 @@ PROGRAM{
   DECLPROC $global_contractAddress
   DECLPROC $Item$_init_child
   DECLPROC $Shop$_fun_shopName
+  DECLPROC $Shop$_fun_shopId
+  DECLPROC $Shop$_fun_itemsCount
+  DECLPROC $Shop$_fun_ordersCount
+  DECLPROC $Shop$_fun_balance
   DECLPROC $Shop$_fun_requireOwner
   DECLPROC $Shop$_fun_owner
   DECLPROC $SendParameters$_constructor_to_value_mode_code_data
   130747 DECLMETHOD %shopName
+  89807 DECLMETHOD %shopId
+  71951 DECLMETHOD %itemsCount
+  130541 DECLMETHOD %ordersCount
+  104128 DECLMETHOD %balance
   83229 DECLMETHOD %owner
   DECLPROC recv_internal
   65535 DECLMETHOD __tact_selector_hack
@@ -176,6 +184,18 @@ PROGRAM{
   $Shop$_fun_shopName PROCREF:<{
     s4 PUSH
   }>
+  $Shop$_fun_shopId PROCREF:<{
+    s2 PUSH
+  }>
+  $Shop$_fun_itemsCount PROCREF:<{
+    s3 PUSH
+  }>
+  $Shop$_fun_ordersCount PROCREF:<{
+    OVER
+  }>
+  $Shop$_fun_balance PROCREF:<{
+    DUP
+  }>
   $Shop$_fun_requireOwner PROCREF:<{
     __tact_context_get_sender INLINECALLDICT
     s6 PUSH
@@ -195,6 +215,26 @@ PROGRAM{
   %shopName PROC:<{
     $Shop$_contract_load INLINECALLDICT
     $Shop$_fun_shopName INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %shopId PROC:<{
+    $Shop$_contract_load INLINECALLDICT
+    $Shop$_fun_shopId INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %itemsCount PROC:<{
+    $Shop$_contract_load INLINECALLDICT
+    $Shop$_fun_itemsCount INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %ordersCount PROC:<{
+    $Shop$_contract_load INLINECALLDICT
+    $Shop$_fun_ordersCount INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %balance PROC:<{
+    $Shop$_contract_load INLINECALLDICT
+    $Shop$_fun_balance INLINECALLDICT
     6 1 BLKDROP2
   }>
   %owner PROC:<{

@@ -9,6 +9,7 @@ import { useTonConnect } from "./useTonConnect";
 import { PassThrough } from "stream";
 
 export function useMarketContracts() {
+	console.clear();
 	const { client } = useTonClient();
 	const { wallet, sender } = useTonConnect();
 	const { connected } = useTonConnect();
@@ -60,17 +61,20 @@ export function useMarketContracts() {
 
 	const getShopInfo = async () => {
 		try {
+			console.log("IS DEPLOYED CHECK");
 			if (!wallet || !client) return;
 			const shopStateInit = await Shop.fromInit(Address.parse(wallet));
 			const shopContract = client.open(shopStateInit);
 			const isDeployed = await client.isContractDeployed(shopContract.address);
 	
 			if (isDeployed) {
+				console.log("CONTRACT IS ALREADY DEPLOYED");
 				setShopName(shopContract.getShopName().toString());
 				setShopAddress(shopContract.address.toString());
 			}
 		}
 		catch {
+			console.log("CONTRACT IS NOT DEPLOYED");
 			setShopName("Hello, User!");
 			if (wallet && client) setShopAddress(client.open( await Shop.fromInit(Address.parse(wallet))).address.toString());
 		}

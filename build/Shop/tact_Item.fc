@@ -30,13 +30,13 @@ builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice) v) 
 _ $Context$_get_value((int, slice, int, slice) v) inline;
 
 ;; $Item$init$_load
-(slice, ((slice, int, int, slice, slice, slice))) $Item$init$_load(slice sc_0) inline;
+(slice, ((slice, int))) $Item$init$_load(slice sc_0) inline;
 
 ;; $Order$init$_store
 builder $Order$init$_store(builder build_0, (slice, slice, slice, int, slice) v) inline;
 
 ;; $Item$_contract_init
-(slice, int, int, slice, slice, slice) $Item$_contract_init(slice $shop, int $id, int $price, slice $imageSrc, slice $title, slice $description) impure inline;
+(slice, int, int, slice, slice, slice) $Item$_contract_init(slice $shop, int $id) impure inline;
 
 ;; $Item$_contract_load
 (slice, int, int, slice, slice, slice) $Item$_contract_load() impure inline;
@@ -286,6 +286,21 @@ int $global_myBalance() impure asm """
 }
 
 ;; tact_Item.constants.fc
+;; String "imageSrc"
+slice __gen_slice_string_65a388760d613a486e9222653676e93876e62a41886a69e2f9451728510c62ed() asm """
+    B{b5ee9c7241010101000a000010696d616765537263975074ea} B>boc <s PUSHSLICE
+""";
+
+;; String "title"
+slice __gen_slice_string_effb68c8cd138379ea31a4b10b902e0413a59126eaeb9564f1ed82ef56355500() asm """
+    B{b5ee9c7241010101000700000a7469746c65ddf1d456} B>boc <s PUSHSLICE
+""";
+
+;; String "description"
+slice __gen_slice_string_140bdd99e205d5912ca97650fb28f063726b262214aacff74252f2bcee780c53() asm """
+    B{b5ee9c7241010101000d0000166465736372697074696f6ee0124c71} B>boc <s PUSHSLICE
+""";
+
 ;; Cell WHOp5/r7z1OkoDvgCS6ZiQ27q3uFmO/Vj/PxNQc6K90=
 cell __gen_cell_cell_5873a9e7fafbcf53a4a03be0092e99890dbbab7b8598efd58ff3f135073a2bdd() asm """
     B{b5ee9c72410101010013000022000000004f726465722063726561746564fbf3bdfe} B>boc PUSHREF
@@ -376,15 +391,10 @@ builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice) v) 
     return (sc_0, (v'shop, v'id, v'price, v'imageSrc, v'title, v'description));
 }
 
-(slice, ((slice, int, int, slice, slice, slice))) $Item$init$_load(slice sc_0) inline {
+(slice, ((slice, int))) $Item$init$_load(slice sc_0) inline {
     var v'shop = sc_0~load_msg_addr();
     var v'id = sc_0~load_uint(256);
-    var v'price = sc_0~load_varuint16();
-    var v'imageSrc = sc_0~load_ref().begin_parse();
-    slice sc_1 = sc_0~load_ref().begin_parse();
-    var v'title = sc_1~load_ref().begin_parse();
-    var v'description = sc_1~load_ref().begin_parse();
-    return (sc_0, (v'shop, v'id, v'price, v'imageSrc, v'title, v'description));
+    return (sc_0, (v'shop, v'id));
 }
 
 (slice, int, int, slice, slice, slice) $Item$_contract_load() impure inline {
@@ -394,9 +404,9 @@ builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice) v) 
         return $sc~$Item$_load();
     }
     else {
-        (slice $shop, int $id, int $price, slice $imageSrc, slice $title, slice $description) = $sc~$Item$init$_load();
+        (slice $shop, int $id) = $sc~$Item$init$_load();
         $sc.end_parse();
-        return $Item$_contract_init($shop, $id, $price, $imageSrc, $title, $description);
+        return $Item$_contract_init($shop, $id);
     }
 }
 
@@ -445,14 +455,14 @@ cell $Order$_child_get_code() impure asm """
 ;; Contract Item functions
 ;;
 
-(slice, int, int, slice, slice, slice) $Item$_contract_init(slice $shop, int $id, int $price, slice $imageSrc, slice $title, slice $description) impure inline {
+(slice, int, int, slice, slice, slice) $Item$_contract_init(slice $shop, int $id) impure inline {
     var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description)) = (null(), null(), null(), null(), null(), null());
     $self'shop = $shop;
     $self'id = $id;
-    $self'price = $price;
-    $self'imageSrc = $imageSrc;
-    $self'title = $title;
-    $self'description = $description;
+    $self'price = 0;
+    $self'imageSrc = __gen_slice_string_65a388760d613a486e9222653676e93876e62a41886a69e2f9451728510c62ed();
+    $self'title = __gen_slice_string_effb68c8cd138379ea31a4b10b902e0413a59126eaeb9564f1ed82ef56355500();
+    $self'description = __gen_slice_string_140bdd99e205d5912ca97650fb28f063726b262214aacff74252f2bcee780c53();
     return ($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description);
 }
 
@@ -557,6 +567,20 @@ _ %description() method_id(65569) {
     ;; Handle bounced messages
     if (msg_bounced) { return (); }
     var op = in_msg~load_opcode_internal();
+    ;; Receive UpdateItem message
+    if (op == 967082613) {
+        var $msg'price = in_msg~load_varuint16();
+        var $msg'imageSrc = in_msg~load_ref().begin_parse();
+        var $msg'title = in_msg~load_ref().begin_parse();
+        var $msg'description = in_msg~load_ref().begin_parse();
+        $self'price = $msg'price;
+        $self'imageSrc = $msg'imageSrc;
+        $self'title = $msg'title;
+        $self'description = $msg'description;
+        $Item$_contract_store(($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description));
+        return ();
+    }
+    
     ;; Receive CreateOrder message
     if (op == 0x7ac14988) {
         var $msg'orderId = in_msg~load_int(257);

@@ -1351,6 +1351,71 @@ export function dictValueParserOrderCompleted(): DictionaryValue<OrderCompleted>
     }
 }
 
+export type UpdateItem = {
+    $$type: 'UpdateItem';
+    price: bigint;
+    imageSrc: string;
+    title: string;
+    description: string;
+}
+
+export function storeUpdateItem(src: UpdateItem) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(967082613, 32);
+        b_0.storeCoins(src.price);
+        b_0.storeStringRefTail(src.imageSrc);
+        b_0.storeStringRefTail(src.title);
+        b_0.storeStringRefTail(src.description);
+    };
+}
+
+export function loadUpdateItem(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 967082613) { throw Error('Invalid prefix'); }
+    const _price = sc_0.loadCoins();
+    const _imageSrc = sc_0.loadStringRefTail();
+    const _title = sc_0.loadStringRefTail();
+    const _description = sc_0.loadStringRefTail();
+    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+}
+
+export function loadTupleUpdateItem(source: TupleReader) {
+    const _price = source.readBigNumber();
+    const _imageSrc = source.readString();
+    const _title = source.readString();
+    const _description = source.readString();
+    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+}
+
+export function loadGetterTupleUpdateItem(source: TupleReader) {
+    const _price = source.readBigNumber();
+    const _imageSrc = source.readString();
+    const _title = source.readString();
+    const _description = source.readString();
+    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+}
+
+export function storeTupleUpdateItem(source: UpdateItem) {
+    const builder = new TupleBuilder();
+    builder.writeNumber(source.price);
+    builder.writeString(source.imageSrc);
+    builder.writeString(source.title);
+    builder.writeString(source.description);
+    return builder.build();
+}
+
+export function dictValueParserUpdateItem(): DictionaryValue<UpdateItem> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeUpdateItem(src)).endCell());
+        },
+        parse: (src) => {
+            return loadUpdateItem(src.loadRef().beginParse());
+        }
+    }
+}
+
 export type User$Data = {
     $$type: 'User$Data';
     owner: Address;
@@ -1736,6 +1801,7 @@ const User_types: ABIType[] = [
     {"name":"NewOrder","header":2418445873,"fields":[{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}},{"name":"itemIndex","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"UpdateShopInfo","header":2923783136,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}}]},
     {"name":"OrderCompleted","header":978078863,"fields":[]},
+    {"name":"UpdateItem","header":967082613,"fields":[{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"User$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"Deploy","header":2490013878,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"DeployOk","header":2952335191,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
@@ -1758,6 +1824,7 @@ const User_opcodes = {
     "NewOrder": 2418445873,
     "UpdateShopInfo": 2923783136,
     "OrderCompleted": 978078863,
+    "UpdateItem": 967082613,
     "Deploy": 2490013878,
     "DeployOk": 2952335191,
     "FactoryDeploy": 1829761339,

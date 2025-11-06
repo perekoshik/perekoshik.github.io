@@ -27,12 +27,16 @@ export default function Seller() {
 
   const { connected } = useTonConnect();
   const {
+    // shop
     makeShop,
     shopAddress,
     shopName,
     loading,
     isShopDeployed,
     shopItemsCount,
+    // item
+    makeItem,
+    itemsList,
   } = useMarketContracts();
   const [inputShopName, setInputShopName] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -118,6 +122,20 @@ export default function Seller() {
     setImagePreview("");
   };
 
+  // handleCreateItem
+  const handleCreateItem = async () => {
+    if (!shopAddress || !shopItemsCount) return;
+    await makeItem(
+      shopAddress,
+      shopItemsCount,
+      BigInt(price),
+      imagePreview,
+      title,
+      description
+    );
+    resetForm();
+  };
+
   return (
     <div className="container pb-24 space-y-6 sm:space-y-8">
       <header className="pt-4 space-y-1">
@@ -130,6 +148,8 @@ export default function Seller() {
           before appearing in the marketplace.
         </p>
       </header>
+
+      {/* Make or update shop */}
 
       {isShopDeployed && (
         <div className="glass rounded-3xl p-5 sm:p-6">
@@ -247,6 +267,30 @@ export default function Seller() {
           </p>
         )}
       </div>
+
+      {/* All Items */}
+
+      {shopItemsCount ? (
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+          Find {shopItemsCount === 1n ? "item" : "items"}
+          <div className="space-y-4">
+            {Array.from(itemsList).map(([_, item]) => (
+              <div>
+                <p>{item.itemTitle}</p>
+                <p>{item.itemAddress}</p>
+                <p>{item.itemId}</p>
+                <p>{item.itemPrice}</p>
+                <img src={item.itemImageSrc} alt="no image" />
+                <p>{item.itemDescription}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+          No one Item
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
         <section className="space-y-6">
@@ -366,6 +410,7 @@ export default function Seller() {
             <button
               type="button"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30"
+              onClick={handleCreateItem}
             >
               Save draft
             </button>

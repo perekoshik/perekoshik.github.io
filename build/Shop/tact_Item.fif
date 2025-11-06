@@ -119,25 +119,7 @@ PROGRAM{
   $Item$init$_load PROCINLINE:<{
     LDMSGADDR
     256 LDU
-    LDVARUINT16
-    LDREF
-    SWAP
-    CTOS
-    SWAP
-    LDREF
-    SWAP
-    CTOS
-    LDREF
-    SWAP
-    CTOS
-    SWAP
-    LDREF
-    DROP
-    CTOS
-    s2 s6 XCHG
-    s2 s5 XCHG
-    s2 s4 XCHG
-    s2 s3 XCHG
+    -ROT
   }>
   $Order$init$_store PROCINLINE:<{
     s4 s5 XCHG2
@@ -156,6 +138,10 @@ PROGRAM{
     STBREFR
   }>
   $Item$_contract_init PROCINLINE:<{
+    0 PUSHINT
+        B{b5ee9c7241010101000a000010696d616765537263975074ea} B>boc <s PUSHSLICE
+        B{b5ee9c7241010101000700000a7469746c65ddf1d456} B>boc <s PUSHSLICE
+        B{b5ee9c7241010101000d0000166465736372697074696f6ee0124c71} B>boc <s PUSHSLICE
   }>
   $Item$_contract_load PROCINLINE:<{
     c4 PUSH
@@ -167,9 +153,9 @@ PROGRAM{
       1 6 BLKDROP2
     }>ELSE<{
       $Item$init$_load INLINECALLDICT
-      s0 s6 XCHG
+      s0 s2 XCHG
       ENDS
-      5 ROLL
+      SWAP
       $Item$_contract_init INLINECALLDICT
     }>
   }>
@@ -347,6 +333,29 @@ PROGRAM{
     }>
     s0 s5 XCHG
     32 LDUQ 130 THROWIFNOT
+    OVER
+    967082613 PUSHINT
+    EQUAL
+    IFJMP:<{
+      s6 POP
+      3 BLKDROP
+      s3 POP
+      SWAP
+      LDVARUINT16
+      LDREF
+      SWAP
+      CTOS
+      SWAP
+      LDREF
+      SWAP
+      CTOS
+      SWAP
+      LDREF
+      DROP
+      CTOS
+      s4 s5 XCHG
+      $Item$_contract_store INLINECALLDICT
+    }>
     SWAP
     2059487624 PUSHINT
     EQUAL

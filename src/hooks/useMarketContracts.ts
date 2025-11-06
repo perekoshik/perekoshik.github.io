@@ -1,6 +1,6 @@
 import { Address, beginCell, type OpenedContract, toNano } from "@ton/core";
 import { use, useCallback, useState } from "react";
-import { Shop, storeUpdateShopInfo } from "@/wrappers/Shop";
+import { Shop, storeUpdateShopInfo, type UpdateItem } from "@/wrappers/Shop";
 import { User } from "@/wrappers/User";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useAsyncInitialize } from "./useAsyncInitialize";
@@ -8,6 +8,7 @@ import { useTonClient } from "./useTonClient";
 import { useTonConnect } from "./useTonConnect";
 import { PassThrough } from "stream";
 import { TWA } from "@/lib/twa";
+import { Item, storeUpdateItem } from "@/wrappers/Item";
 
 export function useMarketContracts() {
 	const { client } = useTonClient();
@@ -59,7 +60,7 @@ export function useMarketContracts() {
 	const [shopAddress, setShopAddress] = useState<string | null>(null);
 	const [shopName, setShopName] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
-	const [shopItemsCount, setShopItemsCount] = useState<BigInt | null>(null);
+	const [shopItemsCount, setShopItemsCount] = useState<bigint | null>(null);
 
 	const getShopInfo = async () => {
 		try {
@@ -186,7 +187,7 @@ export function useMarketContracts() {
 			const timeout = 120000; // 2 minute timeout
 
 			while (Date.now() - startTime < timeout) {
-				await new Promise((resolve) => setTimeout(resolve, 10000)); // 2 second interval
+				await new Promise((resolve) => setTimeout(resolve, 10000)); // 10 second interval
 
 				const isDeployed = await client.isContractDeployed(
 					shopContract.address,
@@ -230,6 +231,101 @@ export function useMarketContracts() {
 	};
 	getShopItemsCount();
 
+	// Add new Item
+	const [itemAddress, setItemAddress] = useState<string | null>();
+	const [itemId, setItemId] = useState<bigint | null>();
+	const [itemPrice, setItemPrice] = useState<bigint | null>();
+	const [itemImageSrc, setItemImageSrc] = useState<string | null>();
+	const [itemTitle, setItemTitle] = useState<string | null>();
+	const [itemDescription, setItemDescription] = useState<string | null>();
+
+	const makeItem = async (shopAddress: string, itemId: bigint, price: bigint, imageSrc: string, title: string, description: string) => {
+		if (!client) return;
+		
+		const itemStateInit = await Item.fromInit(Address.parse(shopAddress), itemId);
+		const itemContract = client.open(itemStateInit);
+		const itemAddress_ = itemContract.address.toString();
+		setItemAddress(itemAddress_);
+
+		if (!itemStateInit.init) throw new Error("Item init is not defined"); // Ensure init is defined
+
+		const msg = {
+			$$type: "UpdateItem" as const,
+			price: price,
+			imageSrc: imageSrc,
+			title: title,
+			description: description
+		}
+
+		// deploy Item with info and body
+		await sender.send({
+			to: itemContract.address,
+			value: toNano(0.1),
+			bounce: false,
+			init: {
+				code: itemStateInit.init.code,
+				data: itemStateInit.init.data,
+			},
+			body: beginCell().store(storeUpdateItem(msg)).endCell(),
+		});
+
+		// Wait for the transaction to be processed
+		const startTime = Date.now();
+		const timeout = 120000; // 2 minute timeout
+
+		while (Date.now() - startTime < timeout) {
+			await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second interval
+
+			const isDeployed = await client.isContractDeployed(itemContract.address);
+			if (isDeployed) {
+				const itemId_ = await itemContract.getId();
+				const itemPrice_ = await itemContract.getPrice();
+				const itemImageSrc_ = await itemContract.getImageSrc();
+				const itemTitle_ = await itemContract.getTitle();
+				const itemDescription_ = await itemContract.getDescription();
+				setItemId(itemId_);
+				setItemPrice(itemPrice_);
+				setItemImageSrc(itemImageSrc_);
+				setItemTitle(itemTitle_);
+				setItemDescription(itemDescription_);
+				return;
+			}
+		}
+
+	}
+
+	// list of items
+	interface item_ {
+		itemAddress: string;
+		itemId: bigint;
+		itemPrice: bigint;
+		itemImageSrc: string;
+		itemTitle: string;
+		itemDescription: string;
+	}
+	const [itemsList, setItemsList] = useState<Map<number, item_>>(new Map());
+
+	const itemsList_ = async () => {
+		
+		const items: Map<number, item_> = new Map();
+		if (!shopAddress || !client || shopItemsCount == 0n) return [{}];
+		for (let i = 0; i < Number(shopItemsCount); i++) {
+			const itemStateInit = await Item.fromInit(Address.parse(shopAddress), BigInt(i));
+			const itemContract = client.open(itemStateInit);
+			items.set(i, {
+				itemAddress: itemContract.address.toString(),
+				itemId: await itemContract.getId(),
+				itemPrice: await itemContract.getPrice(),
+				itemImageSrc: await itemContract.getImageSrc(),
+				itemTitle: await itemContract.getTitle(),
+				itemDescription: await itemContract.getDescription(),
+			});
+		}
+		setItemsList(items);
+		return;
+	}
+	itemsList_();
+
 
 	return {
 		//user
@@ -243,6 +339,10 @@ export function useMarketContracts() {
 		isShopDeployed: !!shopAddress,
 		makeShop,
 		shopItemsCount,
+
+		// item
+		makeItem,
+		itemsList,
 
 	};
 }

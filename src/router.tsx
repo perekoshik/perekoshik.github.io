@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import Item from "./pages/Item";
 import Profile from "./pages/Profile";
 import Seller from "./pages/Seller";
-import AddItem from "./pages/addItem";
+import AddItem from "./pages/AddItem";
 
 export const router = createHashRouter([
   {

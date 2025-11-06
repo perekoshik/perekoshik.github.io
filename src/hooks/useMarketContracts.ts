@@ -58,7 +58,7 @@ export function useMarketContracts() {
 	const [shopName, setShopName] = useState<string | null>(null);
 	const [loading, setLoading] = useState(false);
 
-	const makeShop = async (shopName: string): Promise<string> => {
+	const makeShop = async (shopName1: string): Promise<string> => {
 		if (!sender) {
 			throw new Error("Sender not available");
 		}
@@ -72,7 +72,7 @@ export function useMarketContracts() {
 			throw new Error("Disconnected");
 		}
 
-		if (!shopName.trim()) {
+		if (!shopName1.trim()) {
 			throw new Error("Shop name cannot be empty");
 		}
 
@@ -108,7 +108,7 @@ export function useMarketContracts() {
 			// Create the UpdateShopInfo message with the shopName and initialize other values
 			const updateShopInfoMsg = {
 				$$type: "UpdateShopInfo" as const,
-				shopName: shopName, // Use the provided shop name from input
+				shopName: shopName1, // Use the provided shop name from input
 				shopId: 0n, // Initialize with 0; this will likely be updated later
 				uniqueItemsCount: 0n, // Initialize with 0
 				ordersCount: 0n, // Initialize with 0
@@ -164,7 +164,7 @@ export function useMarketContracts() {
 				);
 
 				let isNameChaged = false;
-				if (await shopContract.getShopName() != shopName) {
+				if (await shopContract.getShopName() != shopName1) {
 					isNameChaged = true;
 				}
 				

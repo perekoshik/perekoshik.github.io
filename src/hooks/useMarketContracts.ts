@@ -7,11 +7,13 @@ import { useAsyncInitialize } from "./useAsyncInitialize";
 import { useTonClient } from "./useTonClient";
 import { useTonConnect } from "./useTonConnect";
 import { PassThrough } from "stream";
+import { TWA } from "@/lib/twa";
 
 export function useMarketContracts() {
 	const { client } = useTonClient();
 	const { wallet, sender } = useTonConnect();
 	const { connected } = useTonConnect();
+	const tgUser = TWA?.initDataUnsafe?.user;
 
 	const initUsersFactory = useCallback(async () => {
 		if (!client) return;
@@ -100,6 +102,10 @@ export function useMarketContracts() {
 			throw new Error("Shop name cannot be empty");
 		}
 
+		if (!tgUser) {
+			throw new Error("User not available");
+		}
+
 		let walletAddress: Address;
 		try {
 			walletAddress = Address.parse(wallet);
@@ -133,9 +139,7 @@ export function useMarketContracts() {
 			const updateShopInfoMsg = {
 				$$type: "UpdateShopInfo" as const,
 				shopName: shopName1, // Use the provided shop name from input
-				shopId: 0n, // Initialize with 0; this will likely be updated later
-				uniqueItemsCount: 0n, // Initialize with 0
-				ordersCount: 0n, // Initialize with 0
+				shopId: BigInt(tgUser.id), // Initialize with 0; this will likely be updated later
 			};
 
 			// Check if the contract is already deployed

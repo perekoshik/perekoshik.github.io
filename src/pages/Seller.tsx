@@ -131,8 +131,9 @@ export default function Seller() {
               Your shop
             </div>
             <div className="text-lg font-semibold">
-              {shopName}
-              {shopAddress}
+              <span className="text-txt/60">Shop name: {shopName}</span>
+              <span className="text-txt/60 ml-2">Address: {shopAddress}</span>
+              <span className="text-txt/60 ml-2">Shop Id: {user?.id}</span>
             </div>
           </div>
         </div>

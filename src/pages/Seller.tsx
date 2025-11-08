@@ -104,6 +104,37 @@ export default function Seller() {
 		});
 	};
 
+	/**
+	 * Validates and updates price input - accepts only digits and decimal point
+	 *
+	 * INVARIANT: price state contains only [0-9.] characters
+	 * PRECONDITION: event from input onChange handler
+	 * POSTCONDITION: setPrice called with filtered value or unchanged if invalid
+	 * COMPLEXITY: O(n) where n is input length (single regex scan)
+	 */
+	const handlePriceChange = (
+		event: React.ChangeEvent<HTMLInputElement>,
+	): void => {
+		const input = event.target.value;
+
+		// CHANGE: Filter price input to allow only digits and decimal point
+		// WHY: Prevent invalid characters in price field (only numbers and . for decimals)
+		// QUOTE(ТЗ): "Сделай что бы в цену можно было вводить только цифры"
+		// REF: Price field should accept decimal format (e.g. 12.4, 100.5)
+		// SOURCE: Allow pattern [0-9.] only - common for currency input
+		const filtered = input.replace(/[^\d.]/g, "");
+
+		// CHANGE: Prevent multiple decimal points
+		// WHY: Valid price is single decimal number like 12.4, not 12.4.5
+		// REF: Math validation - only one decimal point allowed
+		const parts = filtered.split(".");
+		if (parts.length > 2) {
+			return; // Ignore if more than one decimal point
+		}
+
+		setPrice(filtered);
+	};
+
 	const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (!file) return;
@@ -365,7 +396,7 @@ export default function Seller() {
 								<input
 									id="price-input"
 									value={price}
-									onChange={(event) => setPrice(event.target.value)}
+									onChange={handlePriceChange}
 									placeholder="e.g. 12.4"
 									className="w-full rounded-2xl border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-brand/60"
 									inputMode="decimal"

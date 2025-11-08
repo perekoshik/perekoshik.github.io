@@ -1,5 +1,5 @@
 import { Address, beginCell, type OpenedContract, toNano } from "@ton/core";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 // CHANGE: Removed unused imports
 // WHY: TS6133 - 'use' is declared but its value is never read (line 2)
 //      Biome noUnusedImports - 'PassThrough' is unused (line 3)
@@ -112,7 +112,7 @@ export function useMarketContracts() {
 	const [loading, setLoading] = useState(false);
 	const [shopItemsCount, setShopItemsCount] = useState<bigint | null>(null);
 
-	const getShopInfo = async () => {
+	const getShopInfo = useCallback(async () => {
 		try {
 			console.log("IS DEPLOYED CHECK");
 			if (!wallet || !client) return;
@@ -136,8 +136,15 @@ export function useMarketContracts() {
 						.address.toString(),
 				);
 		}
-	};
-	getShopInfo();
+	}, [wallet, client]);
+
+	// CHANGE: Move getShopInfo from component body to useEffect
+	// WHY: Side effects in component body execute on every render, causing infinite loops and unnecessary RPC calls (exit_code -13)
+	// QUOTE(ТЗ): user reported "Unable to execute get method. Got exit_code: -13" error
+	// REF: React best practices - side effects must be in useEffect, not component body
+	useEffect(() => {
+		getShopInfo();
+	}, [getShopInfo]);
 
 	const makeShop = async (shopName1: string): Promise<string> => {
 		if (!sender) {
@@ -257,15 +264,39 @@ export function useMarketContracts() {
 		}
 	};
 
-	const getShopItemsCount = async () => {
-		if (!wallet || !client) return "";
-		const shopStateInit = await Shop.fromInit(Address.parse(wallet));
-		const shopContract = client.open(shopStateInit);
+	const getShopItemsCount = useCallback(async () => {
+		if (!wallet || !client || !shopAddress) return;
 
-		setShopItemsCount(await shopContract.getItemsCount());
-		return;
-	};
-	getShopItemsCount();
+		try {
+			const shopStateInit = await Shop.fromInit(Address.parse(wallet));
+			const shopContract = client.open(shopStateInit);
+
+			// CHANGE: Add deployment check before calling getItemsCount()
+			// WHY: Calling getItemsCount() on undeployed contract causes exit_code: -13 error
+			// QUOTE(ТЗ): "Unable to execute get method. Got exit_code: -13"
+			// REF: TON RPC returns -13 when calling get methods on undeployed contracts
+			const isDeployed = await client.isContractDeployed(shopContract.address);
+			if (!isDeployed) {
+				console.warn("Shop contract is not deployed, skipping getItemsCount");
+				return;
+			}
+
+			const itemsCount = await shopContract.getItemsCount();
+			setShopItemsCount(itemsCount);
+		} catch (error) {
+			console.error("Error getting shop items count:", error);
+			// CHANGE: Don't crash on error, just log it
+			// WHY: RPC calls can fail temporarily, user should be informed but app should continue
+			// REF: exit_code -13 is a transient error that may resolve on retry
+		}
+	}, [wallet, client, shopAddress]);
+
+	// CHANGE: Move getShopItemsCount from component body to useEffect
+	// WHY: Side effects in component body execute on every render (exit_code -13 issue)
+	// REF: React best practices - side effects must be in useEffect
+	useEffect(() => {
+		getShopItemsCount();
+	}, [getShopItemsCount]);
 
 	// Add new Item
 
@@ -341,31 +372,72 @@ export function useMarketContracts() {
 	}
 	const [itemsList, setItemsList] = useState<Map<number, item_>>(new Map());
 
-	const itemsList_ = async () => {
+	const itemsList_ = useCallback(async () => {
 		const items: Map<number, item_> = new Map();
 		// CHANGE: Use === instead of == for type-safe comparison
 		// WHY: Biome noDoubleEquals - Using == may be unsafe if relying on type coercion
 		// REF: lint error at line 316
-		if (!shopAddress || !client || shopItemsCount === 0n) return [{}];
-		for (let i = 0; i < Number(shopItemsCount); i++) {
-			const itemStateInit = await Item.fromInit(
-				Address.parse(shopAddress),
-				BigInt(i),
-			);
-			const itemContract = client.open(itemStateInit);
-			items.set(i, {
-				itemAddress: itemContract.address.toString(),
-				itemId: await itemContract.getId(),
-				itemPrice: await itemContract.getPrice(),
-				itemImageSrc: await itemContract.getImageSrc(),
-				itemTitle: await itemContract.getTitle(),
-				itemDescription: await itemContract.getDescription(),
-			});
+		if (!shopAddress || !client || shopItemsCount === 0n) {
+			setItemsList(new Map());
+			return;
 		}
-		setItemsList(items);
-		return;
-	};
-	itemsList_();
+
+		try {
+			// CHANGE: Add deployment check before iterating items
+			// WHY: Prevents calling get methods on undeployed contracts (exit_code -13)
+			// REF: Item contracts may not be deployed yet
+			const isShopDeployed = await client.isContractDeployed(
+				Address.parse(shopAddress),
+			);
+			if (!isShopDeployed) {
+				console.warn("Shop contract is not deployed, skipping items list");
+				setItemsList(new Map());
+				return;
+			}
+
+			for (let i = 0; i < Number(shopItemsCount); i++) {
+				try {
+					const itemStateInit = await Item.fromInit(
+						Address.parse(shopAddress),
+						BigInt(i),
+					);
+					const itemContract = client.open(itemStateInit);
+
+					// CHANGE: Check item deployment before calling get methods
+					// WHY: Avoid exit_code -13 errors on undeployed items
+					const isItemDeployed = await client.isContractDeployed(
+						itemContract.address,
+					);
+					if (!isItemDeployed) {
+						console.warn(`Item ${i} is not deployed, skipping`);
+						continue;
+					}
+
+					items.set(i, {
+						itemAddress: itemContract.address.toString(),
+						itemId: await itemContract.getId(),
+						itemPrice: await itemContract.getPrice(),
+						itemImageSrc: await itemContract.getImageSrc(),
+						itemTitle: await itemContract.getTitle(),
+						itemDescription: await itemContract.getDescription(),
+					});
+				} catch (itemError) {
+					console.error(`Error loading item ${i}:`, itemError);
+					// Continue with next item on error
+				}
+			}
+			setItemsList(items);
+		} catch (error) {
+			console.error("Error loading items list:", error);
+		}
+	}, [shopAddress, client, shopItemsCount]);
+
+	// CHANGE: Move itemsList_ from component body to useEffect
+	// WHY: Side effects in component body cause infinite RPC calls (exit_code -13)
+	// REF: React best practices - side effects must be in useEffect
+	useEffect(() => {
+		itemsList_();
+	}, [itemsList_]);
 
 	return {
 		//user

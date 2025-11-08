@@ -264,32 +264,51 @@ export function useMarketContracts() {
 		}
 	};
 
-	const getShopItemsCount = useCallback(async () => {
-		if (!wallet || !client || !shopAddress) return;
+	/**
+	 * Fetches the current items count from the deployed Shop contract
+	 *
+	 * INVARIANT: shopAddress must be set (from getShopInfo execution)
+	 * PRECONDITION: client must be available, shopAddress must be valid Address string
+	 * POSTCONDITION: setShopItemsCount is called with bigint value or unchanged on error
+	 * COMPLEXITY: O(1) RPC call
+	 */
+	const getShopItemsCount = useCallback(async (): Promise<void> => {
+		// Guard clause: Early exit if required dependencies are missing
+		if (!client || !shopAddress) return;
 
 		try {
-			const shopStateInit = await Shop.fromInit(Address.parse(wallet));
-			const shopContract = client.open(shopStateInit);
+			// CHANGE: Use Shop.fromAddress() with shopAddress instead of Shop.fromInit() with wallet
+			// WHY: fromInit() creates contracts with owner initialization (wrong semantics here)
+			//      fromAddress() opens existing deployed contract by its address (correct for fetching data)
+			//      Function guard checks shopAddress (the actual shop), not wallet (owner)
+			// QUOTE(ТЗ): [No direct quote, but inferred from guard clause and control flow]
+			// REF: Shop class API - tact_Shop.ts:2238-2246
+			// SOURCE: TON SDK pattern - use fromInit() for deployment, fromAddress() for existing contracts
+			const shopContract = client.open(
+				Shop.fromAddress(Address.parse(shopAddress)),
+			);
 
-			// CHANGE: Add deployment check before calling getItemsCount()
-			// WHY: Calling getItemsCount() on undeployed contract causes exit_code: -13 error
+			// CHANGE: Check contract deployment before calling get methods
+			// WHY: Calling get methods on undeployed contracts causes exit_code: -13 error (contract not initialized)
 			// QUOTE(ТЗ): "Unable to execute get method. Got exit_code: -13"
-			// REF: TON RPC returns -13 when calling get methods on undeployed contracts
+			// REF: TON RPC specification - -13 means contract code not found / not initialized
 			const isDeployed = await client.isContractDeployed(shopContract.address);
 			if (!isDeployed) {
 				console.warn("Shop contract is not deployed, skipping getItemsCount");
 				return;
 			}
 
+			// Fetch items count from deployed contract
 			const itemsCount = await shopContract.getItemsCount();
 			setShopItemsCount(itemsCount);
 		} catch (error) {
 			console.error("Error getting shop items count:", error);
-			// CHANGE: Don't crash on error, just log it
-			// WHY: RPC calls can fail temporarily, user should be informed but app should continue
-			// REF: exit_code -13 is a transient error that may resolve on retry
+			// CHANGE: Graceful error handling without state corruption
+			// WHY: RPC calls can fail transiently; app must remain responsive
+			//      Re-throw or log - don't silently fail with stale state
+			// REF: Transient error handling pattern; user can retry via UI refresh
 		}
-	}, [wallet, client, shopAddress]);
+	}, [client, shopAddress]);
 
 	// CHANGE: Move getShopItemsCount from component body to useEffect
 	// WHY: Side effects in component body execute on every render (exit_code -13 issue)

@@ -240,14 +240,21 @@ export function useMarketContracts() {
 	const [itemDescription, setItemDescription] = useState<string | null>();
 
 	const makeItem = async (shopAddress: string, itemId: bigint, price: bigint, imageSrc: string, title: string, description: string) => {
-		if (!client) return;
-		
+		if (!client) {
+			console.warn("No client");
+			return;
+		}
+		console.warn("makeItem");
+
 		const itemStateInit = await Item.fromInit(Address.parse(shopAddress), itemId);
 		const itemContract = client.open(itemStateInit);
 		const itemAddress_ = itemContract.address.toString();
 		setItemAddress(itemAddress_);
 
-		if (!itemStateInit.init) throw new Error("Item init is not defined"); // Ensure init is defined
+		if (!itemStateInit.init) {
+			console.error("itemStateInit.init is undefined");
+			return;
+		}
 
 		const msg = {
 			$$type: "UpdateItem" as const,
@@ -258,16 +265,22 @@ export function useMarketContracts() {
 		}
 
 		// deploy Item with info and body
-		await sender.send({
-			to: itemContract.address,
-			value: toNano(0.1),
-			bounce: false,
-			init: {
-				code: itemStateInit.init.code,
-				data: itemStateInit.init.data,
-			},
-			body: beginCell().store(storeUpdateItem(msg)).endCell(),
-		});
+		try {
+			await sender.send({
+				to: itemContract.address,
+				value: toNano(0.1),
+				bounce: false,
+				init: {
+					code: itemStateInit.init.code,
+					data: itemStateInit.init.data,
+				},
+				body: beginCell().store(storeUpdateItem(msg)).endCell(),
+			});
+		}
+		catch (err){
+			console.error("Error sending transaction:", err);
+			return;
+		}
 
 		// Wait for the transaction to be processed
 		const startTime = Date.now();

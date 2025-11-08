@@ -124,12 +124,13 @@ export default function Seller() {
 
   // handleCreateItem
   const handleCreateItem = async () => {
+    console.warn("handleCreateItem");
     if (!shopAddress) {
-      console.warn("No shop address");
+      console.error("No shop address");
       return;
     }
     if (!shopItemsCount) {
-      console.warn("No items count");
+      console.error("No items count");
       return;
     }
     try {

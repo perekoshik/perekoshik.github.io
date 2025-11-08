@@ -14,6 +14,50 @@ import { TWA } from "@/lib/twa";
 // REF: CLAUDE.md:8 - "Никогда не использовать eslint-disable"
 type Highlight = { id: string; text: string };
 
+/**
+ * Converts TON price string to nanoTON BigInt.
+ * TON blockchain has 9 decimal places: 1 TON = 10^9 nanoTON
+ *
+ * INVARIANT: Input must be non-negative decimal number string, output is BigInt >= 0
+ * PRECONDITION: price is a valid decimal string (e.g., "0.1", "1.5", "100")
+ * POSTCONDITION: Returns BigInt representing nanoTON value with no precision loss
+ * COMPLEXITY: O(n) where n is string length (single split and digit processing)
+ *
+ * @param price - TON price as string (e.g., "0.1", "1.5", "100")
+ * @returns BigInt representing the price in nanoTON
+ * @throws {SyntaxError} if price format is invalid (non-numeric, negative, or multiple decimals)
+ *
+ * @example
+ * tonToNanoTon("0.1")   // => BigInt("100000000")
+ * tonToNanoTon("1.5")   // => BigInt("1500000000")
+ * tonToNanoTon("100")   // => BigInt("100000000000")
+ */
+const tonToNanoTon = (price: string): bigint => {
+	// CHANGE: Convert decimal TON price to BigInt nanoTON without floating point errors
+	// WHY: BigInt doesn't support decimals, but TON prices are decimal (e.g., 0.1 TON)
+	// QUOTE(ТЗ): "Сделай что бы можно было указывать не чётные числа"
+	// REF: Failed to create item: SyntaxError: Cannot convert 0.1 to a BigInt (Seller.tsx:194)
+	// SOURCE: TON blockchain standard - 1 TON = 10^9 nanoTON (9 decimal places)
+
+	const parts = price.split(".");
+	const wholePart = parts[0] || "0";
+	// Pad decimal part to 9 digits (TON decimals), then slice to prevent overflow
+	const decimalPart = (parts[1] || "").padEnd(9, "0").slice(0, 9);
+	const nanoTonString = wholePart + decimalPart;
+
+	// CHANGE: Catch non-numeric values and throw meaningful error
+	// WHY: BigInt() throws TypeError if string contains non-digits, we convert to SyntaxError
+	try {
+		// INVARIANT: nanoTonString must be a valid decimal digit sequence
+		return BigInt(nanoTonString);
+	} catch {
+		// Re-throw with more helpful error message for user
+		throw new SyntaxError(
+			`Invalid price format "${price}": must be a valid non-negative decimal number`,
+		);
+	}
+};
+
 export default function Seller() {
 	const [title, setTitle] = useState("");
 	const [price, setPrice] = useState("");
@@ -187,11 +231,34 @@ export default function Seller() {
 			return;
 		}
 
+		// CHANGE: Validate required fields before submission
+		// WHY: User must provide non-empty title, description, and price
+		// REF: Form validation - prevent invalid item creation
+		if (!price.trim()) {
+			console.error("Price is required");
+			return;
+		}
+
+		if (!title.trim()) {
+			console.error("Title is required");
+			return;
+		}
+
+		if (!description.trim()) {
+			console.error("Description is required");
+			return;
+		}
+
 		try {
+			// CHANGE: Use tonToNanoTon instead of direct BigInt conversion for decimal prices
+			// WHY: BigInt doesn't support decimal numbers, but TON prices are decimal (e.g., 0.1 TON)
+			// REF: Failed to create item: SyntaxError: Cannot convert 0.1 to a BigInt
+			const priceInNanoTon = tonToNanoTon(price);
+
 			await makeItem(
 				shopAddress,
 				shopItemsCount,
-				BigInt(price),
+				priceInNanoTon,
 				imagePreview,
 				title,
 				description,

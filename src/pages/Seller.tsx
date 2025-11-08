@@ -122,17 +122,40 @@ export default function Seller() {
 		setImagePreview("");
 	};
 
-	// handleCreateItem
-	const handleCreateItem = async () => {
+	/**
+	 * Creates a new item in the shop contract
+	 *
+	 * INVARIANT: shopAddress must be set (shop deployed)
+	 * INVARIANT: shopItemsCount must be initialized (not null) - used as itemId
+	 * PRECONDITION: shopAddress is valid Address string
+	 * PRECONDITION: shopItemsCount is bigint (may be 0n for first item)
+	 * POSTCONDITION: Item created and form reset on success
+	 * POSTCONDITION: Error logged, form NOT reset on failure
+	 * COMPLEXITY: O(1) - single RPC contract call
+	 */
+	const handleCreateItem = async (): Promise<void> => {
 		console.warn("handleCreateItem");
+
+		// CHANGE: Guard clause - check for required state
+		// WHY: shopAddress and shopItemsCount must be set before creating item
+		// REF: Both are required by makeItem() function signature
 		if (!shopAddress) {
-			console.error("No shop address");
+			console.error("No shop address - shop not deployed");
 			return;
 		}
-		if (!shopItemsCount) {
-			console.error("No items count");
+
+		// CHANGE: Check explicitly for null instead of falsy check
+		// WHY: shopItemsCount can be 0n (first item) which is falsy but valid
+		//      Only null means it hasn't been initialized yet
+		// QUOTE(ТЗ): shopItemsCount is used as itemId for makeItem
+		// REF: useState<bigint | null>(null) - initial state is null
+		if (shopItemsCount === null) {
+			console.error(
+				"Items count not loaded - getShopItemsCount() may still be pending",
+			);
 			return;
 		}
+
 		try {
 			await makeItem(
 				shopAddress,
@@ -142,10 +165,13 @@ export default function Seller() {
 				title,
 				description,
 			);
-		} catch {
-			console.error("Failed to create item");
+			resetForm();
+		} catch (error) {
+			console.error("Failed to create item:", error);
+			// CHANGE: Don't reset form on error - let user see what failed
+			// WHY: User may want to retry with same data or investigate
+			// REF: Form already has validation in UI
 		}
-		resetForm();
 	};
 
 	return (

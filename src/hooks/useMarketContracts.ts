@@ -393,10 +393,15 @@ export function useMarketContracts() {
 
 	const itemsList_ = useCallback(async () => {
 		const items: Map<number, item_> = new Map();
-		// CHANGE: Use === instead of == for type-safe comparison
-		// WHY: Biome noDoubleEquals - Using == may be unsafe if relying on type coercion
-		// REF: lint error at line 316
-		if (!shopAddress || !client || shopItemsCount === 0n) {
+
+		// CHANGE: Check explicitly for null instead of falsy check on shopItemsCount
+		// WHY: shopItemsCount can be 0n (no items) which is falsy but valid state
+		//      Only null means not yet loaded; 0n means shop ready with 0 items
+		//      When 0n: for loop executes 0 times, still initializes empty Map (correct)
+		// QUOTE(ТЗ): Guard checks shopAddress/client (required), but 0n is valid
+		// REF: useState<bigint | null>(null) - initial state is null
+		// SOURCE: Distinguish "not loaded" (null) from "loaded with 0 items" (0n)
+		if (!shopAddress || !client || shopItemsCount === null) {
 			setItemsList(new Map());
 			return;
 		}

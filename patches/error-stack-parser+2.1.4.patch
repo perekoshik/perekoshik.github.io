@@ -1,0 +1,13 @@
+diff --git a/node_modules/error-stack-parser/dist/error-stack-parser.js b/node_modules/error-stack-parser/dist/error-stack-parser.js
+index 5231091..073a12d 100644
+--- a/node_modules/error-stack-parser/dist/error-stack-parser.js
++++ b/node_modules/error-stack-parser/dist/error-stack-parser.js
+@@ -58,7 +58,7 @@
+                     // Throw away eval information until we implement stacktrace.js/stackframe#8
+                     line = line.replace(/eval code/g, 'eval').replace(/(\(eval at [^()]*)|(,.*$)/g, '');
+                 }
+-                var sanitizedLine = line.replace(/^\s+/, '').replace(/\(eval code/g, '(').replace(/^.*?\s+/, '');
++                var sanitizedLine = line.replace(/^\s+/, '').replace(/\(eval code/g, '(').replace(/^.*?\s+/, '').replace(/^async\s+/, '');
+ 
+                 // capture and preseve the parenthesized location "(/foo/my bar.js:12:87)" in
+                 // case it has spaces in it, as the string is split on \s+ later on

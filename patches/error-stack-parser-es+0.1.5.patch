@@ -1,0 +1,26 @@
+diff --git a/node_modules/error-stack-parser-es/dist/lite.cjs b/node_modules/error-stack-parser-es/dist/lite.cjs
+index 8b6d6eb..a1ca136 100644
+--- a/node_modules/error-stack-parser-es/dist/lite.cjs
++++ b/node_modules/error-stack-parser-es/dist/lite.cjs
+@@ -50,7 +50,7 @@ function parseV8OrIeString(stack, options) {
+     if (line.includes("(eval ")) {
+       line = line.replace(/eval code/g, "eval").replace(/(\(eval at [^()]*)|(,.*$)/g, "");
+     }
+-    let sanitizedLine = line.replace(/^\s+/, "").replace(/\(eval code/g, "(").replace(/^.*?\s+/, "");
++    let sanitizedLine = line.replace(/^\s+/, "").replace(/\(eval code/g, "(").replace(/^.*?\s+/, "").replace(/^async\s+/, "");
+     const location = sanitizedLine.match(/ (\(.+\)$)/);
+     sanitizedLine = location ? sanitizedLine.replace(location[0], "") : sanitizedLine;
+     const locationParts = extractLocation(location ? location[1] : sanitizedLine);
+diff --git a/node_modules/error-stack-parser-es/dist/lite.mjs b/node_modules/error-stack-parser-es/dist/lite.mjs
+index 1899ee5..5876b1b 100644
+--- a/node_modules/error-stack-parser-es/dist/lite.mjs
++++ b/node_modules/error-stack-parser-es/dist/lite.mjs
+@@ -48,7 +48,7 @@ function parseV8OrIeString(stack, options) {
+     if (line.includes("(eval ")) {
+       line = line.replace(/eval code/g, "eval").replace(/(\(eval at [^()]*)|(,.*$)/g, "");
+     }
+-    let sanitizedLine = line.replace(/^\s+/, "").replace(/\(eval code/g, "(").replace(/^.*?\s+/, "");
++    let sanitizedLine = line.replace(/^\s+/, "").replace(/\(eval code/g, "(").replace(/^.*?\s+/, "").replace(/^async\s+/, "");
+     const location = sanitizedLine.match(/ (\(.+\)$)/);
+     sanitizedLine = location ? sanitizedLine.replace(location[0], "") : sanitizedLine;
+     const locationParts = extractLocation(location ? location[1] : sanitizedLine);

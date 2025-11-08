@@ -7,27 +7,26 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { initTWA } from "./lib/twa";
 import { router } from "./router";
 
-// CHANGE: Disable devtrace in production or disable mapSources
-// WHY: stacktrace-js with mapSources:true causes malformed URLs (async%20https://...) when fetching source maps
-// REF: Issue with @ton-ai-core/devtrace@0.1.0 stack-logger.js incorrectly parsing fileName in stack frames
-// QUOTE(TЗ): "GET https://perekoshik.github.io/async%20https://perekoshik.github.io/assets/..." 404
-if (import.meta.env.DEV) {
-	await import("@ton-ai-core/devtrace")
-		.then((m) =>
-			m.installStackLogger({
-				limit: 5, // number of stack frames
-				skip: 0, // skip frames
-				tail: false, // show full stack, not only tail
-				ascending: true, // order root → call-site
-				mapSources: false, // CHANGE: disable mapSources to prevent async%20 bug
-				// WHY: stacktrace-js has bug with source map loading
-				snippet: 1, // lines of code context
-				preferApp: true, // prioritize app code
-				onlyApp: false, // include libs as well
-			}),
-		)
-		.catch(() => {});
-}
+// CHANGE: Enable mapSources with patch for async%20 bug
+// WHY: Fixed upstream in error-stack-parser-es with patch-package
+//      The bug was in parseV8OrIeString() which didn't strip "async " keyword
+// REF: Patches applied via postinstall: patches/error-stack-parser-es+0.1.5.patch
+//      patches/error-stack-parser+2.1.4.patch
+// QUOTE(TЗ): "GET https://perekoshik.github.io/async%20https://..." → Fixed
+await import("@ton-ai-core/devtrace")
+	.then((m) =>
+		m.installStackLogger({
+			limit: 5, // number of stack frames
+			skip: 0, // skip frames
+			tail: false, // show full stack, not only tail
+			ascending: true, // order root → call-site
+			mapSources: true, // map sources to original files (now fixed!)
+			snippet: 1, // lines of code context
+			preferApp: true, // prioritize app code
+			onlyApp: false, // include libs as well
+		}),
+	)
+	.catch(() => {});
 
 initTWA();
 

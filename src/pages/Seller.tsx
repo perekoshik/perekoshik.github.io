@@ -124,15 +124,26 @@ export default function Seller() {
 
   // handleCreateItem
   const handleCreateItem = async () => {
-    if (!shopAddress || !shopItemsCount) return;
-    await makeItem(
-      shopAddress,
-      shopItemsCount,
-      BigInt(price),
-      imagePreview,
-      title,
-      description
-    );
+    if (!shopAddress) {
+      console.warn("No shop address");
+      return;
+    }
+    if (!shopItemsCount) {
+      console.warn("No items count");
+      return;
+    }
+    try {
+      await makeItem(
+        shopAddress,
+        shopItemsCount,
+        BigInt(price),
+        imagePreview,
+        title,
+        description
+      );
+    } catch {
+      console.error("Failed to create item");
+    }
     resetForm();
   };
 

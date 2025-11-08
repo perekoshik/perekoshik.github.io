@@ -1,14 +1,18 @@
-// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ex/build/ShopFactory/tact_Item.fc` 
+// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ton_projects/projects/web3market/Новая папка/Новая папка/ex/build/ShopFactory/tact_Item.fc` 
 PROGRAM{
   DECLPROC __tact_context_get
   DECLPROC __tact_context_get_sender
   DECLPROC $NewOrder$_store
   DECLPROC $NewOrder$_store_cell
+  DECLPROC $NewItem$_store
+  DECLPROC $NewItem$_store_cell
   DECLPROC $Item$_store
   DECLPROC $Item$_load
   DECLPROC $Context$_get_value
   DECLPROC $Item$init$_load
   DECLPROC $Order$init$_store
+  DECLPROC $SendParameters$_constructor_to_value_mode_body
+  DECLPROC $NewItem$_constructor_
   DECLPROC $Item$_contract_init
   DECLPROC $Item$_contract_load
   DECLPROC $Item$_contract_store
@@ -65,6 +69,17 @@ PROGRAM{
     $NewOrder$_store INLINECALLDICT
     ENDC
   }>
+  $NewItem$_store PROCINLINE:<{
+    DROP
+    3605122850 PUSHINT
+    SWAP
+    32 STU
+  }>
+  $NewItem$_store_cell PROCINLINE:<{
+    SWAP
+    $NewItem$_store INLINECALLDICT
+    ENDC
+  }>
   $Item$_store PROCINLINE:<{
     s5 s6 XCHG2
     STSLICE
@@ -119,7 +134,25 @@ PROGRAM{
   $Item$init$_load PROCINLINE:<{
     LDMSGADDR
     256 LDU
-    -ROT
+    LDVARUINT16
+    LDREF
+    SWAP
+    CTOS
+    SWAP
+    LDREF
+    SWAP
+    CTOS
+    LDREF
+    SWAP
+    CTOS
+    SWAP
+    LDREF
+    DROP
+    CTOS
+    s2 s6 XCHG
+    s2 s5 XCHG
+    s2 s4 XCHG
+    s2 s3 XCHG
   }>
   $Order$init$_store PROCINLINE:<{
     s4 s5 XCHG2
@@ -137,11 +170,91 @@ PROGRAM{
     STBREFR
     STBREFR
   }>
+  $SendParameters$_constructor_to_value_mode_body PROCINLINE:<{
+    2SWAP
+    PUSHNULL
+    PUSHNULL
+    s0 s0 s3 XCHG3
+    TRUE
+  }>
+  $NewItem$_constructor_ PROCINLINE:<{
+    NIL
+  }>
   $Item$_contract_init PROCINLINE:<{
-    0 PUSHINT
-        B{b5ee9c7241010101000a000010696d616765537263975074ea} B>boc <s PUSHSLICE
-        B{b5ee9c7241010101000700000a7469746c65ddf1d456} B>boc <s PUSHSLICE
-        B{b5ee9c7241010101000d0000166465736372697074696f6ee0124c71} B>boc <s PUSHSLICE
+    s5 PUSH
+    5000000 PUSHINT
+    2 PUSHINT
+    $NewItem$_constructor_ INLINECALLDICT
+    NEWC
+    $NewItem$_store_cell INLINECALLDICT
+    s3 s9 XCHG
+    $SendParameters$_constructor_to_value_mode_body INLINECALLDICT
+        NEWC
+        b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+        1 STI               // store `bounce`
+        b{000} STSLICECONST // store bounced = false and src = addr_none
+        STSLICE             // store `to`
+        SWAP
+        STGRAMS             // store `value`
+        105 PUSHINT         // 1 + 4 + 4 + 64 + 32
+        STZEROES            // store currency_collection, ihr_fee, fwd_fee, created_lt and created_at
+        // → Stack state
+        // s0: Builder
+        // s1: `data`
+        // s2: `code`
+        // s3: `body`
+        // s4: `mode`
+        // Group 2: Placing the Builder after code and data, then checking those for nullability
+        s2 XCHG0
+        DUP2
+        ISNULL
+        SWAP
+        ISNULL
+        AND
+        // → Stack state
+        // s0: -1 (true) if `data` and `code` are both null, 0 (false) otherwise
+        // s1: `code`
+        // s2: `data`
+        // s3: Builder
+        // s4: `body`
+        // s5: `mode`
+        // Group 3: Left branch of the IFELSE, executed if s0 is -1 (true)
+        <{
+            DROP2 // drop `data` and `code`, since either of those is null
+            b{0} STSLICECONST
+        }> PUSHCONT
+        // Group 3: Right branch of the IFELSE, executed if s0 is 0 (false)
+        <{
+            // _ split_depth:(Maybe (## 5))
+            //   special:(Maybe TickTock)
+            //   code:(Maybe ^Cell)
+            //   data:(Maybe ^Cell)
+            //   library:(Maybe ^Cell)
+            // = StateInit;
+            ROT                // place message Builder on top
+            b{10} STSLICECONST // store Maybe = true, Either = false
+            // Start composing inlined StateInit
+            b{00} STSLICECONST // store split_depth and special first
+            STDICT             // store code
+            STDICT             // store data
+            b{0} STSLICECONST  // store library
+        }> PUSHCONT
+        // Group 3: IFELSE that does the branching shown above
+        IFELSE
+        // → Stack state
+        // s0: Builder
+        // s1: null or StateInit
+        // s2: `body`
+        // s3: `mode`
+        // Group 4: Finalizing the message
+        STDICT // store `body` as ref with an extra Maybe bit, since `body` might be null
+        ENDC
+        // → Stack state
+        // s0: Cell
+        // s1: `mode`
+        // Group 5: Sending the message, with `mode` on top
+        SWAP
+        SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
   }>
   $Item$_contract_load PROCINLINE:<{
     c4 PUSH
@@ -153,9 +266,9 @@ PROGRAM{
       1 6 BLKDROP2
     }>ELSE<{
       $Item$init$_load INLINECALLDICT
-      s0 s2 XCHG
+      s0 s6 XCHG
       ENDS
-      SWAP
+      5 ROLL
       $Item$_contract_init INLINECALLDICT
     }>
   }>
@@ -333,29 +446,6 @@ PROGRAM{
     }>
     s0 s5 XCHG
     32 LDUQ 130 THROWIFNOT
-    OVER
-    967082613 PUSHINT
-    EQUAL
-    IFJMP:<{
-      s6 POP
-      3 BLKDROP
-      s3 POP
-      SWAP
-      LDVARUINT16
-      LDREF
-      SWAP
-      CTOS
-      SWAP
-      LDREF
-      SWAP
-      CTOS
-      SWAP
-      LDREF
-      DROP
-      CTOS
-      s4 s5 XCHG
-      $Item$_contract_store INLINECALLDICT
-    }>
     SWAP
     2059487624 PUSHINT
     EQUAL

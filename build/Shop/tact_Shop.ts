@@ -1457,67 +1457,43 @@ export function dictValueParserOrderCompleted(): DictionaryValue<OrderCompleted>
     }
 }
 
-export type UpdateItem = {
-    $$type: 'UpdateItem';
-    price: bigint;
-    imageSrc: string;
-    title: string;
-    description: string;
+export type NewItem = {
+    $$type: 'NewItem';
 }
 
-export function storeUpdateItem(src: UpdateItem) {
+export function storeNewItem(src: NewItem) {
     return (builder: Builder) => {
         const b_0 = builder;
-        b_0.storeUint(967082613, 32);
-        b_0.storeCoins(src.price);
-        b_0.storeStringRefTail(src.imageSrc);
-        b_0.storeStringRefTail(src.title);
-        b_0.storeStringRefTail(src.description);
+        b_0.storeUint(3605122850, 32);
     };
 }
 
-export function loadUpdateItem(slice: Slice) {
+export function loadNewItem(slice: Slice) {
     const sc_0 = slice;
-    if (sc_0.loadUint(32) !== 967082613) { throw Error('Invalid prefix'); }
-    const _price = sc_0.loadCoins();
-    const _imageSrc = sc_0.loadStringRefTail();
-    const _title = sc_0.loadStringRefTail();
-    const _description = sc_0.loadStringRefTail();
-    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+    if (sc_0.loadUint(32) !== 3605122850) { throw Error('Invalid prefix'); }
+    return { $$type: 'NewItem' as const };
 }
 
-export function loadTupleUpdateItem(source: TupleReader) {
-    const _price = source.readBigNumber();
-    const _imageSrc = source.readString();
-    const _title = source.readString();
-    const _description = source.readString();
-    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+export function loadTupleNewItem(source: TupleReader) {
+    return { $$type: 'NewItem' as const };
 }
 
-export function loadGetterTupleUpdateItem(source: TupleReader) {
-    const _price = source.readBigNumber();
-    const _imageSrc = source.readString();
-    const _title = source.readString();
-    const _description = source.readString();
-    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+export function loadGetterTupleNewItem(source: TupleReader) {
+    return { $$type: 'NewItem' as const };
 }
 
-export function storeTupleUpdateItem(source: UpdateItem) {
+export function storeTupleNewItem(source: NewItem) {
     const builder = new TupleBuilder();
-    builder.writeNumber(source.price);
-    builder.writeString(source.imageSrc);
-    builder.writeString(source.title);
-    builder.writeString(source.description);
     return builder.build();
 }
 
-export function dictValueParserUpdateItem(): DictionaryValue<UpdateItem> {
+export function dictValueParserNewItem(): DictionaryValue<NewItem> {
     return {
         serialize: (src, builder) => {
-            builder.storeRef(beginCell().store(storeUpdateItem(src)).endCell());
+            builder.storeRef(beginCell().store(storeNewItem(src)).endCell());
         },
         parse: (src) => {
-            return loadUpdateItem(src.loadRef().beginParse());
+            return loadNewItem(src.loadRef().beginParse());
         }
     }
 }
@@ -2051,7 +2027,7 @@ function initShop_init_args(src: Shop_init_args) {
 }
 
 async function Shop_init(owner: Address) {
-    const __code = Cell.fromHex('b5ee9c7241023901000a70000228ff008e88f4a413f4bcf2c80bed5320e303ed43d9010c020271020702012003040185b990fed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e2db3c6c6182e02014805060185b1477b513434800063873e903500740074fff4fff5007434fffe800c0409840944090408db05a3857e900040745c22e1cda1bdc13985b5961c54c880c138b6cf1b1860300185b3b3fb513434800063873e903500740074fff4fff5007434fffe800c0409840944090408db05a3857e900040745c22e1cda1bdc13985b5961c54c880c138b6cf1b18602b02012008090185b96c0ed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e2db3c6c618160201e90a0b0183a7dbda89a1a400031c39f481a803a003a7ffa7ffa803a1a7fff40060204c204a20482046d82d1c2bf4800203a2e1170e6d0dee09cc2dacb0e2a6440609c5b678d8c3260183a577da89a1a400031c39f481a803a003a7ffa7ffa803a1a7fff40060204c204a20482046d82d1c2bf4800203a2e1170e6d0dee09cc2dacb0e2a6440609c5b678d8c32803f83001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e207925f07e005d70d1ff2e082218210ae4563e0bae302218210fe3511b0bae30201821090268e31ba0d0e380058345b01d401d001d3ff3010354043c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed5403fe31fa0030104510344136db3cf82824db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d049137250a210246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0002a410450f10370010f84226c705f2e084011888c87001ca005a02cecbffc9110228ff008e88f4a413f4bcf2c80bed5320e303ed43d9121e02027113190201201418020120151701adb4043da89a1a400031c3df481a7fff401a803a003a803a1a803a003a861a0204c204a20482046d82d1c4ff481a7feb205a202e1170d2dac2cecaa6e4c7116ae8d2e8d8cb1176c8cae6c6e4d2e0e8d2dedd1c5b678d8c301600022001adb73cdda89a1a400031c3df481a7fff401a803a003a803a1a803a003a861a0204c204a20482046d82d1c4ff481a7feb205a202e1170d2dac2cecaa6e4c7116ae8d2e8d8cb1176c8cae6c6e4d2e0e8d2dedd1c5b678d8c302b01adb88a9ed44d0d200018e1efa40d3fffa00d401d001d401d0d401d001d430d010261025102410236c168e27fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e8e2db3c6c618260201201a1d0201481b1c01adb3b83b51343480006387be9034fffe803500740075007435007400750c340409840944090408db05a389fe9034ffd640b4405c22e1a5b5859d954dc98e22d5d1a5d1b19622ed9195cd8dc9a5c1d1a5bdba38b6cf1b18603001adb3643b51343480006387be9034fffe803500740075007435007400750c340409840944090408db05a389fe9034ffd640b4405c22e1a5b5859d954dc98e22d5d1a5d1b19622ed9195cd8dc9a5c1d1a5bdba38b6cf1b18602801adb951bed44d0d200018e1efa40d3fffa00d401d001d401d0d401d001d430d010261025102410236c168e27fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e8e2db3c6c6182e01f83001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1efa40d3fffa00d401d001d401d0d401d001d430d010261025102410236c168e27fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e8e207925f07e005d70d1ff2e08221821039a48275ba1f01928e37365f033301fa00d401d001d401d001d430d01045c87f01ca0055505056ce13cbff01fa0201c8cecdc802c8ce12cd02c8ce12cdcdc9ed54e00182107ac14988bae3025f07f2c0822002fe810101d700fa4031fa00d430d0f842f82828035155db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d0027224502310246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c9012134013288c87001ca0055415045ce12cece01c8cbff02c8ce12cdcdc9220228ff008e88f4a413f4bcf2c80bed5320e303ed43d92331020271242902012025270187bb6c2ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618260002210187b8ffced44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618280002240201202a2c0187b9d90ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c6182b0002220201202d2f0187b64ffda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c302e0002230187b462fda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c303000022502f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e207925f07e07026d74920c21f953106d31f309137e22082103a4c4c8fbae302c00006c12116b0323300465b3440347f01c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed5400728e31f842c8cf8508ce70cf0b6ec98042fb0010355512c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed54e05f06f2c08202befb00543143c85520821090268e315004cb1f02c8ce12cdcbff01fa02c92559726d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00881046103544301235360022000000004f726465722063726561746564008cf8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505056ce13cbff01fa0201c8cecdc802c8ce12cd02c8ce12cdcdc9ed540042035024c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed54006e8e2fd431d3ff31fa003016a004a41035440302c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed54e05f07f2c082db0d857b');
+    const __code = Cell.fromHex('b5ee9c7241023401000a9b000228ff008e88f4a413f4bcf2c80bed5320e303ed43d9010402027102030185be28ef6a268690000c70e7d206a00e800e9ffe9ffea00e869fffd00180813081288120811b60b470afd200080e8b845c39b437b82730b6b2c38a9910182716d9e3630c2a0185bff5df6a268690000c70e7d206a00e800e9ffe9ffea00e869fffd00180813081288120811b60b470afd200080e8b845c39b437b82730b6b2c38a9910182716d9e3630c2203f83001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e207925f07e005d70d1ff2e082218210ae4563e0bae302218210fe3511b0bae30221821090268e31ba0506330058345b01d401d001d3ff3010354043c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed5404fe31fa00d401d001d401d001d430d010575e334689db3cf82851345139491350bcdb3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d0471372508210246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf818ae2f400c901fb00070831320010f84226c705f2e084014488c87001ca0055515056ce13cbff01fa0201c8cecdc802c8ce12cd02c8ce12cdcdc909025aff008e88f4a413f4bcf2c80bed53208e983001d072d721d200d200fa4021103450666f04f86102f862e1ed43d90a170202710b110201200c100201200d0f03f9b4043da89a1a400031cddf481a7fff401a803a003a803a1a803a003a861a0204c204a204820460da2aa084b0410989680e4de019002610421adc39e4403963f922072b4dada8006ff919f0b0194019f08819c03f40500d39e8004b8dc02dd6126b79f033ab19f0d019f0901e801e8019f03c5e8019203f601c61bb6790180e1600022003f9b73cdda89a1a400031cddf481a7fff401a803a003a803a1a803a003a861a0204c204a204820460da2aa084b0410989680e4de019002610421adc39e4403963f922072b4dada8006ff919f0b0194019f08819c03f40500d39e8004b8dc02dd6126b79f033ab19f0d019f0901e801e8019f03c5e8019203f601c61bb679018251603f9b88a9ed44d0d200018e6efa40d3fffa00d401d001d401d0d401d001d430d0102610251024102306d155042582084c4b40726f00c801308210d6e1cf2201cb1fc910395a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00e30ddb3c81820160201201215020148131403f9b3b83b5134348000639bbe9034fffe803500740075007435007400750c340409840944090408c1b455410960821312d01c9bc032004c208435b873c88072c7f2440e569b5b5000dff233e160328033e11033807e80a01a73d000971b805bac24d6f3e0675633e1a033e1203d003d0033e078bd0032407ec038c376cf20182a1603f9b3643b5134348000639bbe9034fffe803500740075007435007400750c340409840944090408c1b455410960821312d01c9bc032004c208435b873c88072c7f2440e569b5b5000dff233e160328033e11033807e80a01a73d000971b805bac24d6f3e0675633e1a033e1203d003d0033e078bd0032407ec038c376cf2018221603f9b951bed44d0d200018e6efa40d3fffa00d401d001d401d0d401d001d430d0102610251024102306d155042582084c4b40726f00c801308210d6e1cf2201cb1fc910395a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00e30ddb3c818281600046c6102fced44d0d200018e6efa40d3fffa00d401d001d401d0d401d001d430d0102610251024102306d155042582084c4b40726f00c801308210d6e1cf2201cb1fc910395a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00e30d07925f07e0051819003cfa40d3fffa00d401d001d401d0d401d001d430d010261025102410236c16012ad70d1ff2e0820182107ac14988bae3025f07f2c0821a02fe810101d700fa4031fa00d430d0f842f82828035155db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d0027224502310246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c9011b2e013288c87001ca0055415045ce12cece01c8cbff02c8ce12cdcdc91c0228ff008e88f4a413f4bcf2c80bed5320e303ed43d91d2b0202711e230201201f210187bb6c2ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618200002210187b8ffced44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c6182200022402012024260187b9d90ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c6182500022202012027290187b64ffda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c30280002230187b462fda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c302a00022502f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e207925f07e07026d74920c21f953106d31f309137e22082103a4c4c8fbae302c00006c12116b02c2d00465b3440347f01c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed5400728e31f842c8cf8508ce70cf0b6ec98042fb0010355512c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed54e05f06f2c08202befb00543143c85520821090268e315004cb1f02c8ce12cdcbff01fa02c92559726d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0088104610354430122f300022000000004f726465722063726561746564008cf8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505056ce13cbff01fa0201c8cecdc802c8ce12cd02c8ce12cdcdc9ed54001a58cf8680cf8480f400f400cf81004803a403504405c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed5400ce8e3031d431d3ff31fa003016a004a41035440302c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed54e0308210d6e1cf22ba8e2401a410354143c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed54e05f06f2c0821529a1a6');
     const builder = beginCell();
     builder.storeUint(0, 1);
     initShop_init_args({ $$type: 'Shop_init_args', owner })(builder);
@@ -2166,7 +2142,7 @@ const Shop_types: ABIType[] = [
     {"name":"NewOrder","header":2418445873,"fields":[{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}},{"name":"itemIndex","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"UpdateShopInfo","header":2923783136,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}}]},
     {"name":"OrderCompleted","header":978078863,"fields":[]},
-    {"name":"UpdateItem","header":967082613,"fields":[{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"NewItem","header":3605122850,"fields":[]},
     {"name":"Item$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"Order$Data","header":null,"fields":[{"name":"seller","type":{"kind":"simple","type":"address","optional":false}},{"name":"buyer","type":{"kind":"simple","type":"address","optional":false}},{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"completed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"User$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
@@ -2194,7 +2170,7 @@ const Shop_opcodes = {
     "NewOrder": 2418445873,
     "UpdateShopInfo": 2923783136,
     "OrderCompleted": 978078863,
-    "UpdateItem": 967082613,
+    "NewItem": 3605122850,
     "Deploy": 2490013878,
     "DeployOk": 2952335191,
     "FactoryDeploy": 1829761339,
@@ -2202,19 +2178,11 @@ const Shop_opcodes = {
 
 const Shop_getters: ABIGetter[] = [
     {"name":"shopName","methodId":130747,"arguments":[],"returnType":{"kind":"simple","type":"string","optional":false}},
-    {"name":"shopId","methodId":89807,"arguments":[],"returnType":{"kind":"simple","type":"int","optional":false,"format":257}},
-    {"name":"itemsCount","methodId":71951,"arguments":[],"returnType":{"kind":"simple","type":"int","optional":false,"format":257}},
-    {"name":"ordersCount","methodId":130541,"arguments":[],"returnType":{"kind":"simple","type":"int","optional":false,"format":257}},
-    {"name":"balance","methodId":104128,"arguments":[],"returnType":{"kind":"simple","type":"int","optional":false,"format":257}},
     {"name":"owner","methodId":83229,"arguments":[],"returnType":{"kind":"simple","type":"address","optional":false}},
 ]
 
 export const Shop_getterMapping: { [key: string]: string } = {
     'shopName': 'getShopName',
-    'shopId': 'getShopId',
-    'itemsCount': 'getItemsCount',
-    'ordersCount': 'getOrdersCount',
-    'balance': 'getBalance',
     'owner': 'getOwner',
 }
 
@@ -2222,6 +2190,7 @@ const Shop_receivers: ABIReceiver[] = [
     {"receiver":"internal","message":{"kind":"typed","type":"UpdateShopInfo"}},
     {"receiver":"internal","message":{"kind":"typed","type":"AddItem"}},
     {"receiver":"internal","message":{"kind":"typed","type":"NewOrder"}},
+    {"receiver":"internal","message":{"kind":"typed","type":"NewItem"}},
 ]
 
 
@@ -2259,7 +2228,7 @@ export class Shop implements Contract {
         this.init = init;
     }
     
-    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: UpdateShopInfo | AddItem | NewOrder) {
+    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: UpdateShopInfo | AddItem | NewOrder | NewItem) {
         
         let body: Cell | null = null;
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'UpdateShopInfo') {
@@ -2271,6 +2240,9 @@ export class Shop implements Contract {
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'NewOrder') {
             body = beginCell().store(storeNewOrder(message)).endCell();
         }
+        if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'NewItem') {
+            body = beginCell().store(storeNewItem(message)).endCell();
+        }
         if (body === null) { throw new Error('Invalid message type'); }
         
         await provider.internal(via, { ...args, body: body });
@@ -2281,34 +2253,6 @@ export class Shop implements Contract {
         const builder = new TupleBuilder();
         const source = (await provider.get('shopName', builder.build())).stack;
         const result = source.readString();
-        return result;
-    }
-    
-    async getShopId(provider: ContractProvider) {
-        const builder = new TupleBuilder();
-        const source = (await provider.get('shopId', builder.build())).stack;
-        const result = source.readBigNumber();
-        return result;
-    }
-    
-    async getItemsCount(provider: ContractProvider) {
-        const builder = new TupleBuilder();
-        const source = (await provider.get('itemsCount', builder.build())).stack;
-        const result = source.readBigNumber();
-        return result;
-    }
-    
-    async getOrdersCount(provider: ContractProvider) {
-        const builder = new TupleBuilder();
-        const source = (await provider.get('ordersCount', builder.build())).stack;
-        const result = source.readBigNumber();
-        return result;
-    }
-    
-    async getBalance(provider: ContractProvider) {
-        const builder = new TupleBuilder();
-        const source = (await provider.get('balance', builder.build())).stack;
-        const result = source.readBigNumber();
         return result;
     }
     

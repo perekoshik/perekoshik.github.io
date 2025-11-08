@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: User
-BoC Size: 307 bytes
+BoC Size: 243 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 34
@@ -109,9 +109,9 @@ Signature: `UpdateShopInfo{shopName:^string,shopId:uint256}`
 TL-B: `order_completed#3a4c4c8f  = OrderCompleted`
 Signature: `OrderCompleted{}`
 
-### UpdateItem
-TL-B: `update_item#39a48275 price:coins imageSrc:^string title:^string description:^string = UpdateItem`
-Signature: `UpdateItem{price:coins,imageSrc:^string,title:^string,description:^string}`
+### NewItem
+TL-B: `new_item#d6e1cf22  = NewItem`
+Signature: `NewItem{}`
 
 ### User$Data
 TL-B: `_ owner:address id:uint256 name:^string deliveryAddress:^string = User`
@@ -142,10 +142,7 @@ TL-B: `_ shop:address id:uint256 price:coins imageSrc:^string title:^string desc
 Signature: `Item{shop:address,id:uint256,price:coins,imageSrc:^string,title:^string,description:^string}`
 
 ## Get methods
-Total get methods: 1
-
-## deliveryAddress
-No arguments
+Total get methods: 0
 
 ## Exit codes
 * 2: Stack underflow

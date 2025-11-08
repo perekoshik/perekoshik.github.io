@@ -1457,67 +1457,43 @@ export function dictValueParserOrderCompleted(): DictionaryValue<OrderCompleted>
     }
 }
 
-export type UpdateItem = {
-    $$type: 'UpdateItem';
-    price: bigint;
-    imageSrc: string;
-    title: string;
-    description: string;
+export type NewItem = {
+    $$type: 'NewItem';
 }
 
-export function storeUpdateItem(src: UpdateItem) {
+export function storeNewItem(src: NewItem) {
     return (builder: Builder) => {
         const b_0 = builder;
-        b_0.storeUint(967082613, 32);
-        b_0.storeCoins(src.price);
-        b_0.storeStringRefTail(src.imageSrc);
-        b_0.storeStringRefTail(src.title);
-        b_0.storeStringRefTail(src.description);
+        b_0.storeUint(3605122850, 32);
     };
 }
 
-export function loadUpdateItem(slice: Slice) {
+export function loadNewItem(slice: Slice) {
     const sc_0 = slice;
-    if (sc_0.loadUint(32) !== 967082613) { throw Error('Invalid prefix'); }
-    const _price = sc_0.loadCoins();
-    const _imageSrc = sc_0.loadStringRefTail();
-    const _title = sc_0.loadStringRefTail();
-    const _description = sc_0.loadStringRefTail();
-    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+    if (sc_0.loadUint(32) !== 3605122850) { throw Error('Invalid prefix'); }
+    return { $$type: 'NewItem' as const };
 }
 
-export function loadTupleUpdateItem(source: TupleReader) {
-    const _price = source.readBigNumber();
-    const _imageSrc = source.readString();
-    const _title = source.readString();
-    const _description = source.readString();
-    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+export function loadTupleNewItem(source: TupleReader) {
+    return { $$type: 'NewItem' as const };
 }
 
-export function loadGetterTupleUpdateItem(source: TupleReader) {
-    const _price = source.readBigNumber();
-    const _imageSrc = source.readString();
-    const _title = source.readString();
-    const _description = source.readString();
-    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+export function loadGetterTupleNewItem(source: TupleReader) {
+    return { $$type: 'NewItem' as const };
 }
 
-export function storeTupleUpdateItem(source: UpdateItem) {
+export function storeTupleNewItem(source: NewItem) {
     const builder = new TupleBuilder();
-    builder.writeNumber(source.price);
-    builder.writeString(source.imageSrc);
-    builder.writeString(source.title);
-    builder.writeString(source.description);
     return builder.build();
 }
 
-export function dictValueParserUpdateItem(): DictionaryValue<UpdateItem> {
+export function dictValueParserNewItem(): DictionaryValue<NewItem> {
     return {
         serialize: (src, builder) => {
-            builder.storeRef(beginCell().store(storeUpdateItem(src)).endCell());
+            builder.storeRef(beginCell().store(storeNewItem(src)).endCell());
         },
         parse: (src) => {
-            return loadUpdateItem(src.loadRef().beginParse());
+            return loadNewItem(src.loadRef().beginParse());
         }
     }
 }
@@ -1964,6 +1940,10 @@ export function dictValueParserItem$Data(): DictionaryValue<Item$Data> {
     $$type: 'Item_init_args';
     shop: Address;
     id: bigint;
+    price: bigint;
+    imageSrc: string;
+    title: string;
+    description: string;
 }
 
 function initItem_init_args(src: Item_init_args) {
@@ -1971,14 +1951,20 @@ function initItem_init_args(src: Item_init_args) {
         const b_0 = builder;
         b_0.storeAddress(src.shop);
         b_0.storeUint(src.id, 256);
+        b_0.storeCoins(src.price);
+        b_0.storeStringRefTail(src.imageSrc);
+        const b_1 = new Builder();
+        b_1.storeStringRefTail(src.title);
+        b_1.storeStringRefTail(src.description);
+        b_0.storeRef(b_1.endCell());
     };
 }
 
-async function Item_init(shop: Address, id: bigint) {
-    const __code = Cell.fromHex('b5ee9c72410226010006f5000228ff008e88f4a413f4bcf2c80bed5320e303ed43d9010d02027102080201200307020120040601adb4043da89a1a400031c3df481a7fff401a803a003a803a1a803a003a861a0204c204a20482046d82d1c4ff481a7feb205a202e1170d2dac2cecaa6e4c7116ae8d2e8d8cb1176c8cae6c6e4d2e0e8d2dedd1c5b678d8c300500022001adb73cdda89a1a400031c3df481a7fff401a803a003a803a1a803a003a861a0204c204a20482046d82d1c4ff481a7feb205a202e1170d2dac2cecaa6e4c7116ae8d2e8d8cb1176c8cae6c6e4d2e0e8d2dedd1c5b678d8c301a01adb88a9ed44d0d200018e1efa40d3fffa00d401d001d401d0d401d001d430d010261025102410236c168e27fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e8e2db3c6c61815020120090c0201480a0b01adb3b83b51343480006387be9034fffe803500740075007435007400750c340409840944090408db05a389fe9034ffd640b4405c22e1a5b5859d954dc98e22d5d1a5d1b19622ed9195cd8dc9a5c1d1a5bdba38b6cf1b18601f01adb3643b51343480006387be9034fffe803500740075007435007400750c340409840944090408db05a389fe9034ffd640b4405c22e1a5b5859d954dc98e22d5d1a5d1b19622ed9195cd8dc9a5c1d1a5bdba38b6cf1b18601701adb951bed44d0d200018e1efa40d3fffa00d401d001d401d0d401d001d430d010261025102410236c168e27fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e8e2db3c6c6181d01f83001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1efa40d3fffa00d401d001d401d0d401d001d430d010261025102410236c168e27fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e8e207925f07e005d70d1ff2e08221821039a48275ba0e01928e37365f033301fa00d401d001d401d001d430d01045c87f01ca0055505056ce13cbff01fa0201c8cecdc802c8ce12cd02c8ce12cdcdc9ed54e00182107ac14988bae3025f07f2c0820f02fe810101d700fa4031fa00d430d0f842f82828035155db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d0027224502310246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c9011023013288c87001ca0055415045ce12cece01c8cbff02c8ce12cdcdc9110228ff008e88f4a413f4bcf2c80bed5320e303ed43d91220020271131802012014160187bb6c2ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618150002210187b8ffced44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c61817000224020120191b0187b9d90ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c6181a0002220201201c1e0187b64ffda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c301d0002230187b462fda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c301f00022502f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e207925f07e07026d74920c21f953106d31f309137e22082103a4c4c8fbae302c00006c12116b0212200465b3440347f01c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed5400728e31f842c8cf8508ce70cf0b6ec98042fb0010355512c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed54e05f06f2c08202befb00543143c85520821090268e315004cb1f02c8ce12cdcbff01fa02c92559726d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00881046103544301224250022000000004f726465722063726561746564008cf8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505056ce13cbff01fa0201c8cecdc802c8ce12cd02c8ce12cdcdc9ed541ca18813');
+async function Item_init(shop: Address, id: bigint, price: bigint, imageSrc: string, title: string, description: string) {
+    const __code = Cell.fromHex('b5ee9c72410228010007f100025aff008e88f4a413f4bcf2c80bed53208e983001d072d721d200d200fa4021103450666f04f86102f862e1ed43d9010e02027102080201200307020120040603f9b4043da89a1a400031cddf481a7fff401a803a003a803a1a803a003a861a0204c204a204820460da2aa084b0410989680e4de019002610421adc39e4403963f922072b4dada8006ff919f0b0194019f08819c03f40500d39e8004b8dc02dd6126b79f033ab19f0d019f0901e801e8019f03c5e8019203f601c61bb67900f050d00022003f9b73cdda89a1a400031cddf481a7fff401a803a003a803a1a803a003a861a0204c204a204820460da2aa084b0410989680e4de019002610421adc39e4403963f922072b4dada8006ff919f0b0194019f08819c03f40500d39e8004b8dc02dd6126b79f033ab19f0d019f0901e801e8019f03c5e8019203f601c61bb67900f1c0d03f9b88a9ed44d0d200018e6efa40d3fffa00d401d001d401d0d401d001d430d0102610251024102306d155042582084c4b40726f00c801308210d6e1cf2201cb1fc910395a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00e30ddb3c80f170d020120090c0201480a0b03f9b3b83b5134348000639bbe9034fffe803500740075007435007400750c340409840944090408c1b455410960821312d01c9bc032004c208435b873c88072c7f2440e569b5b5000dff233e160328033e11033807e80a01a73d000971b805bac24d6f3e0675633e1a033e1203d003d0033e078bd0032407ec038c376cf200f210d03f9b3643b5134348000639bbe9034fffe803500740075007435007400750c340409840944090408c1b455410960821312d01c9bc032004c208435b873c88072c7f2440e569b5b5000dff233e160328033e11033807e80a01a73d000971b805bac24d6f3e0675633e1a033e1203d003d0033e078bd0032407ec038c376cf200f190d03f9b951bed44d0d200018e6efa40d3fffa00d401d001d401d0d401d001d430d0102610251024102306d155042582084c4b40726f00c801308210d6e1cf2201cb1fc910395a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00e30ddb3c80f1f0d00046c6102fced44d0d200018e6efa40d3fffa00d401d001d401d0d401d001d430d0102610251024102306d155042582084c4b40726f00c801308210d6e1cf2201cb1fc910395a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00e30d07925f07e0050f10003cfa40d3fffa00d401d001d401d0d401d001d430d010261025102410236c16012ad70d1ff2e0820182107ac14988bae3025f07f2c0821102fe810101d700fa4031fa00d430d0f842f82828035155db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d0027224502310246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c9011225013288c87001ca0055415045ce12cece01c8cbff02c8ce12cdcdc9130228ff008e88f4a413f4bcf2c80bed5320e303ed43d91422020271151a02012016180187bb6c2ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618170002210187b8ffced44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618190002240201201b1d0187b9d90ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c6181c0002220201201e200187b64ffda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c301f0002230187b462fda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c302100022502f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e207925f07e07026d74920c21f953106d31f309137e22082103a4c4c8fbae302c00006c12116b0232400465b3440347f01c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed5400728e31f842c8cf8508ce70cf0b6ec98042fb0010355512c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed54e05f06f2c08202befb00543143c85520821090268e315004cb1f02c8ce12cdcbff01fa02c92559726d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb00881046103544301226270022000000004f726465722063726561746564008cf8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055505056ce13cbff01fa0201c8cecdc802c8ce12cd02c8ce12cdcdc9ed5461017b82');
     const builder = beginCell();
     builder.storeUint(0, 1);
-    initItem_init_args({ $$type: 'Item_init_args', shop, id })(builder);
+    initItem_init_args({ $$type: 'Item_init_args', shop, id, price, imageSrc, title, description })(builder);
     const __data = builder.endCell();
     return { code: __code, data: __data };
 }
@@ -2090,7 +2076,7 @@ const Item_types: ABIType[] = [
     {"name":"NewOrder","header":2418445873,"fields":[{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}},{"name":"itemIndex","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"UpdateShopInfo","header":2923783136,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}}]},
     {"name":"OrderCompleted","header":978078863,"fields":[]},
-    {"name":"UpdateItem","header":967082613,"fields":[{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"NewItem","header":3605122850,"fields":[]},
     {"name":"User$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"Order$Data","header":null,"fields":[{"name":"seller","type":{"kind":"simple","type":"address","optional":false}},{"name":"buyer","type":{"kind":"simple","type":"address","optional":false}},{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"completed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"Deploy","header":2490013878,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
@@ -2117,7 +2103,7 @@ const Item_opcodes = {
     "NewOrder": 2418445873,
     "UpdateShopInfo": 2923783136,
     "OrderCompleted": 978078863,
-    "UpdateItem": 967082613,
+    "NewItem": 3605122850,
     "Deploy": 2490013878,
     "DeployOk": 2952335191,
     "FactoryDeploy": 1829761339,
@@ -2142,7 +2128,6 @@ export const Item_getterMapping: { [key: string]: string } = {
 }
 
 const Item_receivers: ABIReceiver[] = [
-    {"receiver":"internal","message":{"kind":"typed","type":"UpdateItem"}},
     {"receiver":"internal","message":{"kind":"typed","type":"CreateOrder"}},
 ]
 
@@ -2153,12 +2138,12 @@ export class Item implements Contract {
     public static readonly errors = Item_errors_backward;
     public static readonly opcodes = Item_opcodes;
     
-    static async init(shop: Address, id: bigint) {
-        return await Item_init(shop, id);
+    static async init(shop: Address, id: bigint, price: bigint, imageSrc: string, title: string, description: string) {
+        return await Item_init(shop, id, price, imageSrc, title, description);
     }
     
-    static async fromInit(shop: Address, id: bigint) {
-        const __gen_init = await Item_init(shop, id);
+    static async fromInit(shop: Address, id: bigint, price: bigint, imageSrc: string, title: string, description: string) {
+        const __gen_init = await Item_init(shop, id, price, imageSrc, title, description);
         const address = contractAddress(0, __gen_init);
         return new Item(address, __gen_init);
     }
@@ -2181,12 +2166,9 @@ export class Item implements Contract {
         this.init = init;
     }
     
-    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: UpdateItem | CreateOrder) {
+    async send(provider: ContractProvider, via: Sender, args: { value: bigint, bounce?: boolean| null | undefined }, message: CreateOrder) {
         
         let body: Cell | null = null;
-        if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'UpdateItem') {
-            body = beginCell().store(storeUpdateItem(message)).endCell();
-        }
         if (message && typeof message === 'object' && !(message instanceof Slice) && message.$$type === 'CreateOrder') {
             body = beginCell().store(storeCreateOrder(message)).endCell();
         }

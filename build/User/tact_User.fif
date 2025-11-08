@@ -1,4 +1,4 @@
-// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ex/build/User/tact_User.fc` 
+// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ton_projects/projects/web3market/Новая папка/Новая папка/ex/build/User/tact_User.fc` 
 PROGRAM{
   DECLPROC __tact_context_get
   DECLPROC __tact_context_get_sender
@@ -11,11 +11,9 @@ PROGRAM{
   DECLPROC $User$_contract_init
   DECLPROC $User$_contract_load
   DECLPROC $User$_contract_store
-  DECLPROC $User$_fun_deliveryAddress
   DECLPROC $MessageParameters$_constructor_bounce_to_value_mode_body
   DECLPROC $User$_fun_notify
   DECLPROC $DeployOk$_constructor_queryId
-  125255 DECLMETHOD %deliveryAddress
   DECLPROC recv_internal
   65535 DECLMETHOD __tact_selector_hack
   DECLGLOBVAR __tact_context
@@ -104,9 +102,6 @@ PROGRAM{
     ENDC
     c4 POP
   }>
-  $User$_fun_deliveryAddress PROCREF:<{
-    DUP
-  }>
   $MessageParameters$_constructor_bounce_to_value_mode_body PROCINLINE:<{
     s3 s3 XCHG2
     s0 s4 XCHG
@@ -138,11 +133,6 @@ PROGRAM{
         SENDRAWMSG
   }>
   $DeployOk$_constructor_queryId PROCINLINE:<{
-  }>
-  %deliveryAddress PROC:<{
-    $User$_contract_load INLINECALLDICT
-    $User$_fun_deliveryAddress INLINECALLDICT
-    4 1 BLKDROP2
   }>
   recv_internal PROC:<{
     SWAP

@@ -1,6 +1,6 @@
 # Tact compilation report
 Contract: Shop
-BoC Size: 2684 bytes
+BoC Size: 2727 bytes
 
 ## Structures (Structs and Messages)
 Total structures: 35
@@ -109,9 +109,9 @@ Signature: `UpdateShopInfo{shopName:^string,shopId:uint256}`
 TL-B: `order_completed#3a4c4c8f  = OrderCompleted`
 Signature: `OrderCompleted{}`
 
-### UpdateItem
-TL-B: `update_item#39a48275 price:coins imageSrc:^string title:^string description:^string = UpdateItem`
-Signature: `UpdateItem{price:coins,imageSrc:^string,title:^string,description:^string}`
+### NewItem
+TL-B: `new_item#d6e1cf22  = NewItem`
+Signature: `NewItem{}`
 
 ### Item$Data
 TL-B: `_ shop:address id:uint256 price:coins imageSrc:^string title:^string description:^string = Item`
@@ -146,21 +146,9 @@ TL-B: `_ owner:address name:^string itemsCount:uint256 shopId:uint256 ordersCoun
 Signature: `Shop{owner:address,name:^string,itemsCount:uint256,shopId:uint256,ordersCount:uint256,balance:coins}`
 
 ## Get methods
-Total get methods: 6
+Total get methods: 2
 
 ## shopName
-No arguments
-
-## shopId
-No arguments
-
-## itemsCount
-No arguments
-
-## ordersCount
-No arguments
-
-## balance
 No arguments
 
 ## owner

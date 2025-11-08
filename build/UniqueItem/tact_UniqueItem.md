@@ -109,9 +109,9 @@ Signature: `UpdateShopInfo{shopName:^string,shopId:uint256}`
 TL-B: `order_completed#3a4c4c8f  = OrderCompleted`
 Signature: `OrderCompleted{}`
 
-### UpdateItem
-TL-B: `update_item#39a48275 price:coins imageSrc:^string title:^string description:^string = UpdateItem`
-Signature: `UpdateItem{price:coins,imageSrc:^string,title:^string,description:^string}`
+### NewItem
+TL-B: `new_item#d6e1cf22  = NewItem`
+Signature: `NewItem{}`
 
 ### UniqueItem$Data
 TL-B: `_ shop:address owner:address content:^string index:uint256 price:coins isSalable:bool = UniqueItem`

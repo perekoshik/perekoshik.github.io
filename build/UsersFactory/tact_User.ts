@@ -1351,67 +1351,43 @@ export function dictValueParserOrderCompleted(): DictionaryValue<OrderCompleted>
     }
 }
 
-export type UpdateItem = {
-    $$type: 'UpdateItem';
-    price: bigint;
-    imageSrc: string;
-    title: string;
-    description: string;
+export type NewItem = {
+    $$type: 'NewItem';
 }
 
-export function storeUpdateItem(src: UpdateItem) {
+export function storeNewItem(src: NewItem) {
     return (builder: Builder) => {
         const b_0 = builder;
-        b_0.storeUint(967082613, 32);
-        b_0.storeCoins(src.price);
-        b_0.storeStringRefTail(src.imageSrc);
-        b_0.storeStringRefTail(src.title);
-        b_0.storeStringRefTail(src.description);
+        b_0.storeUint(3605122850, 32);
     };
 }
 
-export function loadUpdateItem(slice: Slice) {
+export function loadNewItem(slice: Slice) {
     const sc_0 = slice;
-    if (sc_0.loadUint(32) !== 967082613) { throw Error('Invalid prefix'); }
-    const _price = sc_0.loadCoins();
-    const _imageSrc = sc_0.loadStringRefTail();
-    const _title = sc_0.loadStringRefTail();
-    const _description = sc_0.loadStringRefTail();
-    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+    if (sc_0.loadUint(32) !== 3605122850) { throw Error('Invalid prefix'); }
+    return { $$type: 'NewItem' as const };
 }
 
-export function loadTupleUpdateItem(source: TupleReader) {
-    const _price = source.readBigNumber();
-    const _imageSrc = source.readString();
-    const _title = source.readString();
-    const _description = source.readString();
-    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+export function loadTupleNewItem(source: TupleReader) {
+    return { $$type: 'NewItem' as const };
 }
 
-export function loadGetterTupleUpdateItem(source: TupleReader) {
-    const _price = source.readBigNumber();
-    const _imageSrc = source.readString();
-    const _title = source.readString();
-    const _description = source.readString();
-    return { $$type: 'UpdateItem' as const, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+export function loadGetterTupleNewItem(source: TupleReader) {
+    return { $$type: 'NewItem' as const };
 }
 
-export function storeTupleUpdateItem(source: UpdateItem) {
+export function storeTupleNewItem(source: NewItem) {
     const builder = new TupleBuilder();
-    builder.writeNumber(source.price);
-    builder.writeString(source.imageSrc);
-    builder.writeString(source.title);
-    builder.writeString(source.description);
     return builder.build();
 }
 
-export function dictValueParserUpdateItem(): DictionaryValue<UpdateItem> {
+export function dictValueParserNewItem(): DictionaryValue<NewItem> {
     return {
         serialize: (src, builder) => {
-            builder.storeRef(beginCell().store(storeUpdateItem(src)).endCell());
+            builder.storeRef(beginCell().store(storeNewItem(src)).endCell());
         },
         parse: (src) => {
-            return loadUpdateItem(src.loadRef().beginParse());
+            return loadNewItem(src.loadRef().beginParse());
         }
     }
 }
@@ -1690,7 +1666,7 @@ function initUser_init_args(src: User_init_args) {
 }
 
 async function User_init(owner: Address) {
-    const __code = Cell.fromHex('b5ee9c7241020501000127000228ff008e88f4a413f4bcf2c80bed5320e303ed43d901030157a67a51fb513434800063843e9034fff50074007500740510cc1b0526be900040745c62c222c238b6cf1b10600200022001f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e10fa40d3ffd401d001d401d01443306c149afa400101d1718b088b08e205925f05e003d70d1ff2e0822182107f22ed74ba8e27345b32d401d001810101d700d430d012c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54e0010400ba8210946a98b6ba8e4ed33f30c8018210aff90f5758cb1fcb3fc9443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54e05f05f2c082b3a6ef4d');
+    const __code = Cell.fromHex('b5ee9c724101030100e8000110ff0020e303f2c80b0101f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e10fa40d3ffd401d001d401d01443306c149afa400101d1718b088b08e205925f05e003d70d1ff2e0822182107f22ed74ba8e27345b32d401d001810101d700d430d012c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54e0010200ba8210946a98b6ba8e4ed33f30c8018210aff90f5758cb1fcb3fc9443012f84270705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055305034cecbff01c8cecd01c8cecdc9ed54e05f05f2c082ab0cc2f4');
     const builder = beginCell();
     builder.storeUint(0, 1);
     initUser_init_args({ $$type: 'User_init_args', owner })(builder);
@@ -1801,7 +1777,7 @@ const User_types: ABIType[] = [
     {"name":"NewOrder","header":2418445873,"fields":[{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}},{"name":"itemIndex","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
     {"name":"UpdateShopInfo","header":2923783136,"fields":[{"name":"shopName","type":{"kind":"simple","type":"string","optional":false}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}}]},
     {"name":"OrderCompleted","header":978078863,"fields":[]},
-    {"name":"UpdateItem","header":967082613,"fields":[{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"NewItem","header":3605122850,"fields":[]},
     {"name":"User$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"Deploy","header":2490013878,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"DeployOk","header":2952335191,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
@@ -1824,18 +1800,16 @@ const User_opcodes = {
     "NewOrder": 2418445873,
     "UpdateShopInfo": 2923783136,
     "OrderCompleted": 978078863,
-    "UpdateItem": 967082613,
+    "NewItem": 3605122850,
     "Deploy": 2490013878,
     "DeployOk": 2952335191,
     "FactoryDeploy": 1829761339,
 }
 
 const User_getters: ABIGetter[] = [
-    {"name":"deliveryAddress","methodId":125255,"arguments":[],"returnType":{"kind":"simple","type":"string","optional":false}},
 ]
 
 export const User_getterMapping: { [key: string]: string } = {
-    'deliveryAddress': 'getDeliveryAddress',
 }
 
 const User_receivers: ABIReceiver[] = [
@@ -1891,13 +1865,6 @@ export class User implements Contract {
         
         await provider.internal(via, { ...args, body: body });
         
-    }
-    
-    async getDeliveryAddress(provider: ContractProvider) {
-        const builder = new TupleBuilder();
-        const source = (await provider.get('deliveryAddress', builder.build())).stack;
-        const result = source.readString();
-        return result;
     }
     
 }

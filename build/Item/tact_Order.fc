@@ -143,32 +143,32 @@ builder $Order$_store(builder build_0, (slice, slice, slice, int, int, slice) v)
 
 ((slice, slice, slice, int, int, slice), slice) $Order$_fun_seller((slice, slice, slice, int, int, slice) $self) impure inline_ref {
     var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = $self;
-    var $fresh$ret_17 = $self'seller;
-    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_17);
+    var $fresh$ret_15 = $self'seller;
+    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_15);
 }
 
 ((slice, slice, slice, int, int, slice), slice) $Order$_fun_buyer((slice, slice, slice, int, int, slice) $self) impure inline_ref {
     var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = $self;
-    var $fresh$ret_18 = $self'buyer;
-    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_18);
+    var $fresh$ret_16 = $self'buyer;
+    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_16);
 }
 
 ((slice, slice, slice, int, int, slice), slice) $Order$_fun_itemAddress((slice, slice, slice, int, int, slice) $self) impure inline_ref {
     var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = $self;
-    var $fresh$ret_19 = $self'itemAddress;
-    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_19);
+    var $fresh$ret_17 = $self'itemAddress;
+    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_17);
 }
 
 ((slice, slice, slice, int, int, slice), int) $Order$_fun_id((slice, slice, slice, int, int, slice) $self) impure inline_ref {
     var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = $self;
-    var $fresh$ret_20 = $self'id;
-    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_20);
+    var $fresh$ret_18 = $self'id;
+    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_18);
 }
 
 ((slice, slice, slice, int, int, slice), int) $Order$_fun_completed((slice, slice, slice, int, int, slice) $self) impure inline_ref {
     var (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress)) = $self;
-    var $fresh$ret_21 = $self'completed;
-    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_21);
+    var $fresh$ret_19 = $self'completed;
+    return (($self'seller, $self'buyer, $self'itemAddress, $self'id, $self'completed, $self'deliveryAddress), $fresh$ret_19);
 }
 
 ;;

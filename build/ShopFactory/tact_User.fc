@@ -44,9 +44,6 @@ _ $Context$_get_value((int, slice, int, slice) v) inline;
 ;; $MessageParameters$_constructor_bounce_to_value_mode_body
 ((int, cell, int, slice, int)) $MessageParameters$_constructor_bounce_to_value_mode_body(int $bounce, slice $to, int $value, int $mode, cell $body) inline;
 
-;; $User$_fun_deliveryAddress
-((slice, int, slice, slice), slice) $User$_fun_deliveryAddress((slice, int, slice, slice) $self) impure inline_ref;
-
 ;; $User$_fun_notify
 ((slice, int, slice, slice), ()) $User$_fun_notify((slice, int, slice, slice) $self, cell $body) impure inline;
 
@@ -220,21 +217,9 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
     return ($self'owner, $self'id, $self'name, $self'deliveryAddress);
 }
 
-((slice, int, slice, slice), slice) $User$_fun_deliveryAddress((slice, int, slice, slice) $self) impure inline_ref {
-    var (($self'owner, $self'id, $self'name, $self'deliveryAddress)) = $self;
-    var $fresh$ret_92 = $self'deliveryAddress;
-    return (($self'owner, $self'id, $self'name, $self'deliveryAddress), $fresh$ret_92);
-}
-
 ;;
 ;; Get methods of a Contract User
 ;;
-
-_ %deliveryAddress() method_id(125255) {
-    var self = $User$_contract_load();
-    var res = self~$User$_fun_deliveryAddress();
-    return res;
-}
 
 ;;
 ;; Routing of a Contract User

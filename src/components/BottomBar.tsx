@@ -1,5 +1,6 @@
 import { Home, ShoppingBag, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { cn } from "@/lib/cn";
 
 export default function BottomBar() {
 	const link =
@@ -10,7 +11,7 @@ export default function BottomBar() {
 			<div className="grid grid-cols-3">
 				<NavLink
 					to="/"
-					className={({ isActive }) => cnLink(link, active, isActive)}
+					className={({ isActive }) => cn(link, isActive ? active : "")}
 					aria-label="Go to home"
 				>
 					<Home className="h-5 w-5" />
@@ -18,7 +19,7 @@ export default function BottomBar() {
 				</NavLink>
 				<NavLink
 					to="/profile"
-					className={({ isActive }) => cnLink(link, active, isActive)}
+					className={({ isActive }) => cn(link, isActive ? active : "")}
 					aria-label="Go to profile"
 				>
 					<User className="h-5 w-5" />
@@ -31,8 +32,4 @@ export default function BottomBar() {
 			</div>
 		</nav>
 	);
-}
-
-function cnLink(base: string, activeClass: string, isActive: boolean) {
-	return `${base} ${isActive ? activeClass : ""}`;
 }

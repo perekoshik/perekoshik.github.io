@@ -12,7 +12,6 @@ export default function App() {
 				<ThemeToggle />
 			</div>
 
-			{}
 			<div className="flex-1">
 				<Outlet />
 			</div>

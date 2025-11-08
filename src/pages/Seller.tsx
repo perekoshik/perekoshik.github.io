@@ -47,7 +47,7 @@ export default function Seller() {
     setSuccess(false);
 
     try {
-      // Создаем магазин с уникальным ID (используем timestamp)
+      // Создаем магазин с уникальным ID (user.id)
       await makeShop(inputShopName);
 
       setSuccess(true);

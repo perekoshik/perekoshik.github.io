@@ -228,28 +228,21 @@ export function useMarketContracts() {
 		const shopContract = client.open(shopStateInit);
 
 		setShopItemsCount(await shopContract.getItemsCount());
+		return;
 	};
 	getShopItemsCount();
 
 	// Add new Item
-	const [itemAddress, setItemAddress] = useState<string | null>();
-	const [itemId, setItemId] = useState<bigint | null>();
-	const [itemPrice, setItemPrice] = useState<bigint | null>();
-	const [itemImageSrc, setItemImageSrc] = useState<string | null>();
-	const [itemTitle, setItemTitle] = useState<string | null>();
-	const [itemDescription, setItemDescription] = useState<string | null>();
 
 	const makeItem = async (shopAddress: string, itemId: bigint, price: bigint, imageSrc: string, title: string, description: string) => {
 		if (!client) {
-			console.warn("No client");
+			console.error("No client");
 			return;
 		}
 		console.warn("makeItem");
 
 		const itemStateInit = await Item.fromInit(Address.parse(shopAddress), itemId);
 		const itemContract = client.open(itemStateInit);
-		const itemAddress_ = itemContract.address.toString();
-		setItemAddress(itemAddress_);
 
 		if (!itemStateInit.init) {
 			console.error("itemStateInit.init is undefined");
@@ -291,16 +284,6 @@ export function useMarketContracts() {
 
 			const isDeployed = await client.isContractDeployed(itemContract.address);
 			if (isDeployed) {
-				const itemId_ = await itemContract.getId();
-				const itemPrice_ = await itemContract.getPrice();
-				const itemImageSrc_ = await itemContract.getImageSrc();
-				const itemTitle_ = await itemContract.getTitle();
-				const itemDescription_ = await itemContract.getDescription();
-				setItemId(itemId_);
-				setItemPrice(itemPrice_);
-				setItemImageSrc(itemImageSrc_);
-				setItemTitle(itemTitle_);
-				setItemDescription(itemDescription_);
 				return;
 			}
 		}

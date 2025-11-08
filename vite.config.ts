@@ -10,5 +10,13 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  // CHANGE: Enable source maps to see TypeScript code in browser dev tools
+  // WHY: Allows debugging TypeScript source instead of compiled JavaScript
+  build: {
+    sourcemap: true,
+  },
+  esbuild: {
+    sourcemap: true,
+  },
 })
 

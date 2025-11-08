@@ -1,14 +1,64 @@
 import { Address, beginCell, type OpenedContract, toNano } from "@ton/core";
-import { use, useCallback, useState } from "react";
-import { Shop, storeUpdateShopInfo, type UpdateItem } from "@/wrappers/Shop";
+import { useCallback, useState } from "react";
+// CHANGE: Removed unused imports
+// WHY: TS6133 - 'use' is declared but its value is never read (line 2)
+//      Biome noUnusedImports - 'PassThrough' is unused (line 3)
+// REF: lint error report
+import { TWA } from "@/lib/twa";
+import { Item, storeUpdateItem } from "@/wrappers/Item";
+import { Shop, storeUpdateShopInfo } from "@/wrappers/Shop";
+// CHANGE: Removed unused type import UpdateItem
+// WHY: TS6133 - 'UpdateItem' is declared but its value is never read
+// REF: lint error report - only string literal "UpdateItem" is used in code
 import { User } from "@/wrappers/User";
 import { UsersFactory } from "@/wrappers/UsersFactory";
 import { useAsyncInitialize } from "./useAsyncInitialize";
 import { useTonClient } from "./useTonClient";
 import { useTonConnect } from "./useTonConnect";
-import { PassThrough } from "stream";
-import { TWA } from "@/lib/twa";
-import { Item, storeUpdateItem } from "@/wrappers/Item";
+
+/**
+ * CHANGE: Extracted common transaction waiting logic
+ * WHY: DRY principle - same polling pattern used in both makeShop and makeItem functions
+ * REF: Duplicate code at lines 193-224 and 295-310
+ */
+interface TonClientLike {
+	isContractDeployed(address: Address): Promise<boolean>;
+}
+
+interface WaitForDeploymentOptions {
+	client: TonClientLike;
+	address: Address;
+	timeout?: number;
+	interval?: number;
+	onDeployed?: () => Promise<void>;
+}
+
+async function waitForContractDeployment(
+	options: WaitForDeploymentOptions,
+): Promise<void> {
+	const {
+		client,
+		address,
+		timeout = 120000,
+		interval = 2000,
+		onDeployed,
+	} = options;
+	const startTime = Date.now();
+
+	while (Date.now() - startTime < timeout) {
+		await new Promise((resolve) => setTimeout(resolve, interval));
+
+		const isDeployed = await client.isContractDeployed(address);
+		if (isDeployed) {
+			if (onDeployed) {
+				await onDeployed();
+			}
+			return;
+		}
+	}
+
+	throw new Error("Contract deployment timeout");
+}
 
 export function useMarketContracts() {
 	const { client } = useTonClient();
@@ -69,22 +119,25 @@ export function useMarketContracts() {
 			const shopStateInit = await Shop.fromInit(Address.parse(wallet));
 			const shopContract = client.open(shopStateInit);
 			const isDeployed = await client.isContractDeployed(shopContract.address);
-	
+
 			if (isDeployed) {
 				console.log("CONTRACT IS ALREADY DEPLOYED");
 				const retrievedName = await shopContract.getShopName();
 				setShopName(retrievedName);
 				setShopAddress(shopContract.address.toString());
 			}
-		}
-		catch {
+		} catch {
 			console.log("CONTRACT IS NOT DEPLOYED");
 			setShopName("Hello, User!");
-			if (wallet && client) setShopAddress(client.open( await Shop.fromInit(Address.parse(wallet))).address.toString());
+			if (wallet && client)
+				setShopAddress(
+					client
+						.open(await Shop.fromInit(Address.parse(wallet)))
+						.address.toString(),
+				);
 		}
-	}
+	};
 	getShopInfo();
-
 
 	const makeShop = async (shopName1: string): Promise<string> => {
 		if (!sender) {
@@ -156,7 +209,6 @@ export function useMarketContracts() {
 				// REF: User screenshot showing "Invalid message type" error when creating shop
 				// SOURCE: TON SDK best practices - use sender.send() for direct message dispatch to contracts
 
-
 				await sender.send({
 					to: shopContract.address,
 					value: toNano(0.05),
@@ -182,38 +234,21 @@ export function useMarketContracts() {
 				});
 			}
 
-			// Wait for the transaction to be processed
-			const startTime = Date.now();
-			const timeout = 120000; // 2 minute timeout
-
-			while (Date.now() - startTime < timeout) {
-				await new Promise((resolve) => setTimeout(resolve, 10000)); // 10 second interval
-
-				const isDeployed = await client.isContractDeployed(
-					shopContract.address,
-				);
-				
-				if (isDeployed) {
-					// Get shop name after deployment/update
-					try {
-						const retrievedName = await shopContract.getShopName();
-						setShopAddress(shopContract.address.toString());
-						setShopName(retrievedName);
-
-						return shopContract.address.toString();
-					} catch (getNameError) {
-						console.error(
-							"Error getting shop name after deployment:",
-							getNameError,
-						);
-						throw new Error(
-							`Failed to get shop name after deployment: ${(getNameError as Error).message}`,
-						);
-					}
-				}
-			}
-
-			throw new Error("Shop contract deployment timeout");
+			// CHANGE: Use extracted waitForContractDeployment helper
+			// WHY: Reduces code duplication with makeItem function
+			// REF: Duplicate polling logic removed
+			await waitForContractDeployment({
+				client,
+				address: shopContract.address,
+				timeout: 120000,
+				interval: 10000,
+				onDeployed: async () => {
+					const retrievedName = await shopContract.getShopName();
+					setShopAddress(shopContract.address.toString());
+					setShopName(retrievedName);
+				},
+			});
+			return shopContract.address.toString();
 		} catch (error) {
 			console.error("Error creating shop:", error);
 			throw new Error(`Failed to create shop: ${(error as Error).message}`);
@@ -234,14 +269,24 @@ export function useMarketContracts() {
 
 	// Add new Item
 
-	const makeItem = async (shopAddress: string, itemId: bigint, price: bigint, imageSrc: string, title: string, description: string) => {
+	const makeItem = async (
+		shopAddress: string,
+		itemId: bigint,
+		price: bigint,
+		imageSrc: string,
+		title: string,
+		description: string,
+	) => {
 		if (!client) {
 			console.error("No client");
 			return;
 		}
 		console.warn("makeItem");
 
-		const itemStateInit = await Item.fromInit(Address.parse(shopAddress), itemId);
+		const itemStateInit = await Item.fromInit(
+			Address.parse(shopAddress),
+			itemId,
+		);
 		const itemContract = client.open(itemStateInit);
 
 		if (!itemStateInit.init) {
@@ -254,8 +299,8 @@ export function useMarketContracts() {
 			price: price,
 			imageSrc: imageSrc,
 			title: title,
-			description: description
-		}
+			description: description,
+		};
 
 		// deploy Item with info and body
 		try {
@@ -269,26 +314,21 @@ export function useMarketContracts() {
 				},
 				body: beginCell().store(storeUpdateItem(msg)).endCell(),
 			});
-		}
-		catch (err){
+		} catch (err) {
 			console.error("Error sending transaction:", err);
 			return;
 		}
 
-		// Wait for the transaction to be processed
-		const startTime = Date.now();
-		const timeout = 120000; // 2 minute timeout
-
-		while (Date.now() - startTime < timeout) {
-			await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second interval
-
-			const isDeployed = await client.isContractDeployed(itemContract.address);
-			if (isDeployed) {
-				return;
-			}
-		}
-
-	}
+		// CHANGE: Use extracted waitForContractDeployment helper
+		// WHY: Reduces code duplication with makeShop function
+		// REF: Duplicate polling logic removed
+		await waitForContractDeployment({
+			client,
+			address: itemContract.address,
+			timeout: 120000,
+			interval: 2000,
+		});
+	};
 
 	// list of items
 	interface item_ {
@@ -302,11 +342,16 @@ export function useMarketContracts() {
 	const [itemsList, setItemsList] = useState<Map<number, item_>>(new Map());
 
 	const itemsList_ = async () => {
-		
 		const items: Map<number, item_> = new Map();
-		if (!shopAddress || !client || shopItemsCount == 0n) return [{}];
+		// CHANGE: Use === instead of == for type-safe comparison
+		// WHY: Biome noDoubleEquals - Using == may be unsafe if relying on type coercion
+		// REF: lint error at line 316
+		if (!shopAddress || !client || shopItemsCount === 0n) return [{}];
 		for (let i = 0; i < Number(shopItemsCount); i++) {
-			const itemStateInit = await Item.fromInit(Address.parse(shopAddress), BigInt(i));
+			const itemStateInit = await Item.fromInit(
+				Address.parse(shopAddress),
+				BigInt(i),
+			);
 			const itemContract = client.open(itemStateInit);
 			items.set(i, {
 				itemAddress: itemContract.address.toString(),
@@ -319,9 +364,8 @@ export function useMarketContracts() {
 		}
 		setItemsList(items);
 		return;
-	}
+	};
 	itemsList_();
-
 
 	return {
 		//user
@@ -339,6 +383,5 @@ export function useMarketContracts() {
 		// item
 		makeItem,
 		itemsList,
-
 	};
 }

@@ -13,20 +13,20 @@ import { router } from "./router";
 // REF: Patches applied via postinstall: patches/error-stack-parser-es+0.1.5.patch
 //      patches/error-stack-parser+2.1.4.patch
 // QUOTE(TЗ): "GET https://perekoshik.github.io/async%20https://..." → Fixed
-await import("@ton-ai-core/devtrace")
-	.then((m) =>
-		m.installStackLogger({
-			limit: 5, // number of stack frames
-			skip: 0, // skip frames
-			tail: false, // show full stack, not only tail
-			ascending: true, // order root → call-site
-			mapSources: true, // map sources to original files (now fixed!)
-			snippet: 1, // lines of code context
-			preferApp: true, // prioritize app code
-			onlyApp: false, // include libs as well
-		}),
-	)
-	.catch(() => {});
+// await import("@ton-ai-core/devtrace")
+// 	.then((m) =>
+// 		m.installStackLogger({
+// 			limit: 5, // number of stack frames
+// 			skip: 0, // skip frames
+// 			tail: false, // show full stack, not only tail
+// 			ascending: true, // order root → call-site
+// 			mapSources: true, // map sources to original files (now fixed!)
+// 			snippet: 1, // lines of code context
+// 			preferApp: true, // prioritize app code
+// 			onlyApp: false, // include libs as well
+// 		}),
+// 	)
+// 	.catch(() => {});
 
 initTWA();
 

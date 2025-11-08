@@ -339,7 +339,7 @@ export default function Seller() {
 
 			{/* All Items */}
 
-			{shopItemsCount ? (
+			{shopItemsCount !== null ? (
 				<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
 					Find {shopItemsCount === 1n ? "item" : "items"}
 					<div className="space-y-4">

@@ -3,7 +3,7 @@ Contract: UniqueItem
 BoC Size: 846 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 36
+Total structures: 37
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -108,6 +108,10 @@ Signature: `UpdateShopInfo{shopName:^string,shopId:uint256}`
 ### OrderCompleted
 TL-B: `order_completed#3a4c4c8f  = OrderCompleted`
 Signature: `OrderCompleted{}`
+
+### UpdateItem
+TL-B: `update_item#39a48275 price:coins imageSrc:^string title:^string description:^string = UpdateItem`
+Signature: `UpdateItem{price:coins,imageSrc:^string,title:^string,description:^string}`
 
 ### NewItem
 TL-B: `new_item#d6e1cf22  = NewItem`

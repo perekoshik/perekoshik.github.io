@@ -1,9 +1,9 @@
 # Tact compilation report
 Contract: UsersFactory
-BoC Size: 667 bytes
+BoC Size: 727 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 30
+Total structures: 31
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -100,6 +100,10 @@ Signature: `UpdateShopInfo{shopName:^string,shopId:uint256}`
 ### OrderCompleted
 TL-B: `order_completed#3a4c4c8f  = OrderCompleted`
 Signature: `OrderCompleted{}`
+
+### UpdateItem
+TL-B: `update_item#39a48275 price:coins imageSrc:^string title:^string description:^string = UpdateItem`
+Signature: `UpdateItem{price:coins,imageSrc:^string,title:^string,description:^string}`
 
 ### NewItem
 TL-B: `new_item#d6e1cf22  = NewItem`

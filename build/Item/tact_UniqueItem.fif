@@ -1,4 +1,4 @@
-// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ton_projects/projects/web3market/Новая папка/Новая папка/ex/build/Item/tact_UniqueItem.fc` 
+// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ex/build/Item/tact_UniqueItem.fc` 
 PROGRAM{
   DECLPROC __tact_context_get
   DECLPROC __tact_context_get_sender

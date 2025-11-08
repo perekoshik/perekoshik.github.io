@@ -1,4 +1,4 @@
-// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ton_projects/projects/web3market/Новая папка/Новая папка/ex/build/Shop/tact_UniqueItem.fc` 
+// automatically generated from `/stdlib/std/stdlib.fc` `C:/Users/nikit/ex/build/Shop/tact_UniqueItem.fc` 
 PROGRAM{
   DECLPROC __tact_context_get
   DECLPROC __tact_context_get_sender
@@ -11,7 +11,6 @@ PROGRAM{
   DECLPROC $UniqueItem$_contract_init
   DECLPROC $UniqueItem$_contract_load
   DECLPROC $UniqueItem$_contract_store
-  DECLPROC $SendParameters$_constructor_to_value_mode_body
   DECLPROC $MessageParameters$_constructor_bounce_to_value_mode_body
   DECLPROC $UniqueItem$_fun_price
   DECLPROC $UniqueItem$_fun_index
@@ -19,6 +18,7 @@ PROGRAM{
   DECLPROC $UniqueItem$_fun_reply
   DECLPROC $UniqueItem$_fun_requireOwner
   DECLPROC $UniqueItem$_fun_owner
+  DECLPROC $SendParameters$_constructor_to_value_mode_body
   DECLPROC $GetPriceResponse$_constructor_price
   120091 DECLMETHOD %price
   67267 DECLMETHOD %index
@@ -121,13 +121,6 @@ PROGRAM{
     ENDC
     c4 POP
   }>
-  $SendParameters$_constructor_to_value_mode_body PROCINLINE:<{
-    2SWAP
-    PUSHNULL
-    PUSHNULL
-    s0 s0 s3 XCHG3
-    TRUE
-  }>
   $MessageParameters$_constructor_bounce_to_value_mode_body PROCINLINE:<{
     s3 s3 XCHG2
     s0 s4 XCHG
@@ -175,6 +168,13 @@ PROGRAM{
   }>
   $UniqueItem$_fun_owner PROCREF:<{
     s4 PUSH
+  }>
+  $SendParameters$_constructor_to_value_mode_body PROCINLINE:<{
+    2SWAP
+    PUSHNULL
+    PUSHNULL
+    s0 s0 s3 XCHG3
+    TRUE
   }>
   $GetPriceResponse$_constructor_price PROCINLINE:<{
   }>

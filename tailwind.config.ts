@@ -1,11 +1,14 @@
-import type { Config } from 'tailwindcss'
-import defaultTheme from 'tailwindcss/defaultTheme'
+import type { Config } from 'tailwindcss';
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 export default {
   darkMode: ['class'],
   content: [
-    './index.html',
-    './src/**/*.{ts,tsx}',
+    './apps/market/index.html',
+    './apps/market/src/**/*.{ts,tsx}',
+    './apps/seller/index.html',
+    './apps/seller/src/**/*.{ts,tsx}',
+    './packages/shared/src/**/*.{ts,tsx}',
   ],
   theme: {
     container: { center: true, padding: '16px' },
@@ -24,7 +27,7 @@ export default {
           muted: 'hsl(var(--txt-muted) / <alpha-value>)',
         },
         brand: {
-          DEFAULT: '#3b82f6', // OpenSea blue vibe
+          DEFAULT: '#3b82f6',
           hover: '#2563eb',
         },
       },
@@ -33,9 +36,9 @@ export default {
         '2xl': '24px',
       },
       boxShadow: {
-        soft: '0 8px 24px rgba(0,0,0,0.3)'
-      }
-    }
+        soft: '0 8px 24px rgba(0,0,0,0.3)',
+      },
+    },
   },
   plugins: [],
-} satisfies Config
+} satisfies Config;

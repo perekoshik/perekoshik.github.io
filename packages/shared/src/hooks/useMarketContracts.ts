@@ -8,6 +8,9 @@ import { UsersFactory } from '@/wrappers/UsersFactory';
 import { useAsyncInitialize } from './useAsyncInitialize';
 import { useTonClient } from './useTonClient';
 import { useTonConnect } from './useTonConnect';
+import { defaultImage } from '@/constants/images';
+import { resolveMediaUrl } from '@/lib/media';
+import { TARGET_CHAIN, TARGET_NETWORK_LABEL } from '@/config';
 
 async function waitForContractDeployment(options: {
   client: { isContractDeployed(address: Address): Promise<boolean> };
@@ -44,6 +47,7 @@ export type MarketplaceItem = {
 export function useMarketContracts() {
   const { client } = useTonClient();
   const { sender, wallet, connected, network } = useTonConnect();
+  const wrongNetwork = network ? network !== TARGET_CHAIN : false;
   const telegramUser = TWA?.initDataUnsafe?.user;
 
   const initUsersFactory = useCallback(async () => {
@@ -75,15 +79,17 @@ export function useMarketContracts() {
   const [shopAddress, setShopAddress] = useState<string | null>(null);
   const [shopName, setShopName] = useState<string | null>(null);
   const [shopItemsCount, setShopItemsCount] = useState<bigint | null>(null);
+  const [shopDeployed, setShopDeployed] = useState<boolean | null>(null);
   const [shopSyncing, setShopSyncing] = useState(false);
   const [items, setItems] = useState<MarketplaceItem[]>([]);
   const [itemsLoading, setItemsLoading] = useState(false);
 
   const refreshShopInfo = useCallback(async () => {
-    if (!client || !wallet) {
+    if (!client || !wallet || wrongNetwork) {
       setShopAddress(null);
       setShopName(null);
       setShopItemsCount(null);
+      setShopDeployed(false);
       return;
     }
 
@@ -95,6 +101,7 @@ export function useMarketContracts() {
       setShopAddress(openedShop.address.toString());
 
       const deployed = await client.isContractDeployed(openedShop.address);
+      setShopDeployed(deployed);
       if (!deployed) {
         setShopName(null);
         setShopItemsCount(null);
@@ -112,14 +119,14 @@ export function useMarketContracts() {
     } finally {
       setShopSyncing(false);
     }
-  }, [client, wallet]);
+  }, [client, wallet, wrongNetwork]);
 
   useEffect(() => {
     refreshShopInfo();
   }, [refreshShopInfo]);
 
   const refreshItems = useCallback(async () => {
-    if (!client || !shopAddress || shopItemsCount === null) {
+    if (!client || !shopAddress || shopItemsCount === null || !shopDeployed || wrongNetwork) {
       setItems([]);
       setItemsLoading(false);
       return;
@@ -141,13 +148,21 @@ export function useMarketContracts() {
         const deployed = await client.isContractDeployed(itemContract.address);
         if (!deployed) continue;
 
+        const [id, price, rawImage, title, description] = await Promise.all([
+          itemContract.getId(),
+          itemContract.getPrice(),
+          itemContract.getImageSrc(),
+          itemContract.getTitle(),
+          itemContract.getDescription(),
+        ]);
+
         nextItems.push({
           address: itemContract.address.toString(),
-          id: await itemContract.getId(),
-          price: await itemContract.getPrice(),
-          imageSrc: await itemContract.getImageSrc(),
-          title: await itemContract.getTitle(),
-          description: await itemContract.getDescription(),
+          id,
+          price,
+          imageSrc: resolveMediaUrl(rawImage, defaultImage) ?? defaultImage,
+          title,
+          description,
         });
       }
       setItems(nextItems);
@@ -156,7 +171,7 @@ export function useMarketContracts() {
     } finally {
       setItemsLoading(false);
     }
-  }, [client, shopAddress, shopItemsCount]);
+  }, [client, shopAddress, shopItemsCount, shopDeployed, wrongNetwork]);
 
   useEffect(() => {
     refreshItems();
@@ -167,8 +182,9 @@ export function useMarketContracts() {
       if (!client || !sender || !wallet || !connected) {
         throw new Error('Wallet is not connected');
       }
-      if (!telegramUser) {
-        throw new Error('Open inside Telegram to manage shop');
+      const userId = telegramUser?.id ?? 0;
+      if (wrongNetwork) {
+        throw new Error(`Переключите кошелёк в ${TARGET_NETWORK_LABEL}`);
       }
       if (!name.trim()) {
         throw new Error('Shop name cannot be empty');
@@ -187,7 +203,7 @@ export function useMarketContracts() {
           storeUpdateShopInfo({
             $$type: 'UpdateShopInfo',
             shopName: name,
-            shopId: BigInt(telegramUser.id),
+            shopId: BigInt(userId),
           }),
         )
         .endCell();
@@ -227,6 +243,9 @@ export function useMarketContracts() {
     }) => {
       if (!client || !sender || !shopAddress || shopItemsCount === null) {
         throw new Error('Shop data not ready');
+      }
+      if (wrongNetwork) {
+        throw new Error(`Переключите кошелёк в ${TARGET_NETWORK_LABEL}`);
       }
 
       const nextItemId = shopItemsCount;
@@ -274,9 +293,11 @@ export function useMarketContracts() {
     marketAddress: userContract?.address.toString(),
     network,
     connected,
+    wrongNetwork,
     shopAddress,
     shopName,
     shopItemsCount,
+    shopDeployed,
     shopSyncing,
     refreshShopInfo,
     makeShop,
@@ -284,5 +305,6 @@ export function useMarketContracts() {
     itemsLoading,
     refreshItems,
     makeItem,
+    targetNetworkLabel: TARGET_NETWORK_LABEL,
   };
 }

@@ -1,6 +1,6 @@
+import { Outlet } from 'react-router-dom';
 import { TonConnectButton } from '@tonconnect/ui-react';
 import { Store } from 'lucide-react';
-import { SellerDashboard } from './pages/SellerDashboard';
 
 export default function App() {
   return (
@@ -24,7 +24,7 @@ export default function App() {
       </header>
 
       <main className="pb-20">
-        <SellerDashboard />
+        <Outlet />
       </main>
     </div>
   );

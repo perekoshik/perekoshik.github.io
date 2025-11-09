@@ -2,8 +2,9 @@ import ReactDOM from 'react-dom/client';
 import '@/polyfills';
 import '@/styles.css';
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
+import { RouterProvider } from 'react-router-dom';
 import { initTWA } from '@/lib/twa';
-import App from './App';
+import { router } from './router';
 
 initTWA();
 
@@ -16,7 +17,7 @@ const container = document.getElementById('root');
 if (container) {
   ReactDOM.createRoot(container).render(
     <TonConnectUIProvider manifestUrl={manifestUrl}>
-      <App />
+      <RouterProvider router={router} />
     </TonConnectUIProvider>,
   );
 }

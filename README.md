@@ -30,3 +30,19 @@ npm run preview:seller   # прогон dist/seller
 - Seller Console: `https://perekoshik.github.io/seller/`
 
 Открывайте мини‑аппы внутри Telegram — тогда подтягивается `initData` и TonConnect.
+
+## Деплой
+Контрактные артефакты по-прежнему хранятся в корневой папке `build/`, поэтому для GitHub Pages используем отдельный worktree (например, `pages/`).
+
+```
+git worktree add pages gh-pages   # один раз
+npm run build                     # собираем dist/market и dist/seller
+rsync -av dist/market/ pages/
+rsync -av dist/seller/ pages/seller/
+cd pages && git add . && git commit -m "deploy" && git push origin gh-pages
+```
+
+После пуша Pages раздаёт витрину по `https://perekoshik.github.io/`, а консоль продавца по `https://perekoshik.github.io/seller/`.
+
+## Сеть TON
+По умолчанию все хуки/клиенты работают в **testnet** (см. `packages/shared/src/config.ts`). Чтобы переключиться на mainnet, задайте в `.env` переменную `VITE_TON_NETWORK=mainnet` и перезапустите dev/build. Seller UI показывает предупреждение, если кошелёк подключён к другой сети, и блокирует транзакции до переключения.

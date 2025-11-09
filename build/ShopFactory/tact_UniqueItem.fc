@@ -223,8 +223,8 @@ int $global_myBalance() impure asm """
 
 ((slice, slice, slice, int, int, int), slice) $UniqueItem$_fun_owner((slice, slice, slice, int, int, int) $self) impure inline_ref {
     var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
-    var $fresh$ret_121 = $self'owner;
-    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_121);
+    var $fresh$ret_126 = $self'owner;
+    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_126);
 }
 
 ;; tact_UniqueItem.constants.fc
@@ -357,20 +357,20 @@ builder $UniqueItem$_store(builder build_0, (slice, slice, slice, int, int, int)
 
 ((slice, slice, slice, int, int, int), int) $UniqueItem$_fun_price((slice, slice, slice, int, int, int) $self) impure inline_ref {
     var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
-    var $fresh$ret_118 = $self'price;
-    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_118);
+    var $fresh$ret_123 = $self'price;
+    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_123);
 }
 
 ((slice, slice, slice, int, int, int), int) $UniqueItem$_fun_index((slice, slice, slice, int, int, int) $self) impure inline_ref {
     var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
-    var $fresh$ret_119 = $self'index;
-    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_119);
+    var $fresh$ret_124 = $self'index;
+    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_124);
 }
 
 ((slice, slice, slice, int, int, int), slice) $UniqueItem$_fun_content((slice, slice, slice, int, int, int) $self) impure inline_ref {
     var (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable)) = $self;
-    var $fresh$ret_120 = $self'content;
-    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_120);
+    var $fresh$ret_125 = $self'content;
+    return (($self'shop, $self'owner, $self'content, $self'index, $self'price, $self'isSalable), $fresh$ret_125);
 }
 
 ;;

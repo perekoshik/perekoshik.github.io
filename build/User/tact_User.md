@@ -3,7 +3,7 @@ Contract: User
 BoC Size: 307 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 30
+Total structures: 31
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -108,6 +108,10 @@ Signature: `UpdateItem{price:coins,imageSrc:^string,title:^string,description:^s
 ### NewItem
 TL-B: `new_item#d6e1cf22  = NewItem`
 Signature: `NewItem{}`
+
+### ChangeAvailability
+TL-B: `change_availability#48fe9b74  = ChangeAvailability`
+Signature: `ChangeAvailability{}`
 
 ### Deploy
 TL-B: `deploy#946a98b6 queryId:uint64 = Deploy`

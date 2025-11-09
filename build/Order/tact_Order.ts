@@ -1457,6 +1457,47 @@ export function dictValueParserNewItem(): DictionaryValue<NewItem> {
     }
 }
 
+export type ChangeAvailability = {
+    $$type: 'ChangeAvailability';
+}
+
+export function storeChangeAvailability(src: ChangeAvailability) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(1224645492, 32);
+    };
+}
+
+export function loadChangeAvailability(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 1224645492) { throw Error('Invalid prefix'); }
+    return { $$type: 'ChangeAvailability' as const };
+}
+
+export function loadTupleChangeAvailability(source: TupleReader) {
+    return { $$type: 'ChangeAvailability' as const };
+}
+
+export function loadGetterTupleChangeAvailability(source: TupleReader) {
+    return { $$type: 'ChangeAvailability' as const };
+}
+
+export function storeTupleChangeAvailability(source: ChangeAvailability) {
+    const builder = new TupleBuilder();
+    return builder.build();
+}
+
+export function dictValueParserChangeAvailability(): DictionaryValue<ChangeAvailability> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeChangeAvailability(src)).endCell());
+        },
+        parse: (src) => {
+            return loadChangeAvailability(src.loadRef().beginParse());
+        }
+    }
+}
+
 export type UniqueItem$Data = {
     $$type: 'UniqueItem$Data';
     shop: Address;
@@ -1854,6 +1895,7 @@ const Order_types: ABIType[] = [
     {"name":"OrderCompleted","header":978078863,"fields":[]},
     {"name":"UpdateItem","header":967082613,"fields":[{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"NewItem","header":3605122850,"fields":[]},
+    {"name":"ChangeAvailability","header":1224645492,"fields":[]},
     {"name":"UniqueItem$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"index","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},
     {"name":"ChangeOwner","header":2174598809,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
     {"name":"ChangeOwnerOk","header":846932810,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"newOwner","type":{"kind":"simple","type":"address","optional":false}}]},
@@ -1877,6 +1919,7 @@ const Order_opcodes = {
     "OrderCompleted": 978078863,
     "UpdateItem": 967082613,
     "NewItem": 3605122850,
+    "ChangeAvailability": 1224645492,
     "ChangeOwner": 2174598809,
     "ChangeOwnerOk": 846932810,
 }

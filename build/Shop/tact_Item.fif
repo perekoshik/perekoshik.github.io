@@ -24,6 +24,7 @@ PROGRAM{
   DECLPROC $Item$_fun_imageSrc
   DECLPROC $Item$_fun_title
   DECLPROC $Item$_fun_description
+  DECLPROC $Item$_fun_available
   DECLPROC $MessageParameters$_constructor_bounce_to_value_mode_body
   DECLPROC $Item$_fun_reply
   DECLPROC $Order$_init_child
@@ -38,6 +39,7 @@ PROGRAM{
   80358 DECLMETHOD %imageSrc
   84137 DECLMETHOD %title
   65569 DECLMETHOD %description
+  66974 DECLMETHOD %available
   DECLPROC recv_internal
   65535 DECLMETHOD __tact_selector_hack
   DECLGLOBVAR __tact_context
@@ -81,11 +83,11 @@ PROGRAM{
     ENDC
   }>
   $Item$_store PROCINLINE:<{
-    s5 s6 XCHG2
+    s6 s7 XCHG2
     STSLICE
-    s1 s3 XCHG
+    s1 s4 XCHG
     256 STU
-    SWAP
+    ROT
     STVARUINT16
     SWAP
     NEWC
@@ -102,6 +104,8 @@ PROGRAM{
     STSLICE
     s1 s2 XCHG
     STBREFR
+    s1 s2 XCHG
+    1 STI
     STBREFR
   }>
   $Item$_load PROCINLINE:<{
@@ -120,12 +124,15 @@ PROGRAM{
     CTOS
     SWAP
     LDREF
-    DROP
+    SWAP
     CTOS
-    s2 s6 XCHG
-    s2 s5 XCHG
-    s2 s4 XCHG
-    s2 s3 XCHG
+    SWAP
+    1 LDI
+    DROP
+    s3 s7 XCHG
+    s3 s6 XCHG
+    s3 s5 XCHG
+    s3 s4 XCHG
   }>
   $Context$_get_value PROCINLINE:<{
     s1 s3 XCHG
@@ -157,6 +164,7 @@ PROGRAM{
         B{b5ee9c7241010101000a000010696d616765537263975074ea} B>boc <s PUSHSLICE
         B{b5ee9c7241010101000700000a7469746c65ddf1d456} B>boc <s PUSHSLICE
         B{b5ee9c7241010101000d0000166465736372697074696f6ee0124c71} B>boc <s PUSHSLICE
+    TRUE
   }>
   $Item$_contract_load PROCINLINE:<{
     c4 PUSH
@@ -165,7 +173,7 @@ PROGRAM{
     SWAP
     IF:<{
       $Item$_load INLINECALLDICT
-      1 6 BLKDROP2
+      1 7 BLKDROP2
     }>ELSE<{
       $Item$init$_load INLINECALLDICT
       s0 s2 XCHG
@@ -179,7 +187,7 @@ PROGRAM{
     TRUE
     SWAP
     1 STI
-    6 -ROLL
+    7 -ROLL
     $Item$_store INLINECALLDICT
     ENDC
     c4 POP
@@ -223,21 +231,24 @@ PROGRAM{
     $global_contractAddressExt INLINECALLDICT
   }>
   $Item$_fun_shop PROCREF:<{
-    s5 PUSH
+    s6 PUSH
   }>
   $Item$_fun_id PROCREF:<{
-    s4 PUSH
+    s5 PUSH
   }>
   $Item$_fun_price PROCREF:<{
-    s3 PUSH
+    s4 PUSH
   }>
   $Item$_fun_imageSrc PROCREF:<{
-    s2 PUSH
+    s3 PUSH
   }>
   $Item$_fun_title PROCREF:<{
-    OVER
+    s2 PUSH
   }>
   $Item$_fun_description PROCREF:<{
+    OVER
+  }>
+  $Item$_fun_available PROCREF:<{
     DUP
   }>
   $MessageParameters$_constructor_bounce_to_value_mode_body PROCINLINE:<{
@@ -309,32 +320,37 @@ PROGRAM{
   %shop PROC:<{
     $Item$_contract_load INLINECALLDICT
     $Item$_fun_shop INLINECALLDICT
-    6 1 BLKDROP2
+    7 1 BLKDROP2
   }>
   %id PROC:<{
     $Item$_contract_load INLINECALLDICT
     $Item$_fun_id INLINECALLDICT
-    6 1 BLKDROP2
+    7 1 BLKDROP2
   }>
   %price PROC:<{
     $Item$_contract_load INLINECALLDICT
     $Item$_fun_price INLINECALLDICT
-    6 1 BLKDROP2
+    7 1 BLKDROP2
   }>
   %imageSrc PROC:<{
     $Item$_contract_load INLINECALLDICT
     $Item$_fun_imageSrc INLINECALLDICT
-    6 1 BLKDROP2
+    7 1 BLKDROP2
   }>
   %title PROC:<{
     $Item$_contract_load INLINECALLDICT
     $Item$_fun_title INLINECALLDICT
-    6 1 BLKDROP2
+    7 1 BLKDROP2
   }>
   %description PROC:<{
     $Item$_contract_load INLINECALLDICT
     $Item$_fun_description INLINECALLDICT
-    6 1 BLKDROP2
+    7 1 BLKDROP2
+  }>
+  %available PROC:<{
+    $Item$_contract_load INLINECALLDICT
+    $Item$_fun_available INLINECALLDICT
+    7 1 BLKDROP2
   }>
   recv_internal PROC:<{
     SWAP
@@ -352,20 +368,19 @@ PROGRAM{
     s0 s2 XCHG
     __tact_context_sender SETGLOB
     $Item$_contract_load INLINECALLDICT
-    s0 s7 XCHG
+    s0 s8 XCHG
     IFJMP:<{
-      7 BLKDROP
+      8 BLKDROP
     }>
-    s0 s5 XCHG
+    s0 s6 XCHG
     32 LDUQ 130 THROWIFNOT
     OVER
     967082613 PUSHINT
     EQUAL
     IFJMP:<{
-      s6 POP
-      3 BLKDROP
-      s3 POP
-      SWAP
+      s7 POP
+      4 BLKDROP
+      s0 s2 XCHG
       LDVARUINT16
       LDREF
       SWAP
@@ -452,13 +467,15 @@ PROGRAM{
           // Group 5: Sending the message, with `mode` on top
           SWAP
           SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
-      s4 s5 XCHG
+      s4 s6 XCHG
+      4 ROLL
       $Item$_contract_store INLINECALLDICT
     }>
-    SWAP
+    OVER
     2059487624 PUSHINT
     EQUAL
     IFJMP:<{
+      NIP
       257 PUSHINT
       LDIX
       LDMSGADDR
@@ -469,7 +486,7 @@ PROGRAM{
       CTOS
       __tact_context_get_sender INLINECALLDICT
           MYADDR
-      s8 PUSH
+      s9 PUSH
       s0 s3 XCHG
       s5 s5 XCPU
       $Order$_init_child INLINECALLDICT
@@ -546,11 +563,11 @@ PROGRAM{
           // Group 5: Sending the message, with `mode` on top
           SWAP
           SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
-      s1 s4 s3 XCPU2
+      s1 s5 s4 XCPU2
       $NewOrder$_constructor_deliveryAddress_itemIndex_price INLINECALLDICT
       NEWC
       $NewOrder$_store_cell INLINECALLDICT
-      s5 PUSH
+      s6 PUSH
       -ROT
       2 PUSHINT
       $SendParameters$_constructor_to_value_body_mode INLINECALLDICT
@@ -621,11 +638,22 @@ PROGRAM{
           SWAP
           SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
           B{b5ee9c72410101010013000022000000004f726465722063726561746564fbf3bdfe} B>boc PUSHREF
+      s5 s7 XCHG
       s4 s6 XCHG
       s3 s5 XCHG
       s4 s3 s0 XCHG3
-      s1 s2 XCHG
       $Item$_fun_reply INLINECALLDICT
+      $Item$_contract_store INLINECALLDICT
+    }>
+    DROP
+    1224645492 PUSHINT
+    EQUAL
+    IFJMP:<{
+      s0 s6 XCHG
+      NOT
+      s4 s6 XCHG
+      s3 s5 XCHG
+      s4 s3 s0 XCHG3
       $Item$_contract_store INLINECALLDICT
     }>
     7 BLKDROP

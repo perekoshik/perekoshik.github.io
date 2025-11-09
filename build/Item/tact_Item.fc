@@ -27,10 +27,10 @@ builder $NewItem$_store(builder build_0, tuple v) inline;
 cell $NewItem$_store_cell(tuple v, builder b) inline;
 
 ;; $Item$_store
-builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice) v) inline;
+builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice, int) v) inline;
 
 ;; $Item$_load
-(slice, ((slice, int, int, slice, slice, slice))) $Item$_load(slice sc_0) inline;
+(slice, ((slice, int, int, slice, slice, slice, int))) $Item$_load(slice sc_0) inline;
 
 ;; $Context$_get_value
 _ $Context$_get_value((int, slice, int, slice) v) inline;
@@ -42,13 +42,13 @@ builder $Order$init$_store(builder build_0, (slice, slice, slice, int, slice) v)
 (slice, ((slice, int))) $Item$init$_load(slice sc_0) inline;
 
 ;; $Item$_contract_init
-(slice, int, int, slice, slice, slice) $Item$_contract_init(slice $shop, int $id) impure inline;
+(slice, int, int, slice, slice, slice, int) $Item$_contract_init(slice $shop, int $id) impure inline;
 
 ;; $Item$_contract_load
-(slice, int, int, slice, slice, slice) $Item$_contract_load() impure inline;
+(slice, int, int, slice, slice, slice, int) $Item$_contract_load() impure inline;
 
 ;; $Item$_contract_store
-() $Item$_contract_store((slice, int, int, slice, slice, slice) v) impure inline;
+() $Item$_contract_store((slice, int, int, slice, slice, slice, int) v) impure inline;
 
 ;; $Cell$_fun_asSlice
 slice $Cell$_fun_asSlice(cell $self) impure inline;
@@ -69,25 +69,28 @@ slice $global_contractAddress((cell, cell) $s) impure inline;
 (cell, cell) $Order$_init_child(slice $seller, slice $buyer, slice $itemAddress, int $id, slice $deliveryAddress) inline_ref;
 
 ;; $Item$_fun_shop
-((slice, int, int, slice, slice, slice), slice) $Item$_fun_shop((slice, int, int, slice, slice, slice) $self) impure inline_ref;
+((slice, int, int, slice, slice, slice, int), slice) $Item$_fun_shop((slice, int, int, slice, slice, slice, int) $self) impure inline_ref;
 
 ;; $Item$_fun_id
-((slice, int, int, slice, slice, slice), int) $Item$_fun_id((slice, int, int, slice, slice, slice) $self) impure inline_ref;
+((slice, int, int, slice, slice, slice, int), int) $Item$_fun_id((slice, int, int, slice, slice, slice, int) $self) impure inline_ref;
 
 ;; $Item$_fun_price
-((slice, int, int, slice, slice, slice), int) $Item$_fun_price((slice, int, int, slice, slice, slice) $self) impure inline_ref;
+((slice, int, int, slice, slice, slice, int), int) $Item$_fun_price((slice, int, int, slice, slice, slice, int) $self) impure inline_ref;
 
 ;; $Item$_fun_imageSrc
-((slice, int, int, slice, slice, slice), slice) $Item$_fun_imageSrc((slice, int, int, slice, slice, slice) $self) impure inline_ref;
+((slice, int, int, slice, slice, slice, int), slice) $Item$_fun_imageSrc((slice, int, int, slice, slice, slice, int) $self) impure inline_ref;
 
 ;; $Item$_fun_title
-((slice, int, int, slice, slice, slice), slice) $Item$_fun_title((slice, int, int, slice, slice, slice) $self) impure inline_ref;
+((slice, int, int, slice, slice, slice, int), slice) $Item$_fun_title((slice, int, int, slice, slice, slice, int) $self) impure inline_ref;
 
 ;; $Item$_fun_description
-((slice, int, int, slice, slice, slice), slice) $Item$_fun_description((slice, int, int, slice, slice, slice) $self) impure inline_ref;
+((slice, int, int, slice, slice, slice, int), slice) $Item$_fun_description((slice, int, int, slice, slice, slice, int) $self) impure inline_ref;
+
+;; $Item$_fun_available
+((slice, int, int, slice, slice, slice, int), int) $Item$_fun_available((slice, int, int, slice, slice, slice, int) $self) impure inline_ref;
 
 ;; $Item$_fun_reply
-((slice, int, int, slice, slice, slice), ()) $Item$_fun_reply((slice, int, int, slice, slice, slice) $self, cell $body) impure inline;
+((slice, int, int, slice, slice, slice, int), ()) $Item$_fun_reply((slice, int, int, slice, slice, slice, int) $self, cell $body) impure inline;
 
 ;; $SendParameters$_constructor_to_value_mode_body
 ((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_mode_body(slice $to, int $value, int $mode, cell $body) inline;
@@ -280,8 +283,8 @@ int $global_myBalance() impure asm """
     SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
 """;
 
-((slice, int, int, slice, slice, slice), ()) $Item$_fun_reply((slice, int, int, slice, slice, slice) $self, cell $body) impure inline {
-    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description)) = $self;
+((slice, int, int, slice, slice, slice, int), ()) $Item$_fun_reply((slice, int, int, slice, slice, slice, int) $self, cell $body) impure inline {
+    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available)) = $self;
     slice $to = __tact_context_get_sender();
     int $bounce = true;
     if (false) {
@@ -290,11 +293,11 @@ int $global_myBalance() impure asm """
         if (($balanceBeforeMessage < 0)) {
             $global_nativeReserve(0, 0);
             $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 130, $body));
-            return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description), ());
+            return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available), ());
         }
     }
     $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 66, $body));
-    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description), ());
+    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available), ());
 }
 
 ;; tact_Item.constants.fc
@@ -433,11 +436,11 @@ cell $Order$_child_get_code() impure asm """
 
 ;;
 ;; Type: Item
-;; TLB: _ shop:address id:uint256 price:coins imageSrc:^string title:^string description:^string = Item
+;; TLB: _ shop:address id:uint256 price:coins imageSrc:^string title:^string description:^string available:bool = Item
 ;;
 
-builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice) v) inline {
-    var (v'shop, v'id, v'price, v'imageSrc, v'title, v'description) = v;
+builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice, int) v) inline {
+    var (v'shop, v'id, v'price, v'imageSrc, v'title, v'description, v'available) = v;
     build_0 = build_0.store_slice(v'shop);
     build_0 = build_0.store_uint(v'id, 256);
     build_0 = build_0.store_varuint16(v'price);
@@ -445,11 +448,12 @@ builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice) v) 
     var build_1 = begin_cell();
     build_1 = build_1.store_builder_ref(begin_cell().store_slice(v'title));
     build_1 = build_1.store_builder_ref(begin_cell().store_slice(v'description));
+    build_1 = build_1.store_int(v'available, 1);
     build_0 = store_builder_ref(build_0, build_1);
     return build_0;
 }
 
-(slice, ((slice, int, int, slice, slice, slice))) $Item$_load(slice sc_0) inline {
+(slice, ((slice, int, int, slice, slice, slice, int))) $Item$_load(slice sc_0) inline {
     var v'shop = sc_0~load_msg_addr();
     var v'id = sc_0~load_uint(256);
     var v'price = sc_0~load_varuint16();
@@ -457,7 +461,8 @@ builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice) v) 
     slice sc_1 = sc_0~load_ref().begin_parse();
     var v'title = sc_1~load_ref().begin_parse();
     var v'description = sc_1~load_ref().begin_parse();
-    return (sc_0, (v'shop, v'id, v'price, v'imageSrc, v'title, v'description));
+    var v'available = sc_1~load_int(1);
+    return (sc_0, (v'shop, v'id, v'price, v'imageSrc, v'title, v'description, v'available));
 }
 
 (slice, ((slice, int))) $Item$init$_load(slice sc_0) inline {
@@ -466,7 +471,7 @@ builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice) v) 
     return (sc_0, (v'shop, v'id));
 }
 
-(slice, int, int, slice, slice, slice) $Item$_contract_load() impure inline {
+(slice, int, int, slice, slice, slice, int) $Item$_contract_load() impure inline {
     slice $sc = get_data().begin_parse();
     int $loaded = $sc~load_int(1);
     if ($loaded) {
@@ -479,7 +484,7 @@ builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice) v) 
     }
 }
 
-() $Item$_contract_store((slice, int, int, slice, slice, slice) v) impure inline {
+() $Item$_contract_store((slice, int, int, slice, slice, slice, int) v) impure inline {
     builder b = begin_cell();
     b = b.store_int(true, 1);
     b = $Item$_store(b, v);
@@ -490,51 +495,58 @@ builder $Item$_store(builder build_0, (slice, int, int, slice, slice, slice) v) 
 ;; Contract Item functions
 ;;
 
-(slice, int, int, slice, slice, slice) $Item$_contract_init(slice $shop, int $id) impure inline {
-    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description)) = (null(), null(), null(), null(), null(), null());
+(slice, int, int, slice, slice, slice, int) $Item$_contract_init(slice $shop, int $id) impure inline {
+    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available)) = (null(), null(), null(), null(), null(), null(), null());
     $self'shop = $shop;
     $self'id = $id;
     $self'price = 0;
     $self'imageSrc = __gen_slice_string_65a388760d613a486e9222653676e93876e62a41886a69e2f9451728510c62ed();
     $self'title = __gen_slice_string_effb68c8cd138379ea31a4b10b902e0413a59126eaeb9564f1ed82ef56355500();
     $self'description = __gen_slice_string_140bdd99e205d5912ca97650fb28f063726b262214aacff74252f2bcee780c53();
-    return ($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description);
+    $self'available = true;
+    return ($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available);
 }
 
-((slice, int, int, slice, slice, slice), slice) $Item$_fun_shop((slice, int, int, slice, slice, slice) $self) impure inline_ref {
-    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description)) = $self;
-    var $fresh$ret_58 = $self'shop;
-    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description), $fresh$ret_58);
+((slice, int, int, slice, slice, slice, int), slice) $Item$_fun_shop((slice, int, int, slice, slice, slice, int) $self) impure inline_ref {
+    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available)) = $self;
+    var $fresh$ret_61 = $self'shop;
+    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available), $fresh$ret_61);
 }
 
-((slice, int, int, slice, slice, slice), int) $Item$_fun_id((slice, int, int, slice, slice, slice) $self) impure inline_ref {
-    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description)) = $self;
-    var $fresh$ret_59 = $self'id;
-    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description), $fresh$ret_59);
+((slice, int, int, slice, slice, slice, int), int) $Item$_fun_id((slice, int, int, slice, slice, slice, int) $self) impure inline_ref {
+    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available)) = $self;
+    var $fresh$ret_62 = $self'id;
+    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available), $fresh$ret_62);
 }
 
-((slice, int, int, slice, slice, slice), int) $Item$_fun_price((slice, int, int, slice, slice, slice) $self) impure inline_ref {
-    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description)) = $self;
-    var $fresh$ret_60 = $self'price;
-    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description), $fresh$ret_60);
+((slice, int, int, slice, slice, slice, int), int) $Item$_fun_price((slice, int, int, slice, slice, slice, int) $self) impure inline_ref {
+    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available)) = $self;
+    var $fresh$ret_63 = $self'price;
+    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available), $fresh$ret_63);
 }
 
-((slice, int, int, slice, slice, slice), slice) $Item$_fun_imageSrc((slice, int, int, slice, slice, slice) $self) impure inline_ref {
-    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description)) = $self;
-    var $fresh$ret_61 = $self'imageSrc;
-    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description), $fresh$ret_61);
+((slice, int, int, slice, slice, slice, int), slice) $Item$_fun_imageSrc((slice, int, int, slice, slice, slice, int) $self) impure inline_ref {
+    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available)) = $self;
+    var $fresh$ret_64 = $self'imageSrc;
+    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available), $fresh$ret_64);
 }
 
-((slice, int, int, slice, slice, slice), slice) $Item$_fun_title((slice, int, int, slice, slice, slice) $self) impure inline_ref {
-    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description)) = $self;
-    var $fresh$ret_62 = $self'title;
-    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description), $fresh$ret_62);
+((slice, int, int, slice, slice, slice, int), slice) $Item$_fun_title((slice, int, int, slice, slice, slice, int) $self) impure inline_ref {
+    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available)) = $self;
+    var $fresh$ret_65 = $self'title;
+    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available), $fresh$ret_65);
 }
 
-((slice, int, int, slice, slice, slice), slice) $Item$_fun_description((slice, int, int, slice, slice, slice) $self) impure inline_ref {
-    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description)) = $self;
-    var $fresh$ret_63 = $self'description;
-    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description), $fresh$ret_63);
+((slice, int, int, slice, slice, slice, int), slice) $Item$_fun_description((slice, int, int, slice, slice, slice, int) $self) impure inline_ref {
+    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available)) = $self;
+    var $fresh$ret_66 = $self'description;
+    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available), $fresh$ret_66);
+}
+
+((slice, int, int, slice, slice, slice, int), int) $Item$_fun_available((slice, int, int, slice, slice, slice, int) $self) impure inline_ref {
+    var (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available)) = $self;
+    var $fresh$ret_67 = $self'available;
+    return (($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available), $fresh$ret_67);
 }
 
 ;;
@@ -577,6 +589,12 @@ _ %description() method_id(65569) {
     return res;
 }
 
+_ %available() method_id(66974) {
+    var self = $Item$_contract_load();
+    var res = self~$Item$_fun_available();
+    return res;
+}
+
 ;;
 ;; Routing of a Contract Item
 ;;
@@ -597,7 +615,7 @@ _ %description() method_id(65569) {
     __tact_context_sender = msg_sender_addr;
     
     ;; Load contract data
-    var ($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description) = $Item$_contract_load();
+    var ($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available) = $Item$_contract_load();
     
     ;; Handle bounced messages
     if (msg_bounced) { return (); }
@@ -613,7 +631,7 @@ _ %description() method_id(65569) {
         $self'title = $msg'title;
         $self'description = $msg'description;
         $global_send($SendParameters$_constructor_to_value_mode_body($self'shop, 5000000, 2, $NewItem$_store_cell($NewItem$_constructor_(), begin_cell())));
-        $Item$_contract_store(($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description));
+        $Item$_contract_store(($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available));
         return ();
     }
     
@@ -626,8 +644,16 @@ _ %description() method_id(65569) {
         var ($init'code, $init'data) = $Order$_init_child($self'shop, __tact_context_get_sender(), $global_myAddress(), $msg'orderId, $msg'deliveryAddress);
         $global_send($SendParameters$_constructor_to_value_mode_code_data($global_contractAddress(($init'code, $init'data)), $msg'price, 2, $init'code, $init'data));
         $global_send($SendParameters$_constructor_to_value_body_mode($self'shop, $msg'price, $NewOrder$_store_cell($NewOrder$_constructor_deliveryAddress_itemIndex_price($msg'deliveryAddress, $self'id, $self'price), begin_cell()), 2));
-        ($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description)~$Item$_fun_reply(__gen_cell_cell_5873a9e7fafbcf53a4a03be0092e99890dbbab7b8598efd58ff3f135073a2bdd());
-        $Item$_contract_store(($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description));
+        ($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available)~$Item$_fun_reply(__gen_cell_cell_5873a9e7fafbcf53a4a03be0092e99890dbbab7b8598efd58ff3f135073a2bdd());
+        $Item$_contract_store(($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available));
+        return ();
+    }
+    
+    ;; Receive ChangeAvailability message
+    if (op == 1224645492) {
+        var $msg = empty_tuple();
+        $self'available = (~ $self'available);
+        $Item$_contract_store(($self'shop, $self'id, $self'price, $self'imageSrc, $self'title, $self'description, $self'available));
         return ();
     }
     

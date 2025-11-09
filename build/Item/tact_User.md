@@ -3,7 +3,7 @@ Contract: User
 BoC Size: 307 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 35
+Total structures: 36
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -117,6 +117,10 @@ Signature: `UpdateItem{price:coins,imageSrc:^string,title:^string,description:^s
 TL-B: `new_item#d6e1cf22  = NewItem`
 Signature: `NewItem{}`
 
+### ChangeAvailability
+TL-B: `change_availability#48fe9b74  = ChangeAvailability`
+Signature: `ChangeAvailability{}`
+
 ### User$Data
 TL-B: `_ owner:address id:uint256 name:^string deliveryAddress:^string = User`
 Signature: `User{owner:address,id:uint256,name:^string,deliveryAddress:^string}`
@@ -142,8 +146,8 @@ TL-B: `_ shop:address owner:address content:^string index:uint256 price:coins is
 Signature: `UniqueItem{shop:address,owner:address,content:^string,index:uint256,price:coins,isSalable:bool}`
 
 ### Item$Data
-TL-B: `_ shop:address id:uint256 price:coins imageSrc:^string title:^string description:^string = Item`
-Signature: `Item{shop:address,id:uint256,price:coins,imageSrc:^string,title:^string,description:^string}`
+TL-B: `_ shop:address id:uint256 price:coins imageSrc:^string title:^string description:^string available:bool = Item`
+Signature: `Item{shop:address,id:uint256,price:coins,imageSrc:^string,title:^string,description:^string,available:bool}`
 
 ## Get methods
 Total get methods: 1

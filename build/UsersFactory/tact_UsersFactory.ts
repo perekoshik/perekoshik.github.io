@@ -1457,6 +1457,47 @@ export function dictValueParserNewItem(): DictionaryValue<NewItem> {
     }
 }
 
+export type ChangeAvailability = {
+    $$type: 'ChangeAvailability';
+}
+
+export function storeChangeAvailability(src: ChangeAvailability) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(1224645492, 32);
+    };
+}
+
+export function loadChangeAvailability(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 1224645492) { throw Error('Invalid prefix'); }
+    return { $$type: 'ChangeAvailability' as const };
+}
+
+export function loadTupleChangeAvailability(source: TupleReader) {
+    return { $$type: 'ChangeAvailability' as const };
+}
+
+export function loadGetterTupleChangeAvailability(source: TupleReader) {
+    return { $$type: 'ChangeAvailability' as const };
+}
+
+export function storeTupleChangeAvailability(source: ChangeAvailability) {
+    const builder = new TupleBuilder();
+    return builder.build();
+}
+
+export function dictValueParserChangeAvailability(): DictionaryValue<ChangeAvailability> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeChangeAvailability(src)).endCell());
+        },
+        parse: (src) => {
+            return loadChangeAvailability(src.loadRef().beginParse());
+        }
+    }
+}
+
 export type User$Data = {
     $$type: 'User$Data';
     owner: Address;
@@ -1844,6 +1885,7 @@ const UsersFactory_types: ABIType[] = [
     {"name":"OrderCompleted","header":978078863,"fields":[]},
     {"name":"UpdateItem","header":967082613,"fields":[{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"NewItem","header":3605122850,"fields":[]},
+    {"name":"ChangeAvailability","header":1224645492,"fields":[]},
     {"name":"User$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"Deploy","header":2490013878,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"DeployOk","header":2952335191,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
@@ -1868,6 +1910,7 @@ const UsersFactory_opcodes = {
     "OrderCompleted": 978078863,
     "UpdateItem": 967082613,
     "NewItem": 3605122850,
+    "ChangeAvailability": 1224645492,
     "Deploy": 2490013878,
     "DeployOk": 2952335191,
     "FactoryDeploy": 1829761339,

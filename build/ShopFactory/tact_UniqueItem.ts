@@ -1563,6 +1563,47 @@ export function dictValueParserNewItem(): DictionaryValue<NewItem> {
     }
 }
 
+export type ChangeAvailability = {
+    $$type: 'ChangeAvailability';
+}
+
+export function storeChangeAvailability(src: ChangeAvailability) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(1224645492, 32);
+    };
+}
+
+export function loadChangeAvailability(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 1224645492) { throw Error('Invalid prefix'); }
+    return { $$type: 'ChangeAvailability' as const };
+}
+
+export function loadTupleChangeAvailability(source: TupleReader) {
+    return { $$type: 'ChangeAvailability' as const };
+}
+
+export function loadGetterTupleChangeAvailability(source: TupleReader) {
+    return { $$type: 'ChangeAvailability' as const };
+}
+
+export function storeTupleChangeAvailability(source: ChangeAvailability) {
+    const builder = new TupleBuilder();
+    return builder.build();
+}
+
+export function dictValueParserChangeAvailability(): DictionaryValue<ChangeAvailability> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeChangeAvailability(src)).endCell());
+        },
+        parse: (src) => {
+            return loadChangeAvailability(src.loadRef().beginParse());
+        }
+    }
+}
+
 export type Shop$Data = {
     $$type: 'Shop$Data';
     owner: Address;
@@ -1649,6 +1690,7 @@ export type Item$Data = {
     imageSrc: string;
     title: string;
     description: string;
+    available: boolean;
 }
 
 export function storeItem$Data(src: Item$Data) {
@@ -1660,6 +1702,7 @@ export function storeItem$Data(src: Item$Data) {
         b_0.storeStringRefTail(src.imageSrc);
         b_0.storeStringRefTail(src.title);
         b_0.storeStringRefTail(src.description);
+        b_0.storeBit(src.available);
     };
 }
 
@@ -1671,7 +1714,8 @@ export function loadItem$Data(slice: Slice) {
     const _imageSrc = sc_0.loadStringRefTail();
     const _title = sc_0.loadStringRefTail();
     const _description = sc_0.loadStringRefTail();
-    return { $$type: 'Item$Data' as const, shop: _shop, id: _id, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+    const _available = sc_0.loadBit();
+    return { $$type: 'Item$Data' as const, shop: _shop, id: _id, price: _price, imageSrc: _imageSrc, title: _title, description: _description, available: _available };
 }
 
 export function loadTupleItem$Data(source: TupleReader) {
@@ -1681,7 +1725,8 @@ export function loadTupleItem$Data(source: TupleReader) {
     const _imageSrc = source.readString();
     const _title = source.readString();
     const _description = source.readString();
-    return { $$type: 'Item$Data' as const, shop: _shop, id: _id, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+    const _available = source.readBoolean();
+    return { $$type: 'Item$Data' as const, shop: _shop, id: _id, price: _price, imageSrc: _imageSrc, title: _title, description: _description, available: _available };
 }
 
 export function loadGetterTupleItem$Data(source: TupleReader) {
@@ -1691,7 +1736,8 @@ export function loadGetterTupleItem$Data(source: TupleReader) {
     const _imageSrc = source.readString();
     const _title = source.readString();
     const _description = source.readString();
-    return { $$type: 'Item$Data' as const, shop: _shop, id: _id, price: _price, imageSrc: _imageSrc, title: _title, description: _description };
+    const _available = source.readBoolean();
+    return { $$type: 'Item$Data' as const, shop: _shop, id: _id, price: _price, imageSrc: _imageSrc, title: _title, description: _description, available: _available };
 }
 
 export function storeTupleItem$Data(source: Item$Data) {
@@ -1702,6 +1748,7 @@ export function storeTupleItem$Data(source: Item$Data) {
     builder.writeString(source.imageSrc);
     builder.writeString(source.title);
     builder.writeString(source.description);
+    builder.writeBoolean(source.available);
     return builder.build();
 }
 
@@ -2266,8 +2313,9 @@ const UniqueItem_types: ABIType[] = [
     {"name":"OrderCompleted","header":978078863,"fields":[]},
     {"name":"UpdateItem","header":967082613,"fields":[{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"NewItem","header":3605122850,"fields":[]},
+    {"name":"ChangeAvailability","header":1224645492,"fields":[]},
     {"name":"Shop$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"itemsCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"shopId","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"ordersCount","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"balance","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}}]},
-    {"name":"Item$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
+    {"name":"Item$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}},{"name":"available","type":{"kind":"simple","type":"bool","optional":false}}]},
     {"name":"Order$Data","header":null,"fields":[{"name":"seller","type":{"kind":"simple","type":"address","optional":false}},{"name":"buyer","type":{"kind":"simple","type":"address","optional":false}},{"name":"itemAddress","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"completed","type":{"kind":"simple","type":"bool","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"User$Data","header":null,"fields":[{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"id","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"name","type":{"kind":"simple","type":"string","optional":false}},{"name":"deliveryAddress","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"UniqueItem$Data","header":null,"fields":[{"name":"shop","type":{"kind":"simple","type":"address","optional":false}},{"name":"owner","type":{"kind":"simple","type":"address","optional":false}},{"name":"content","type":{"kind":"simple","type":"string","optional":false}},{"name":"index","type":{"kind":"simple","type":"uint","optional":false,"format":256}},{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"isSalable","type":{"kind":"simple","type":"bool","optional":false}}]},
@@ -2296,6 +2344,7 @@ const UniqueItem_opcodes = {
     "OrderCompleted": 978078863,
     "UpdateItem": 967082613,
     "NewItem": 3605122850,
+    "ChangeAvailability": 1224645492,
     "Deploy": 2490013878,
     "DeployOk": 2952335191,
     "FactoryDeploy": 1829761339,

@@ -9,13 +9,15 @@ import { defaultImage } from '@/constants/images';
 import { useMarketContracts } from '@/hooks/useMarketContracts';
 import { useTonConnect } from '@/hooks/useTonConnect';
 import { PageLoader } from '../shared/PageLoader';
-import { resolveMediaUrl } from '@/lib/media';
 
 type StatusMessage = { type: 'success' | 'error'; text: string } | null;
 
 type Highlight = { id: string; text: string };
 
 const createHighlight = (): Highlight => ({ id: crypto.randomUUID(), text: '' });
+
+const MAX_IMAGE_DIMENSION = 600;
+const JPEG_QUALITY = 0.85;
 
 export function ShopOverviewPage() {
   const navigate = useNavigate();
@@ -232,35 +234,33 @@ function NewItemPanel({
   const [description, setDescription] = useState('');
   const [highlights, setHighlights] = useState<Highlight[]>([createHighlight()]);
   const [imageDataUrl, setImageDataUrl] = useState('');
-  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [imageError, setImageError] = useState<string | null>(null);
   const [status, setStatus] = useState<StatusMessage>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  const effectiveImage = useMemo(() => {
-    const directUrl = resolveMediaUrl(imageUrlInput.trim(), undefined);
-    return directUrl || imageDataUrl || '';
-  }, [imageUrlInput, imageDataUrl]);
 
   const cardPreview = useMemo(() => {
     return {
       id: 'preview',
       title: title || 'Новая карточка',
-      image: effectiveImage || undefined,
+      image: imageDataUrl || undefined,
       badge: 'Draft',
       price: price ? `${price} TON` : undefined,
     } satisfies Parameters<typeof Card>[0]['item'];
-  }, [title, price, effectiveImage]);
+  }, [title, price, imageDataUrl]);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    setImageError(null);
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = typeof reader.result === 'string' ? reader.result : '';
-      setImageDataUrl(result);
-      setImageUrlInput('');
-    };
-    reader.readAsDataURL(file);
+    try {
+      const dataUrl = await convertFileToDataUrl(file);
+      setImageDataUrl(dataUrl);
+    } catch (error) {
+      console.error('image upload failed', error);
+      setImageError(
+        (error as Error).message ?? 'Не удалось обработать изображение. Попробуйте другой файл (не более 0.5 МБ).',
+      );
+    }
   };
 
   const addHighlight = () => setHighlights((current) => [...current, createHighlight()]);
@@ -277,7 +277,7 @@ function NewItemPanel({
     setDescription('');
     setHighlights([createHighlight()]);
     setImageDataUrl('');
-    setImageUrlInput('');
+    setImageError(null);
   };
 
   const handleCreate = async () => {
@@ -286,10 +286,8 @@ function NewItemPanel({
       setStatus({ type: 'error', text: 'Название и цена обязательны.' });
       return;
     }
-    const normalizedUrl = resolveMediaUrl(imageUrlInput.trim(), undefined);
-    const payloadImage = normalizedUrl || imageDataUrl;
-    if (!payloadImage) {
-      setStatus({ type: 'error', text: 'Добавьте ссылку или загрузите изображение.' });
+    if (!imageDataUrl) {
+      setStatus({ type: 'error', text: 'Загрузите изображение товара.' });
       return;
     }
     try {
@@ -297,7 +295,7 @@ function NewItemPanel({
       setSubmitting(true);
       await onSubmit({
         price: tonPrice,
-        imageSrc: payloadImage,
+        imageSrc: imageDataUrl,
         title: title.trim(),
         description: description.trim(),
       });
@@ -370,26 +368,16 @@ function NewItemPanel({
               />
             </div>
         <div className="space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">Превью</label>
+          <label className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">Изображение</label>
           <label className="flex min-h-[42px] cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/15 px-3 py-2 text-sm text-brand transition-colors duration-150 hover:border-brand/60">
             <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
             <UploadCloud className="mr-2 h-4 w-4" />
             Загрузить файл
           </label>
           <p className="text-xs text-txt/60">
-            Изображение сохраняется внутри контракта в формате base64. Для больших файлов используйте публичный URL.
+            Файл будет сжат до 600×600px и сохранён прямо в контракте (base64), поэтому он доступен всем устройствам без внешних ссылок.
           </p>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">URL изображения</label>
-          <input
-            value={imageUrlInput}
-            onChange={(event) => setImageUrlInput(event.target.value)}
-            placeholder="https://... или ipfs://..."
-            className="w-full rounded-2xl border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-brand/60"
-          />
-          <p className="text-xs text-txt/60">Если картинка уже размещена в сети, вставьте ссылку сюда вместо загрузки файла.</p>
+          {imageError && <p className="text-xs text-red-500">{imageError}</p>}
         </div>
           </div>
 
@@ -464,6 +452,7 @@ function NewItemPanel({
             </div>
           )}
           {warning && <p className="text-sm text-yellow-500">{warning}</p>}
+          {!imageDataUrl && <p className="text-xs text-txt/60">Добавьте изображение товара перед сохранением.</p>}
         </div>
 
         <aside className="space-y-4">
@@ -476,4 +465,58 @@ function NewItemPanel({
       </div>
     </div>
   );
+}
+
+async function convertFileToDataUrl(file: File): Promise<string> {
+  const original = await readBlobAsDataUrl(file);
+  const img = await loadImage(original);
+
+  const scale = Math.min(MAX_IMAGE_DIMENSION / img.width, MAX_IMAGE_DIMENSION / img.height, 1);
+  const width = Math.max(1, Math.round(img.width * scale));
+  const height = Math.max(1, Math.round(img.height * scale));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Canvas недоступен');
+  }
+  ctx.drawImage(img, 0, 0, width, height);
+
+  const blob: Blob | null = await new Promise((resolve) =>
+    canvas.toBlob((result) => resolve(result), 'image/jpeg', JPEG_QUALITY),
+  );
+  if (!blob) {
+    throw new Error('Не удалось кодировать изображение');
+  }
+  if (blob.size > 512 * 1024) {
+    throw new Error('Изображение слишком большое (после сжатия >512 КБ).');
+  }
+
+  return readBlobAsDataUrl(blob);
+}
+
+function readBlobAsDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === 'string') {
+        resolve(reader.result);
+      } else {
+        reject(new Error('Не удалось прочитать файл'));
+      }
+    };
+    reader.onerror = () => reject(reader.error ?? new Error('Не удалось прочитать файл'));
+    reader.readAsDataURL(blob);
+  });
+}
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = (error) => reject(error ?? new Error('Image load failed'));
+    img.src = src;
+  });
 }

@@ -282,8 +282,18 @@ function NewItemPanel({
 
   const handleCreate = async () => {
     setStatus(null);
-    if (!title.trim() || !price.trim()) {
+    const normalizedPrice = price.replace(/,/g, '.').trim();
+    if (!title.trim() || !normalizedPrice) {
       setStatus({ type: 'error', text: 'Название и цена обязательны.' });
+      return;
+    }
+    if (!/^[0-9]+(\.[0-9]{1,9})?$/.test(normalizedPrice)) {
+      setStatus({ type: 'error', text: 'Цена должна быть числом (например 12 или 12.4).' });
+      return;
+    }
+    const tonValue = Number(normalizedPrice);
+    if (!Number.isFinite(tonValue) || tonValue <= 0) {
+      setStatus({ type: 'error', text: 'Цена должна быть больше нуля.' });
       return;
     }
     if (!imageDataUrl) {
@@ -291,7 +301,7 @@ function NewItemPanel({
       return;
     }
     try {
-      const tonPrice = toNano(price.trim());
+      const tonPrice = toNano(normalizedPrice);
       setSubmitting(true);
       await onSubmit({
         price: tonPrice,
@@ -378,6 +388,9 @@ function NewItemPanel({
             Файл будет сжат до 600×600px и сохранён прямо в контракте (base64), поэтому он доступен всем устройствам без внешних ссылок.
           </p>
           {imageError && <p className="text-xs text-red-500">{imageError}</p>}
+          {imageDataUrl && !imageError && (
+            <p className="text-xs text-green-400">Фото добавлено</p>
+          )}
         </div>
           </div>
 

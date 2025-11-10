@@ -9,28 +9,33 @@ export default function Media({
 	alt,
 	className = "",
 }: {
-	src: string;
+	src?: string | null;
 	alt: string;
 	className?: string;
 }) {
 	const [loaded, setLoaded] = useState(false);
 	const [error, setError] = useState(false);
 
+	if (!src || error) {
+		return (
+			<div className={`image-wrap ${className}`}>
+				<div className="image-fallback">No image</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className={`image-wrap ${className}`}>
 			{!loaded && <div className="image-ph" />}
-			{!error && (
-				<img
-					src={src}
-					alt={alt}
-					className={`img-progressive ${loaded ? "is-loaded" : ""}`}
-					onLoad={() => setLoaded(true)}
-					onError={() => setError(true)}
-					loading="eager"
-					decoding="async"
-				/>
-			)}
-			{error && <div className="image-fallback">No image</div>}
+			<img
+				src={src}
+				alt={alt}
+				className={`img-progressive ${loaded ? "is-loaded" : ""}`}
+				onLoad={() => setLoaded(true)}
+				onError={() => setError(true)}
+				loading="eager"
+				decoding="async"
+			/>
 		</div>
 	);
 }

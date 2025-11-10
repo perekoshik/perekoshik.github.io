@@ -9,6 +9,7 @@ import { defaultImage } from '@/constants/images';
 import { useMarketContracts } from '@/hooks/useMarketContracts';
 import { useTonConnect } from '@/hooks/useTonConnect';
 import { PageLoader } from '../shared/PageLoader';
+import { resolveMediaUrl } from '@/lib/media';
 
 type StatusMessage = { type: 'success' | 'error'; text: string } | null;
 
@@ -230,32 +231,37 @@ function NewItemPanel({
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [highlights, setHighlights] = useState<Highlight[]>([createHighlight()]);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState('');
+  const [imageDataUrl, setImageDataUrl] = useState('');
+  const [imageUrlInput, setImageUrlInput] = useState('');
   const [status, setStatus] = useState<StatusMessage>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const effectiveImage = useMemo(() => {
+    const directUrl = resolveMediaUrl(imageUrlInput.trim(), undefined);
+    return directUrl || imageDataUrl || '';
+  }, [imageUrlInput, imageDataUrl]);
 
   const cardPreview = useMemo(() => {
     return {
       id: 'preview',
       title: title || 'Новая карточка',
-      image: imagePreview || defaultImage,
+      image: effectiveImage || undefined,
       badge: 'Draft',
       price: price ? `${price} TON` : undefined,
     } satisfies Parameters<typeof Card>[0]['item'];
-  }, [title, price, imagePreview]);
+  }, [title, price, effectiveImage]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = typeof reader.result === 'string' ? reader.result : '';
+      setImageDataUrl(result);
+      setImageUrlInput('');
+    };
+    reader.readAsDataURL(file);
   };
-
-  useEffect(() => {
-    if (!imagePreview.startsWith('blob:')) return;
-    return () => URL.revokeObjectURL(imagePreview);
-  }, [imagePreview]);
 
   const addHighlight = () => setHighlights((current) => [...current, createHighlight()]);
   const handleHighlightChange = (id: string, value: string) => {
@@ -270,8 +276,8 @@ function NewItemPanel({
     setPrice('');
     setDescription('');
     setHighlights([createHighlight()]);
-    setImageFile(null);
-    setImagePreview('');
+    setImageDataUrl('');
+    setImageUrlInput('');
   };
 
   const handleCreate = async () => {
@@ -280,12 +286,18 @@ function NewItemPanel({
       setStatus({ type: 'error', text: 'Название и цена обязательны.' });
       return;
     }
+    const normalizedUrl = resolveMediaUrl(imageUrlInput.trim(), undefined);
+    const payloadImage = normalizedUrl || imageDataUrl;
+    if (!payloadImage) {
+      setStatus({ type: 'error', text: 'Добавьте ссылку или загрузите изображение.' });
+      return;
+    }
     try {
       const tonPrice = toNano(price.trim());
       setSubmitting(true);
       await onSubmit({
         price: tonPrice,
-        imageSrc: imagePreview || defaultImage,
+        imageSrc: payloadImage,
         title: title.trim(),
         description: description.trim(),
       });
@@ -357,14 +369,28 @@ function NewItemPanel({
                 inputMode="decimal"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">Превью</label>
-              <label className="flex min-h-[42px] cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/15 px-3 py-2 text-sm text-brand transition-colors duration-150 hover:border-brand/60">
-                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-                <UploadCloud className="mr-2 h-4 w-4" />
-                {imageFile ? imageFile.name : 'Загрузить файл'}
-              </label>
-            </div>
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">Превью</label>
+          <label className="flex min-h-[42px] cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/15 px-3 py-2 text-sm text-brand transition-colors duration-150 hover:border-brand/60">
+            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+            <UploadCloud className="mr-2 h-4 w-4" />
+            Загрузить файл
+          </label>
+          <p className="text-xs text-txt/60">
+            Изображение сохраняется внутри контракта в формате base64. Для больших файлов используйте публичный URL.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">URL изображения</label>
+          <input
+            value={imageUrlInput}
+            onChange={(event) => setImageUrlInput(event.target.value)}
+            placeholder="https://... или ipfs://..."
+            className="w-full rounded-2xl border border-white/10 bg-transparent px-3 py-2 text-sm outline-none focus:border-brand/60"
+          />
+          <p className="text-xs text-txt/60">Если картинка уже размещена в сети, вставьте ссылку сюда вместо загрузки файла.</p>
+        </div>
           </div>
 
           <div className="space-y-2">

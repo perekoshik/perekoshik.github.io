@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 export type Item = {
 	id: string;
 	title: string;
-	image: string;
+	image?: string;
 	price?: string;
 	badge?: string;
 };
@@ -23,7 +23,7 @@ export default function Card({ item, onClick, className }: CardProps) {
 			className={cn("market-card card-hover", className)}
 		>
 			<div className="relative aspect-square w-full overflow-hidden">
-				<Media key={item.image} src={item.image} alt={item.title} />
+				<Media key={item.image ?? "placeholder"} src={item.image} alt={item.title} />
 				{item.badge && (
 					<span className="absolute left-3 top-3 rounded-full bg-brand/30 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.2em] text-brand">
 						{item.badge}

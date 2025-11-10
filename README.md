@@ -42,6 +42,14 @@ rsync -av dist/seller/ pages/seller/
 cd pages && git add . && git commit -m "deploy" && git push origin gh-pages
 ```
 
+Для удобства есть скрипт `scripts/deploy.sh`, который выполняет весь цикл сразу:
+
+```
+scripts/deploy.sh "feat: update"
+```
+
+Команда последовательно коммитит код в `main`, запускает `npm run build`, синхронизирует `dist` → `pages/` и пушит `gh-pages`.
+
 После пуша Pages раздаёт витрину по `https://perekoshik.github.io/`, а консоль продавца по `https://perekoshik.github.io/seller/`.
 
 ## Сеть TON

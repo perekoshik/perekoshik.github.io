@@ -85,11 +85,17 @@ export function useMarketContracts() {
   const [itemsLoading, setItemsLoading] = useState(false);
 
   const refreshShopInfo = useCallback(async () => {
-    if (!client || !wallet || wrongNetwork) {
+    if (!wallet || wrongNetwork) {
       setShopAddress(null);
       setShopName(null);
       setShopItemsCount(null);
       setShopDeployed(false);
+      setShopSyncing(false);
+      return;
+    }
+
+    if (!client) {
+      // Клиент ещё инициализируется. Не меняем текущее состояние, чтобы не дергать роутер.
       return;
     }
 
@@ -126,9 +132,13 @@ export function useMarketContracts() {
   }, [refreshShopInfo]);
 
   const refreshItems = useCallback(async () => {
-    if (!client || !shopAddress || shopItemsCount === null || !shopDeployed || wrongNetwork) {
+    if (!shopAddress || shopItemsCount === null || !shopDeployed || wrongNetwork) {
       setItems([]);
       setItemsLoading(false);
+      return;
+    }
+
+    if (!client) {
       return;
     }
 

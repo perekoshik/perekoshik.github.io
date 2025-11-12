@@ -1,4 +1,4 @@
-import { Address, beginCell, toNano } from '@ton/core';
+import { Address, beginCell, fromNano, toNano } from '@ton/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TWA } from '@/lib/twa';
 import { Item, storeUpdateItem } from '@/wrappers/Item';
@@ -11,6 +11,7 @@ import { useTonConnect } from './useTonConnect';
 import { defaultImage } from '@/constants/images';
 import { resolveMediaUrl } from '@/lib/media';
 import { TARGET_CHAIN, TARGET_NETWORK_LABEL } from '@/config';
+import { Api } from '@/lib/api';
 
 async function waitForContractDeployment(options: {
   client: { isContractDeployed(address: Address): Promise<boolean> };
@@ -238,8 +239,17 @@ export function useMarketContracts() {
         address: shopContract.address,
       });
 
-      await refreshShopInfo();
-      return shopContract.address.toString();
+      const shopAddressString = shopContract.address.toString();
+      try {
+        await persistShopRecord({
+          address: shopAddressString,
+          owner: wallet,
+          shopName: name,
+        });
+        return shopAddressString;
+      } finally {
+        await refreshShopInfo();
+      }
     },
     [client, sender, wallet, connected, telegramUser, refreshShopInfo],
   );
@@ -293,8 +303,20 @@ export function useMarketContracts() {
         address: itemContract.address,
       });
 
-      await refreshShopInfo();
-      await refreshItems();
+      const itemAddressString = itemContract.address.toString();
+      try {
+        await persistItemRecord({
+          id: itemAddressString,
+          shopAddress,
+          title: params.title,
+          description: params.description,
+          imageSrc: params.imageSrc,
+          price: fromNano(params.price),
+        });
+        return itemAddressString;
+      } finally {
+        await Promise.all([refreshShopInfo(), refreshItems()]);
+      }
     },
     [client, sender, shopAddress, shopItemsCount, refreshShopInfo, refreshItems],
   );
@@ -317,4 +339,42 @@ export function useMarketContracts() {
     makeItem,
     targetNetworkLabel: TARGET_NETWORK_LABEL,
   };
+}
+
+async function persistShopRecord(record: { address: string; owner: string; shopName: string }) {
+  try {
+    await Api.saveShop({
+      address: record.address,
+      owner: record.owner,
+      shopName: record.shopName,
+      category: 'All',
+    });
+  } catch (error) {
+    console.warn('[api] saveShop failed', error);
+    throw new Error('Магазин создан в TON, но не удалось сохранить запись в базе. Проверьте API.');
+  }
+}
+
+async function persistItemRecord(record: {
+  id: string;
+  shopAddress: string;
+  title: string;
+  description: string;
+  imageSrc: string;
+  price: string;
+}) {
+  try {
+    await Api.saveItem({
+      id: record.id,
+      shopAddress: record.shopAddress,
+      title: record.title,
+      description: record.description,
+      imageSrc: resolveMediaUrl(record.imageSrc, defaultImage) ?? defaultImage,
+      price: record.price,
+      category: 'All',
+    });
+  } catch (error) {
+    console.warn('[api] saveItem failed', error);
+    throw new Error('Лот опубликован в TON, но API не сохранил карточку. Повторите попытку после проверки сервера.');
+  }
 }

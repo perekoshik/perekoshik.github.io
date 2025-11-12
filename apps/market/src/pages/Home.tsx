@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Card, { type Item } from "@/components/Card";
-import CategoryPills from "@/components/CategoryPills";
-import Hero from "@/components/Hero";
-import Skeleton from "@/components/Skeleton";
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Card, { type Item } from '@/components/Card';
+import CategoryPills from '@/components/CategoryPills';
+import Hero from '@/components/Hero';
+import Skeleton from '@/components/Skeleton';
+import { Api, type ItemRecord } from '@/lib/api';
 
 const SKELETON4 = ["s1", "s2", "s3", "s4"] as const;
 const SKELETON8 = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
@@ -20,89 +21,29 @@ const categories = [
 ] as const;
 
 type Category = (typeof categories)[number];
-type HomeItem = Item & { category: Category };
-
-const demo: HomeItem[] = [
-	{
-		id: "1",
-		title: "Genesis Shard",
-		image:
-			"https://images.unsplash.com/photo-1621605815971-22b9ce6d6c03?auto=format&fit=crop&w=1200&q=80",
-		price: "12.4 TON",
-		badge: "Featured",
-		category: "Featured",
-	},
-	{
-		id: "2",
-		title: "Crystal Armor",
-		image:
-			"https://images.unsplash.com/photo-1618004912476-29818d81ae2e?auto=format&fit=crop&w=1200&q=80",
-		price: "3.1 TON",
-		badge: "New",
-		category: "Gaming",
-	},
-	{
-		id: "3",
-		title: "Void Relic",
-		image:
-			"https://images.unsplash.com/photo-1605649487213-83c07e434558?auto=format&fit=crop&w=1200&q=80",
-		price: "0.8 TON",
-		category: "Collectibles",
-	},
-	{
-		id: "4",
-		title: "Aurora Canvas",
-		image:
-			"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
-		price: "5.0 TON",
-		badge: "Featured",
-		category: "Art",
-	},
-	{
-		id: "5",
-		title: "Signature Relic",
-		image:
-			"https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=1200&q=80",
-		price: "2.0 TON",
-		category: "Collectibles",
-	},
-	{
-		id: "6",
-		title: "Echo Verse",
-		image:
-			"https://images.unsplash.com/photo-1485579149621-3123dd979885?auto=format&fit=crop&w=1200&q=80",
-		price: "1.6 TON",
-		badge: "New",
-		category: "Music",
-	},
-	{
-		id: "7",
-		title: "Prime Domain",
-		image:
-			"https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1200&q=80",
-		price: "18.9 TON",
-		badge: "Featured",
-		category: "Domains",
-	},
-	{
-		id: "8",
-		title: "Lunar Archive",
-		image:
-			"https://images.unsplash.com/photo-1526498460520-4c246339dccb?auto=format&fit=crop&w=1200&q=80",
-		price: "4.4 TON",
-		badge: "New",
-		category: "New",
-	},
-];
+type HomeItem = Item & { category: Category; shopAddress: string };
 
 export default function Home() {
 	const [items, setItems] = useState<HomeItem[] | null>(null);
-	const [activeCategory, setActiveCategory] = useState<Category>("All");
+	const [activeCategory, setActiveCategory] = useState<Category>('All');
 	const nav = useNavigate();
 
 	useEffect(() => {
-		const t = setTimeout(() => setItems(demo), 420);
-		return () => clearTimeout(t);
+		let mounted = true;
+		Api.listItems()
+			.then((records) => {
+				if (!mounted) return;
+				setItems(records.map(mapItemRecord));
+			})
+			.catch((error) => {
+				console.error('Failed to load items', error);
+				if (mounted) {
+					setItems([]);
+				}
+			});
+		return () => {
+			mounted = false;
+		};
 	}, []);
 
 	const featuredItems = useMemo(() => {
@@ -153,7 +94,7 @@ export default function Home() {
 							<Card
 								key={item.id}
 								item={item}
-								onClick={() => nav(`/item/${item.id}`)}
+								onClick={() => nav(`/item/${encodeURIComponent(item.id)}`)}
 							/>
 						))}
 					</div>
@@ -186,7 +127,7 @@ export default function Home() {
 										key={item.id}
 										className="min-w-[200px] max-w-[220px] flex-none sm:min-w-[230px]"
 									>
-										<Card item={item} onClick={() => nav(`/item/${item.id}`)} />
+										<Card item={item} onClick={() => nav(`/item/${encodeURIComponent(item.id)}`)} />
 									</div>
 								))
 							: SKELETON4.map((k) => (
@@ -238,4 +179,22 @@ export default function Home() {
 			</section>
 		</div>
 	);
+}
+
+function mapItemRecord(record: ItemRecord): HomeItem {
+	return {
+		id: record.id,
+		shopAddress: record.shopAddress,
+		title: record.title,
+		image: record.imageSrc,
+		price: `${record.price} TON`,
+		badge: 'New',
+		category: normalizeCategory(record.category),
+	};
+}
+
+function normalizeCategory(value: string | undefined): Category {
+	const fallback: Category = 'All';
+	if (!value) return fallback;
+	return categories.includes(value as Category) ? (value as Category) : fallback;
 }

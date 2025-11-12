@@ -42,7 +42,7 @@ export function CreateShopPage() {
     setStatus(null);
     try {
       await makeShop(input.trim());
-      setStatus({ type: 'success', text: 'Магазин отправлен в сеть TON.' });
+      setStatus({ type: 'success', text: 'Магазин сохранён в базе и опубликован в TON.' });
     } catch (error) {
       setStatus({
         type: 'error',

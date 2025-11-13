@@ -29,6 +29,8 @@ npm run preview:seller   # прогон dist/seller
 - Market: `https://perekoshik.github.io/`
 - Seller Console: `https://perekoshik.github.io/seller/`
 
+> Комментарий: ссылки выше открываются как Telegram mini app.
+
 Открывайте мини‑аппы внутри Telegram — тогда подтягивается `initData` и TonConnect.
 
 ## Деплой

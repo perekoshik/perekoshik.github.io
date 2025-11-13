@@ -8,6 +8,7 @@ const sharedRoot = path.resolve(__dirname, '../../packages/shared/src');
 export default defineConfig({
   root: appRoot,
   publicDir: path.resolve(appRoot, 'public'),
+  envDir: path.resolve(__dirname, '../../'),
   plugins: [react()],
   base: '/',
   resolve: {

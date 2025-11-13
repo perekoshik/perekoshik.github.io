@@ -62,4 +62,6 @@ pages/
 
 # Server data
 server/data.json
+server/*.sqlite
+server/data.sqlite
 server/uploads

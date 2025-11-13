@@ -56,16 +56,29 @@ scripts/deploy.sh "feat: update"
 По умолчанию все хуки/клиенты работают в **testnet** (см. `packages/shared/src/config.ts`). Чтобы переключиться на mainnet, задайте в `.env` переменную `VITE_TON_NETWORK=mainnet` и перезапустите dev/build. Seller UI показывает предупреждение, если кошелёк подключён к другой сети, и блокирует транзакции до переключения.
 
 ## Backend API
-В каталоге `server/` находится простой Express API с хранением данных в `server/data.json`.
+В каталоге `server/` живёт отдельное приложение на Express + SQLite.
 
-Локальный запуск:
+Запуск локально:
 ```
-npm run dev:api
+cd server
+cp .env.example .env           # DATABASE_PATH/PORT можно оставить по умолчанию
+npm install
+npm run dev
 ```
 
-Фронтенды используют переменную `VITE_API_URL`. Для разработки добавьте в `.env`:
+Для продакшена:
+```
+npm run build
+PORT=4000 DATABASE_PATH=/var/www/web3market/data/data.sqlite npm run start
+```
+или `pm2 start npm --name web3market-api -- start`.
+
+> **Важно:** база данных теперь хранится в SQLite‑файле (по умолчанию `server/data.sqlite`).
+> Путь можно перенести на сервер через переменную `DATABASE_PATH`.
+
+Фронтенды используют переменную `VITE_API_URL`. Для разработки добавьте в `.env` (в корне репо):
 ```
 VITE_API_URL=http://localhost:4000
 ```
 
-В продакшене задеплойте сервер на любой HTTPS-хостинг (Render/Fly/Vercel и т.д.) и обновите `VITE_API_URL` на публичный URL.
+В продакшене соберите мини‑аппы с `VITE_API_URL=https://web3market.duckdns.org` (или вашим доменом), а API запустите на том же домене через HTTPS.

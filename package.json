@@ -16,7 +16,7 @@
     "postbuild": "node scripts/copy-404.js",
     "lint": "npx @ton-ai-core/vibecode-linter apps/market/src/ packages/shared/src/ apps/seller/src/",
     "postinstall": "patch-package",
-    "dev:api": "tsx server/index.ts"
+    "dev:api": "npm --prefix server run dev"
   },
   "dependencies": {
     "@orbs-network/ton-access": "^2.3.3",

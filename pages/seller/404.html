@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b0f14" />
+    <link rel="icon" href="/seller/icon-512.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (() => {
+        const storageKey = 'theme'
+        const root = document.documentElement
+        try {
+          const stored = window.localStorage.getItem(storageKey)
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          const theme = stored ?? (prefersDark ? 'dark' : 'light')
+          root.classList.toggle('dark', theme === 'dark')
+          root.dataset.theme = theme
+        } catch (error) {
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          root.classList.toggle('dark', prefersDark)
+          root.dataset.theme = prefersDark ? 'dark' : 'light'
+        }
+      })()
+    </script>
+    <title>Web3Market Seller Console</title>
+    <script type="module" crossorigin src="/seller/assets/index-DTtFSzNP.js"></script>
+    <link rel="stylesheet" crossorigin href="/seller/assets/index-CvQYLIDO.css">
+  </head>
+  <body class="bg-bg text-txt selection:bg-brand/30 selection:text-txt">
+    <div id="root"></div>
+  </body>
+</html>

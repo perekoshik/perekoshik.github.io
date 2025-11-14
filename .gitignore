@@ -59,7 +59,7 @@ coverage/
 # Runtime data
 .rpt2_cache/
 .rollup_cache/
-/pages/
+!/pages/
 
 # Server data
 server/data.json

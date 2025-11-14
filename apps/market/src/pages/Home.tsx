@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Address, fromNano } from '@ton/core';
 import Card, { type Item } from '@/components/Card';
 import CategoryPills from '@/components/CategoryPills';
 import Hero from '@/components/Hero';
 import Skeleton from '@/components/Skeleton';
-import { Api, type ItemRecord } from '@/lib/api';
+import { Api, type ShopRecord } from '@/lib/api';
+import { useTonClient } from '@/hooks/useTonClient';
+import { Item as TonItem } from '@/wrappers/Item';
+import { Shop as TonShop } from '@/wrappers/Shop';
+import { resolveMediaUrl } from '@/lib/media';
+import { defaultImage } from '@/constants/images';
 
 const SKELETON4 = ["s1", "s2", "s3", "s4"] as const;
 const SKELETON8 = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
@@ -27,24 +33,33 @@ export default function Home() {
 	const [items, setItems] = useState<HomeItem[] | null>(null);
 	const [activeCategory, setActiveCategory] = useState<Category>('All');
 	const nav = useNavigate();
+	const { client } = useTonClient();
 
 	useEffect(() => {
-		let mounted = true;
-		Api.listItems()
-			.then((records) => {
-				if (!mounted) return;
-				setItems(records.map(mapItemRecord));
-			})
-			.catch((error) => {
-				console.error('Failed to load items', error);
-				if (mounted) {
+		if (!client) return;
+		let cancelled = false;
+		const load = async () => {
+			setItems(null);
+			try {
+				const shops = await Api.listShops();
+				const tonItems = await collectTonItems(client, shops);
+				if (!cancelled) {
+					setItems(tonItems.map(mapTonItem));
+				}
+			} catch (error) {
+				console.error('Failed to load TON items', error);
+				if (!cancelled) {
 					setItems([]);
 				}
-			});
-		return () => {
-			mounted = false;
+			} finally {
+				/* no-op */
+			}
 		};
-	}, []);
+		load();
+		return () => {
+			cancelled = true;
+		};
+	}, [client]);
 
 	const featuredItems = useMemo(() => {
 		if (!items) return [];
@@ -160,13 +175,13 @@ export default function Home() {
 							SKELETON8.map((k) => (
 								<Skeleton key={k} className="aspect-square" />
 							))}
-						{visibleItems?.map((item) => (
-							<Card
-								key={item.id}
-								item={item}
-								onClick={() => nav(`/item/${item.id}`)}
-							/>
-						))}
+				{visibleItems?.map((item) => (
+					<Card
+						key={item.id}
+						item={item}
+						onClick={() => nav(`/item/${item.id}`)}
+					/>
+				))}
 					</div>
 				</div>
 
@@ -181,20 +196,58 @@ export default function Home() {
 	);
 }
 
-function mapItemRecord(record: ItemRecord): HomeItem {
+type TonChainItem = {
+	id: string;
+	shopAddress: string;
+	title: string;
+	description: string;
+	priceNano: bigint;
+	imageSrc: string;
+};
+
+function mapTonItem(record: TonChainItem): HomeItem {
 	return {
 		id: record.id,
 		shopAddress: record.shopAddress,
-		title: record.title,
+		title: record.title || 'Без названия',
 		image: record.imageSrc,
-		price: `${record.price} TON`,
-		badge: 'New',
-		category: normalizeCategory(record.category),
+		price: `${fromNano(record.priceNano)} TON`,
+		badge: 'On-chain',
+		category: 'All',
 	};
 }
 
-function normalizeCategory(value: string | undefined): Category {
-	const fallback: Category = 'All';
-	if (!value) return fallback;
-	return categories.includes(value as Category) ? (value as Category) : fallback;
+async function collectTonItems(client: NonNullable<ReturnType<typeof useTonClient>['client']>, shops: ShopRecord[]) {
+	const items: TonChainItem[] = [];
+	for (const shop of shops) {
+		try {
+			const address = Address.parse(shop.address);
+			const shopContract = client.open(TonShop.fromAddress(address));
+			const deployed = await client.isContractDeployed(shopContract.address);
+			if (!deployed) continue;
+			const itemsCount = await shopContract.getItemsCount();
+			for (let index = 0; index < Number(itemsCount); index += 1) {
+				const itemState = await TonItem.fromInit(address, BigInt(index));
+				const itemContract = client.open(itemState);
+				if (!(await client.isContractDeployed(itemContract.address))) continue;
+				const [imageSrc, title, description, price] = await Promise.all([
+					itemContract.getImageSrc(),
+					itemContract.getTitle(),
+					itemContract.getDescription(),
+					itemContract.getPrice(),
+				]);
+				items.push({
+					id: itemContract.address.toString(),
+					shopAddress: shop.address,
+					title,
+					description,
+					priceNano: price,
+					imageSrc: resolveMediaUrl(imageSrc, defaultImage) ?? defaultImage,
+				});
+			}
+		} catch (error) {
+			console.warn('[home] failed to load shop items', shop.address, error);
+		}
+	}
+	return items;
 }

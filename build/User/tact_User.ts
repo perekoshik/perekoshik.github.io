@@ -1498,6 +1498,47 @@ export function dictValueParserChangeAvailability(): DictionaryValue<ChangeAvail
     }
 }
 
+export type NewShop = {
+    $$type: 'NewShop';
+}
+
+export function storeNewShop(src: NewShop) {
+    return (builder: Builder) => {
+        const b_0 = builder;
+        b_0.storeUint(538378294, 32);
+    };
+}
+
+export function loadNewShop(slice: Slice) {
+    const sc_0 = slice;
+    if (sc_0.loadUint(32) !== 538378294) { throw Error('Invalid prefix'); }
+    return { $$type: 'NewShop' as const };
+}
+
+export function loadTupleNewShop(source: TupleReader) {
+    return { $$type: 'NewShop' as const };
+}
+
+export function loadGetterTupleNewShop(source: TupleReader) {
+    return { $$type: 'NewShop' as const };
+}
+
+export function storeTupleNewShop(source: NewShop) {
+    const builder = new TupleBuilder();
+    return builder.build();
+}
+
+export function dictValueParserNewShop(): DictionaryValue<NewShop> {
+    return {
+        serialize: (src, builder) => {
+            builder.storeRef(beginCell().store(storeNewShop(src)).endCell());
+        },
+        parse: (src) => {
+            return loadNewShop(src.loadRef().beginParse());
+        }
+    }
+}
+
 export type Deploy = {
     $$type: 'Deploy';
     queryId: bigint;
@@ -1835,6 +1876,7 @@ const User_types: ABIType[] = [
     {"name":"UpdateItem","header":967082613,"fields":[{"name":"price","type":{"kind":"simple","type":"uint","optional":false,"format":"coins"}},{"name":"imageSrc","type":{"kind":"simple","type":"string","optional":false}},{"name":"title","type":{"kind":"simple","type":"string","optional":false}},{"name":"description","type":{"kind":"simple","type":"string","optional":false}}]},
     {"name":"NewItem","header":3605122850,"fields":[]},
     {"name":"ChangeAvailability","header":1224645492,"fields":[]},
+    {"name":"NewShop","header":538378294,"fields":[]},
     {"name":"Deploy","header":2490013878,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"DeployOk","header":2952335191,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}}]},
     {"name":"FactoryDeploy","header":1829761339,"fields":[{"name":"queryId","type":{"kind":"simple","type":"uint","optional":false,"format":64}},{"name":"cashback","type":{"kind":"simple","type":"address","optional":false}}]},
@@ -1859,6 +1901,7 @@ const User_opcodes = {
     "UpdateItem": 967082613,
     "NewItem": 3605122850,
     "ChangeAvailability": 1224645492,
+    "NewShop": 538378294,
     "Deploy": 2490013878,
     "DeployOk": 2952335191,
     "FactoryDeploy": 1829761339,

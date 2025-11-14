@@ -1,0 +1,559 @@
+// automatically generated from `@stdlib/std/stdlib.fc` `C:/Users/nikit/ex/build/ShopFactory/ShopFactory_ShopFactory.fc` 
+PROGRAM{
+  DECLPROC __tact_context_get
+  DECLPROC __tact_context_get_sender
+  DECLPROC __tact_string_builder_start
+  DECLPROC __tact_string_builder_start_comment
+  DECLPROC __tact_string_builder_start_string
+  DECLPROC __tact_string_builder_end
+  DECLPROC __tact_string_builder_end_slice
+  DECLPROC __tact_string_builder_append
+  DECLPROC $ShopFactory$_store
+  DECLPROC $ShopFactory$_load
+  DECLPROC $Context$_get_value
+  DECLPROC $Shop$init$_store
+  DECLPROC $ShopFactory$init$_load
+  DECLPROC $ShopFactory$_contract_init
+  DECLPROC $ShopFactory$_contract_load
+  DECLPROC $ShopFactory$_contract_store
+  DECLPROC $Cell$_fun_asSlice
+  DECLPROC $global_newAddress
+  DECLPROC $global_contractAddressExt
+  DECLPROC $global_contractAddress
+  DECLPROC $String$_fun_asComment
+  DECLPROC $Shop$_init_child
+  DECLPROC $MessageParameters$_constructor_bounce_to_value_mode_body
+  DECLPROC $ShopFactory$_fun_shopAddress
+  DECLPROC $ShopFactory$_fun_shopCount
+  DECLPROC $ShopFactory$_fun_reply
+  DECLPROC $ShopFactory$_fun_owner
+  DECLPROC $SendParameters$_constructor_to_value_mode_code_data
+  94943 DECLMETHOD %shopAddress
+  81626 DECLMETHOD %shopCount
+  83229 DECLMETHOD %owner
+  DECLPROC recv_internal
+  65535 DECLMETHOD __tact_selector_hack
+  DECLGLOBVAR __tact_context
+  DECLGLOBVAR __tact_context_sender
+  DECLGLOBVAR __tact_child_contract_codes
+  DECLGLOBVAR __tact_randomized
+  __tact_context_get PROCINLINE:<{
+    __tact_context GETGLOB
+    4 UNTUPLE
+  }>
+  __tact_context_get_sender PROCINLINE:<{
+    __tact_context_sender GETGLOB
+  }>
+  __tact_string_builder_start PROCINLINE:<{
+    NIL
+    SWAP
+    TPUSH
+    PUSHNULL
+    TPUSH
+  }>
+  __tact_string_builder_start_comment PROCINLINE:<{
+    NEWC
+    0 PUSHINT
+    SWAP
+    32 STU
+    __tact_string_builder_start INLINECALLDICT
+  }>
+  __tact_string_builder_start_string PROCINLINE:<{
+    NEWC
+    __tact_string_builder_start INLINECALLDICT
+  }>
+  __tact_string_builder_end PROCINLINE:<{
+    UNCONS
+    SWAP
+    ENDC
+    WHILE:<{
+      OVER
+      ISNULL
+      NOT
+    }>DO<{
+      SWAP
+      UNCONS
+      -ROT
+      STREF
+      ENDC
+    }>
+    NIP
+  }>
+  __tact_string_builder_end_slice PROCINLINE:<{
+    __tact_string_builder_end INLINECALLDICT
+    CTOS
+  }>
+  __tact_string_builder_append PROCREF:<{
+    DUP
+    SREFS
+    OVER
+    SBITS
+    WHILE:<{
+      DUP
+      0 GTINT
+      s2 PUSH
+      0 GTINT
+      OR
+    }>DO<{
+      s0 s3 XCHG
+      UNCONS
+      127 PUSHINT
+      s2 PUSH
+      BBITS
+      3 RSHIFT#
+      SUB
+      s0 s5 XCHG
+      3 RSHIFT#
+      s5 s5 XCPU
+      MIN
+      DUP
+      0 GTINT
+      IF:<{
+        DUP
+        3 LSHIFT#
+        s1 s5 XCHG
+        LDSLICEX
+        s0 s3 XCHG
+        STSLICE
+        s0 s1 s4 XCHG3
+      }>
+      -ROT
+      CONS
+      s4 s1 PUSH2
+      SUB
+      0 GTINT
+      IF:<{
+        NEWC
+        SWAP
+        CONS
+        s4 s4 XCHG2
+        SUB
+        3 LSHIFT#
+      }>ELSE<{
+        NIP
+        s3 POP
+        0 GTINT
+        IF:<{
+          LDREF
+          DROP
+          CTOS
+          DUP
+          SREFS
+          OVER
+          SBITS
+        }>ELSE<{
+          0 PUSHINT
+          DUP
+        }>
+      }>
+    }>
+    3 BLKDROP
+  }>
+  $ShopFactory$_store PROCINLINE:<{
+    s0 s2 XCHG
+    STSLICE
+    256 STU
+  }>
+  $ShopFactory$_load PROCINLINE:<{
+    LDMSGADDR
+    256 LDU
+    -ROT
+  }>
+  $Context$_get_value PROCINLINE:<{
+    s1 s3 XCHG
+    3 BLKDROP
+  }>
+  $Shop$init$_store PROCINLINE:<{
+    SWAP
+    STSLICE
+  }>
+  $ShopFactory$init$_load PROCINLINE:<{
+    LDMSGADDR
+    SWAP
+  }>
+  $ShopFactory$_contract_init PROCINLINE:<{
+    0 PUSHINT
+  }>
+  $ShopFactory$_contract_load PROCINLINE:<{
+    c4 PUSH
+    CTOS
+    1 LDI
+    SWAP
+    IF:<{
+      $ShopFactory$_load INLINECALLDICT
+      1 2 BLKDROP2
+    }>ELSE<{
+      $ShopFactory$init$_load INLINECALLDICT
+      SWAP
+      ENDS
+      $ShopFactory$_contract_init INLINECALLDICT
+    }>
+  }>
+  $ShopFactory$_contract_store PROCINLINE:<{
+    NEWC
+    TRUE
+    SWAP
+    1 STI
+    -ROT
+    $ShopFactory$_store INLINECALLDICT
+    ENDC
+    c4 POP
+  }>
+  $Cell$_fun_asSlice PROCINLINE:<{
+        CTOS
+  }>
+  $global_newAddress PROCINLINE:<{
+        NEWC
+    4 PUSHINT
+    SWAP
+    3 STU
+    s1 s2 XCHG
+    8 STI
+    256 STU
+        ENDC
+    $Cell$_fun_asSlice INLINECALLDICT
+  }>
+  $global_contractAddressExt PROCINLINE:<{
+        s0 PUSH HASHCU // `data` hash
+        s2 PUSH HASHCU // `code` hash
+        SWAP2
+        CDEPTH         // `data` depth
+        SWAP
+        CDEPTH         // `code` depth
+        131380 INT     // (2 << 16) | (1 << 8) | 0x34
+        // Group 2: Composition of the Builder
+        NEWC
+        24 STU  // store refs_descriptor | bits_descriptor | data
+        16 STU  // store depth_descriptor for `code`
+        16 STU  // store depth_descriptor for `data`
+        256 STU // store `code` hash
+        256 STU // store `data` hash
+        // Group 3: SHA256 hash of the resulting Builder
+        ONE HASHEXT_SHA256
+    $global_newAddress INLINECALLDICT
+  }>
+  $global_contractAddress PROCINLINE:<{
+    0 PUSHINT
+    -ROT
+    $global_contractAddressExt INLINECALLDICT
+  }>
+  $String$_fun_asComment PROCREF:<{
+    __tact_string_builder_start_comment INLINECALLDICT
+    SWAP
+    __tact_string_builder_append INLINECALLDICT
+    __tact_string_builder_end INLINECALLDICT
+  }>
+  $Shop$_init_child PROCREF:<{
+        B{b5ee9c7201023e01000bbe000228ff008e88f4a413f4bcf2c80bed5320e303ed43d90102020271030403f83001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e207925f07e005d70d1ff2e082218210ae4563e0bae302218210fe3511b0bae302218210d6e1cf22ba0d0e0f0201200506020120090a0185b990fed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e2db3c6c6183802014807080185b1477b513434800063873e903500740074fff4fff5007434fffe800c0409840944090408db05a3857e900040745c22e1cda1bdc13985b5961c54c880c138b6cf1b1860390185b3b3fb513434800063873e903500740074fff4fff5007434fffe800c0409840944090408db05a3857e900040745c22e1cda1bdc13985b5961c54c880c138b6cf1b1860350185b96c0ed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e2db3c6c6181e0201e90b0c0183a7dbda89a1a400031c39f481a803a003a7ffa7ffa803a1a7fff40060204c204a20482046d82d1c2bf4800203a2e1170e6d0dee09cc2dacb0e2a6440609c5b678d8c3310183a577da89a1a400031c39f481a803a003a7ffa7ffa803a1a7fff40060204c204a20482046d82d1c2bf4800203a2e1170e6d0dee09cc2dacb0e2a6440609c5b678d8c3320058345b01d401d001d3ff3010354043c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed5403fe31fa0030104510344136db3cf82824db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d049137250a210246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0002a4104510111200ce8e255b01a410354143c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed54e001821090268e31ba8e2fd431d3ff31fa003016a004a41035440302c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed54e05f07f2c0820010f84226c705f2e084011888c87001ca005a02cecbffc9130042035024c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed540228ff008e88f4a413f4bcf2c80bed5320e303ed43d91415020271161701f43001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e22fa40d3fffa00d401d001d401d0d401d001d401d001d2003010371036103510346c178e28fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e87fe208925f08e006d70d1ff2e082212402012018190201201f200201201a1b01b7b88a9ed44d0d200018e22fa40d3fffa00d401d001d401d0d401d001d401d001d2003010371036103510346c178e28fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e87fe2db3c6c718350201621c1d01b7b73cdda89a1a400031c45f481a7fff401a803a003a803a1a803a003a803a003a40060206e206c206a2068d82f1c51f481a7feb205a202e1170d2dac2cecaa6e4c7116ae8d2e8d8cb1176c8cae6c6e4d2e0e8d2dedd0ffc5b678d8e303801b6a821ed44d0d200018e22fa40d3fffa00d401d001d401d0d401d001d401d001d2003010371036103510346c178e28fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e87fe2db3c6c713101b6a99eed44d0d200018e22fa40d3fffa00d401d001d401d0d401d001d401d001d2003010371036103510346c178e28fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e87fe2db3c6c711e000220020148212201b7b951bed44d0d200018e22fa40d3fffa00d401d001d401d0d401d001d401d001d2003010371036103510346c178e28fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e87fe2db3c6c7183201b7b3b83b51343480006388be9034fffe8035007400750074350074007500740074800c040dc40d840d440d1b05e38a3e9034ffd640b4405c22e1a5b5859d954dc98e22d5d1a5d1b19622ed9195cd8dc9a5c1d1a5bdba1ff8b6cf1b1c602301b7b3643b51343480006388be9034fffe8035007400750074350074007500740074800c040dc40d840d440d1b05e38a3e9034ffd640b4405c22e1a5b5859d954dc98e22d5d1a5d1b19622ed9195cd8dc9a5c1d1a5bdba1ff8b6cf1b1c603900022603fe821039a48275ba8ee3375f0402fa00d401d001d401d001d430d082084c4b40726f00c801308210d6e1cf2201cb1fc92755205a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0010465503e02182107ac14988bae30230821048fe9b74ba252627004cc87f01ca0055605067ce14cbff58fa0201c8cecdc802c8ce12cd02c8ce12cd12ca00cdc9ed5402fe31810101d700fa4031fa00d430d0f842f82829035155db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d0027224502310246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c92829006c8e2e06b3104610354430c87f01ca0055605067ce14cbff58fa0201c8cecdc802c8ce12cd02c8ce12cd12ca00cdc9ed54e05f07f2c082013288c87001ca0055415045ce12cece01c8cbff02c8ce12cdcdc92a02c201fb00543154c85520821090268e315004cb1f02c8ce12cdcbff01fa02c92659726d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb008810571046103544303c3d0228ff008e88f4a413f4bcf2c80bed5320e303ed43d92b2c0202712d2e02f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e207925f07e07026d74920c21f953106d31f309137e22082103a4c4c8fbae302c00006c12116b03a3b0201202f3002012033340187bb6c2ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618310187b8ffced44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618320002210002240187b9d90ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c6183502012036370002220187b64ffda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c30380187b462fda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c303900022300022500465b3440347f01c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed5400728e31f842c8cf8508ce70cf0b6ec98042fb0010355512c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed54e05f06f2c0820022000000004f7264657220637265617465640092f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055605067ce14cbff58fa0201c8cecdc802c8ce12cd02c8ce12cd12ca00cdc9ed54} B>boc PUSHREF
+    NEWC
+    FALSE
+    SWAP
+    1 STI
+    ROT
+    $Shop$init$_store INLINECALLDICT
+    ENDC
+  }>
+  $MessageParameters$_constructor_bounce_to_value_mode_body PROCINLINE:<{
+    s3 s3 XCHG2
+    s0 s4 XCHG
+  }>
+  $ShopFactory$_fun_shopAddress PROCREF:<{
+    3 BLKDROP
+    __tact_context_get_sender INLINECALLDICT
+    $Shop$_init_child INLINECALLDICT
+    $global_contractAddress INLINECALLDICT
+  }>
+  $ShopFactory$_fun_shopCount PROCREF:<{
+    DUP
+  }>
+  $ShopFactory$_fun_reply PROCINLINE:<{
+    __tact_context_get_sender INLINECALLDICT
+    TRUE
+    0 PUSHINT
+    s0 s3 XCHG2
+    66 PUSHINT
+    SWAP
+    $MessageParameters$_constructor_bounce_to_value_mode_body INLINECALLDICT
+        NEWC
+        b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+        1 STI               // store `bounce`
+        b{000} STSLICECONST // store bounced = false and src = addr_none
+        STSLICE             // store `to`
+        SWAP
+        STGRAMS             // store `value`
+        106 PUSHINT         // 1 + 4 + 4 + 64 + 32 + 1
+        STZEROES
+        // → Stack state
+        // s0: Builder
+        // s1: `body`
+        // s2: `mode`
+        STDICT
+        ENDC
+        SWAP
+        SENDRAWMSG
+  }>
+  $ShopFactory$_fun_owner PROCREF:<{
+    OVER
+  }>
+  $SendParameters$_constructor_to_value_mode_code_data PROCINLINE:<{
+    s2 s4 XCHG
+    PUSHNULL
+    s1 s4 s4 XCHG3
+    s0 s3 XCHG
+    TRUE
+  }>
+  %shopAddress PROC:<{
+    $ShopFactory$_contract_load INLINECALLDICT
+    3 2 BLKSWAP
+    $ShopFactory$_fun_shopAddress INLINECALLDICT
+    2 1 BLKDROP2
+  }>
+  %shopCount PROC:<{
+    $ShopFactory$_contract_load INLINECALLDICT
+    $ShopFactory$_fun_shopCount INLINECALLDICT
+    2 1 BLKDROP2
+  }>
+  %owner PROC:<{
+    $ShopFactory$_contract_load INLINECALLDICT
+    $ShopFactory$_fun_owner INLINECALLDICT
+    2 1 BLKDROP2
+  }>
+  recv_internal PROC:<{
+    SWAP
+    CTOS
+    2 PUSHINT
+    SDSKIPFIRST
+    1 LDI
+    1 LDI
+    LDMSGADDR
+    OVER
+    s3 s4 XCHG
+    s6 s6 XCHG2
+    4 TUPLE
+    __tact_context SETGLOB
+    s0 s2 XCHG
+    __tact_context_sender SETGLOB
+    $ShopFactory$_contract_load INLINECALLDICT
+    s0 s3 XCHG
+    IFJMP:<{
+      3 BLKDROP
+    }>
+    0 PUSHINT
+    s2 PUSH
+    SBITS
+    DUP
+    31 GTINT
+    IF:<{
+      NIP
+      s0 s2 XCHG
+      32 LDU
+      DROP
+    }>ELSE<{
+      s3 POP
+    }>
+    DUP
+    3325455170 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      NIP
+      __tact_context_get_sender INLINECALLDICT
+      $Shop$_init_child INLINECALLDICT
+      2DUP
+      $global_contractAddress INLINECALLDICT
+      20000000 PUSHINT
+      2SWAP
+      2 PUSHINT
+      -ROT
+      $SendParameters$_constructor_to_value_mode_code_data INLINECALLDICT
+          NEWC
+          b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+          1 STI               // store `bounce`
+          b{000} STSLICECONST // store bounced = false and src = addr_none
+          STSLICE             // store `to`
+          SWAP
+          STGRAMS             // store `value`
+          105 PUSHINT         // 1 + 4 + 4 + 64 + 32
+          STZEROES            // store currency_collection, ihr_fee, fwd_fee, created_lt and created_at
+          // → Stack state
+          // s0: Builder
+          // s1: `data`
+          // s2: `code`
+          // s3: `body`
+          // s4: `mode`
+          // Group 2: Placing the Builder after code and data, then checking those for nullability
+          s2 XCHG0
+          DUP2
+          ISNULL
+          SWAP
+          ISNULL
+          AND
+          // → Stack state
+          // s0: -1 (true) if `data` and `code` are both null, 0 (false) otherwise
+          // s1: `code`
+          // s2: `data`
+          // s3: Builder
+          // s4: `body`
+          // s5: `mode`
+          // Group 3: Left branch of the IFELSE, executed if s0 is -1 (true)
+          <{
+              DROP2 // drop `data` and `code`, since either of those is null
+              b{0} STSLICECONST
+          }> PUSHCONT
+          // Group 3: Right branch of the IFELSE, executed if s0 is 0 (false)
+          <{
+              // _ split_depth:(Maybe (## 5))
+              //   special:(Maybe TickTock)
+              //   code:(Maybe ^Cell)
+              //   data:(Maybe ^Cell)
+              //   library:(Maybe ^Cell)
+              // = StateInit;
+              ROT                // place message Builder on top
+              b{10} STSLICECONST // store Maybe = true, Either = false
+              // Start composing inlined StateInit
+              b{00} STSLICECONST // store split_depth and special first
+              STDICT             // store code
+              STDICT             // store data
+              b{0} STSLICECONST  // store library
+          }> PUSHCONT
+          // Group 3: IFELSE that does the branching shown above
+          IFELSE
+          // → Stack state
+          // s0: Builder
+          // s1: null or StateInit
+          // s2: `body`
+          // s3: `mode`
+          // Group 4: Finalizing the message
+          STDICT // store `body` as ref with an extra Maybe bit, since `body` might be null
+          ENDC
+          // → Stack state
+          // s0: Cell
+          // s1: `mode`
+          // Group 5: Sending the message, with `mode` on top
+          SWAP
+          SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
+      __tact_string_builder_start_string INLINECALLDICT
+          B{b5ee9c7241010101000800000c53686f702023b0a9c677} B>boc <s PUSHSLICE
+      __tact_string_builder_append INLINECALLDICT
+      s2 PUSH
+          <{
+              // x
+              NEWC // x b
+              OVER // x b x
+              0 LESSINT // x b <0?
+              <{
+                  // x b
+                  45 PUSHINT // x b 45
+                  SWAP // x 45 b
+                  8 STU // x b
+                  SWAP // b x
+                  NEGATE // b -x
+                  SWAP // -x b
+              }>CONT IF
+              // x b
+              SWAP // b x
+              <{
+                  // b x
+                  10 PUSHINT DIVMOD // b x/10 x%10
+                  48 ADDCONST // b x/10 (x%10+48)
+                  s2 s2 s0 XC2PU ISZERO // (x%10+48) b x/10 x/10==0?
+              }>CONT UNTIL
+              // ... b x
+              DROP // ... b
+              DEPTH DEC // ... b n
+              <{ 8 STU }>CONT REPEAT // b
+          }>CONT 1 1 CALLXARGS
+          // b
+          ENDC CTOS // s
+      __tact_string_builder_append INLINECALLDICT
+          B{b5ee9c7241010101000a00001020637265617465645755de3b} B>boc <s PUSHSLICE
+      __tact_string_builder_append INLINECALLDICT
+      __tact_string_builder_end_slice INLINECALLDICT
+      $String$_fun_asComment INLINECALLDICT
+      s1 s2 XCHG
+      $ShopFactory$_fun_reply INLINECALLDICT
+      INC
+      $ShopFactory$_contract_store INLINECALLDICT
+    }>
+    0 EQINT
+    s0 s2 XCHG
+    33 LESSINT
+    s1 s2 XCHG
+    AND
+    IFJMP:<{
+      SWAP
+      $ShopFactory$_contract_store INLINECALLDICT
+    }>
+    2DROP
+    130 THROW
+  }>
+  __tact_selector_hack PROC:<{
+    @atend @ 1 {
+            execute current@ context@ current!
+            {
+                // The core idea of this function is to save gas by avoiding unnecessary dict jump, when recv_internal/recv_external is called
+                // We want to extract recv_internal/recv_external from the dict and select needed function
+                // not by jumping to the needed function by it's index, but by using usual IF statements.
+                }END> b> // Close previous builder, now we have a cell of previous code on top of the stack
+                <{ // Start of the new code builder
+                    SETCP0
+                    // Swap the new code builder with the previous code, now we have previous code on top of the stack
+                    swap
+                    // Transform cell to slice and load first ref from the previous code, now we have the dict on top of the stack
+                    <s ref@
+                    // Extract the recv_internal from the dict
+                    dup 0 swap @procdictkeylen idict@ { "internal shortcut error" abort } ifnot
+                    swap
+                    // Delete the recv_internal from the dict
+                    0 swap @procdictkeylen idict- drop
+                    // Delete the recv_external from the dict (it's okay if it's not there)
+                    -1 swap @procdictkeylen idict- drop
+                    // Delete the __tact_selector_hack from the dict
+                    65535 swap @procdictkeylen idict- drop
+                    // Bring the code builder from the bottom of the stack
+                    // because if recv_external extraction is optional, and the number of elements on the stack is not fixed
+                    depth 1- roll
+                    // Swap with the dict from which we extracted recv_internal and (maybe) recv_external
+                    swap
+                    // Check if the dict is empty
+                    dup null?
+                    // Store a copy of this flag in the bottom of the stack
+                    dup depth 1- -roll
+                    {
+                        // If the dict is empty, just drop it (it will be null if it's empty)
+                        drop
+                    }
+                    {
+                        // If the dict is not empty, prepare continuation to be stored in c3
+                        <{
+                            // Save this dict as first ref in this continuation, it will be pushed in runtime by DICTPUSHCONST
+                            swap @procdictkeylen DICTPUSHCONST
+                            // Jump to the needed function by it's index
+                            DICTIGETJMPZ
+                            // If such key is not found, throw 11 along with the key as an argument
+                            11 THROWARG
+                        }> PUSHCONT
+                        // Store the continuation in c3
+                        c3 POP
+                    } cond
+                    // Function id is on top of the (runtime) stack
+                    DUP IFNOTJMP:<{
+                        // place recv_internal here
+                        DROP swap @addop
+                    }>
+                    // Bring back the flag, indicating if the dict is empty or not from the bottom of the stack
+                    depth 1- roll
+                    {
+                        // If the dict is empty, throw 11
+                        11 THROWARG
+                    }
+                    {
+                        // If the dict is not empty, jump to continuation from c3
+                        c3 PUSH JMPX
+                    } cond
+                }> b>
+            } : }END>c
+            current@ context! current!
+        } does @atend !
+  }>
+}END>c

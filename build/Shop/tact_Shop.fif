@@ -18,6 +18,7 @@ PROGRAM{
   DECLPROC $Shop$_fun_itemsCount
   DECLPROC $Shop$_fun_ordersCount
   DECLPROC $Shop$_fun_balance
+  DECLPROC $Shop$_fun_ownerAddress
   DECLPROC $Shop$_fun_requireOwner
   DECLPROC $Shop$_fun_owner
   DECLPROC $SendParameters$_constructor_to_value_mode_code_data
@@ -26,6 +27,7 @@ PROGRAM{
   71951 DECLMETHOD %itemsCount
   130541 DECLMETHOD %ordersCount
   104128 DECLMETHOD %balance
+  102426 DECLMETHOD %ownerAddress
   83229 DECLMETHOD %owner
   DECLPROC recv_internal
   65535 DECLMETHOD __tact_selector_hack
@@ -177,6 +179,9 @@ PROGRAM{
   $Shop$_fun_balance PROCREF:<{
     DUP
   }>
+  $Shop$_fun_ownerAddress PROCREF:<{
+    s5 PUSH
+  }>
   $Shop$_fun_requireOwner PROCREF:<{
     __tact_context_get_sender INLINECALLDICT
     s6 PUSH
@@ -216,6 +221,11 @@ PROGRAM{
   %balance PROC:<{
     $Shop$_contract_load INLINECALLDICT
     $Shop$_fun_balance INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %ownerAddress PROC:<{
+    $Shop$_contract_load INLINECALLDICT
+    $Shop$_fun_ownerAddress INLINECALLDICT
     6 1 BLKDROP2
   }>
   %owner PROC:<{

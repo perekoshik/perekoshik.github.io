@@ -1,0 +1,692 @@
+#pragma version =0.4.6;
+#pragma allow-post-modification;
+#pragma compute-asm-ltr;
+
+;; ShopFactory_ShopFactory.headers.fc
+;;
+;; Header files for ShopFactory
+;; NOTE: declarations are sorted for optimal order
+;;
+
+;; __tact_context_get
+(int, slice, int, slice) __tact_context_get() inline;
+
+;; __tact_context_get_sender
+slice __tact_context_get_sender() inline;
+
+;; __tact_string_builder_start
+tuple __tact_string_builder_start(builder b) inline;
+
+;; __tact_string_builder_start_comment
+tuple __tact_string_builder_start_comment() inline;
+
+;; __tact_string_builder_start_string
+tuple __tact_string_builder_start_string() inline;
+
+;; __tact_string_builder_end
+cell __tact_string_builder_end(tuple builders) inline;
+
+;; __tact_string_builder_end_slice
+slice __tact_string_builder_end_slice(tuple builders) inline;
+
+;; __tact_string_builder_append
+((tuple), ()) __tact_string_builder_append(tuple builders, slice sc) inline_ref;
+
+;; $ShopFactory$_store
+builder $ShopFactory$_store(builder build_0, (slice, int) v) inline;
+
+;; $ShopFactory$_load
+(slice, ((slice, int))) $ShopFactory$_load(slice sc_0) inline;
+
+;; $Context$_get_value
+_ $Context$_get_value((int, slice, int, slice) v) inline;
+
+;; $Shop$init$_store
+builder $Shop$init$_store(builder build_0, (slice) v) inline;
+
+;; $ShopFactory$init$_load
+(slice, ((slice))) $ShopFactory$init$_load(slice sc_0) inline;
+
+;; $ShopFactory$_contract_init
+(slice, int) $ShopFactory$_contract_init(slice $owner) impure inline;
+
+;; $ShopFactory$_contract_load
+(slice, int) $ShopFactory$_contract_load() impure inline;
+
+;; $ShopFactory$_contract_store
+() $ShopFactory$_contract_store((slice, int) v) impure inline;
+
+;; $Cell$_fun_asSlice
+slice $Cell$_fun_asSlice(cell $self) impure inline;
+
+;; $global_newAddress
+slice $global_newAddress(int $chain, int $hash) impure inline;
+
+;; $global_contractAddressExt
+slice $global_contractAddressExt(int $chain, cell $code, cell $data) impure inline;
+
+;; $global_contractAddress
+slice $global_contractAddress((cell, cell) $s) impure inline;
+
+;; $String$_fun_asComment
+cell $String$_fun_asComment(slice $self) impure inline_ref;
+
+;; $Shop$_init_child
+(cell, cell) $Shop$_init_child(slice $owner) inline_ref;
+
+;; $MessageParameters$_constructor_bounce_to_value_mode_body
+((int, cell, int, slice, int)) $MessageParameters$_constructor_bounce_to_value_mode_body(int $bounce, slice $to, int $value, int $mode, cell $body) inline;
+
+;; $ShopFactory$_fun_shopAddress
+((slice, int), slice) $ShopFactory$_fun_shopAddress((slice, int) $self, int $index, slice $owner, slice $shopName) impure inline_ref;
+
+;; $ShopFactory$_fun_shopCount
+((slice, int), int) $ShopFactory$_fun_shopCount((slice, int) $self) impure inline_ref;
+
+;; $ShopFactory$_fun_reply
+((slice, int), ()) $ShopFactory$_fun_reply((slice, int) $self, cell $body) impure inline;
+
+;; $ShopFactory$_fun_owner
+((slice, int), slice) $ShopFactory$_fun_owner((slice, int) $self) impure inline_ref;
+
+;; $SendParameters$_constructor_to_value_mode_code_data
+((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_mode_code_data(slice $to, int $value, int $mode, cell $code, cell $data) inline;
+
+
+;; ShopFactory_ShopFactory.stdlib.fc
+global (int, slice, int, slice) __tact_context;
+global slice __tact_context_sender;
+global cell __tact_child_contract_codes;
+global int __tact_randomized;
+
+(int, slice, int, slice) __tact_context_get() inline {
+    return __tact_context;
+}
+
+slice __tact_context_get_sender() inline {
+    return __tact_context_sender;
+}
+
+tuple __tact_string_builder_start(builder b) inline {
+    return tpush(tpush(empty_tuple(), b), null());
+}
+
+tuple __tact_string_builder_start_comment() inline {
+    return __tact_string_builder_start(begin_cell().store_uint(0, 32));
+}
+
+tuple __tact_string_builder_start_string() inline {
+    return __tact_string_builder_start(begin_cell());
+}
+
+cell __tact_string_builder_end(tuple builders) inline {
+    (builder b, tuple tail) = uncons(builders);
+    cell c = b.end_cell();
+    while(~ null?(tail)) {
+        (b, tail) = uncons(tail);
+        c = b.store_ref(c).end_cell();
+    }
+    return c;
+}
+
+slice __tact_string_builder_end_slice(tuple builders) inline {
+    return __tact_string_builder_end(builders).begin_parse();
+}
+
+((tuple), ()) __tact_string_builder_append(tuple builders, slice sc) inline_ref {
+    int sliceRefs = slice_refs(sc);
+    int sliceBits = slice_bits(sc);
+
+    while((sliceBits > 0) | (sliceRefs > 0)) {
+
+        ;; Load the current builder
+        (builder b, tuple tail) = uncons(builders);
+        int remBytes = 127 - (builder_bits(b) / 8);
+        int exBytes = sliceBits / 8;
+
+        ;; Append bits
+        int amount = min(remBytes, exBytes);
+        if (amount > 0) {
+            slice read = sc~load_bits(amount * 8);
+            b = b.store_slice(read);
+        }
+
+        ;; Update builders
+        builders = cons(b, tail);
+
+        ;; Check if we need to add a new cell and continue
+        if (exBytes - amount > 0) {
+            var bb = begin_cell();
+            builders = cons(bb, builders);
+            sliceBits = (exBytes - amount) * 8;
+        } elseif (sliceRefs > 0) {
+            sc = sc~load_ref().begin_parse();
+            sliceRefs = slice_refs(sc);
+            sliceBits = slice_bits(sc);
+        } else {
+            sliceBits = 0;
+            sliceRefs = 0;
+        }
+    }
+
+    return ((builders), ());
+}
+
+builder $global_beginCell() impure asm """
+    NEWC
+""";
+
+int $global_contractHash(cell $code, cell $data) impure asm """
+    s0 PUSH HASHCU // `data` hash
+    s2 PUSH HASHCU // `code` hash
+    SWAP2
+    CDEPTH         // `data` depth
+    SWAP
+    CDEPTH         // `code` depth
+    131380 INT     // (2 << 16) | (1 << 8) | 0x34
+
+    // Group 2: Composition of the Builder
+    NEWC
+    24 STU  // store refs_descriptor | bits_descriptor | data
+    16 STU  // store depth_descriptor for `code`
+    16 STU  // store depth_descriptor for `data`
+    256 STU // store `code` hash
+    256 STU // store `data` hash
+
+    // Group 3: SHA256 hash of the resulting Builder
+    ONE HASHEXT_SHA256
+""";
+
+slice $Slice$_fun_asAddressUnsafe(slice $self) impure asm "NOP";
+
+slice $Cell$_fun_beginParse(cell $self) impure asm """
+    CTOS
+""";
+
+slice $Cell$_fun_asSlice(cell $self) impure inline {
+    var ($self) = $self;
+    return $Cell$_fun_beginParse($self);
+}
+
+cell $Builder$_fun_endCell(builder $self) impure asm """
+    ENDC
+""";
+
+slice $global_newAddress(int $chain, int $hash) impure inline {
+    return $Slice$_fun_asAddressUnsafe($Cell$_fun_asSlice($Builder$_fun_endCell(store_uint(store_int(store_uint($global_beginCell(), 4, 3), $chain, 8), $hash, 256))));
+}
+
+slice $global_contractAddressExt(int $chain, cell $code, cell $data) impure inline {
+    int $hash = $global_contractHash($code, $data);
+    return $global_newAddress($chain, $hash);
+}
+
+slice $global_contractAddress((cell, cell) $s) impure inline {
+    var (($s'code, $s'data)) = $s;
+    return $global_contractAddressExt(0, $s'code, $s'data);
+}
+
+int $global_myBalance() impure asm """
+    BALANCE FIRST
+""";
+
+() $global_nativeReserve(int $amount, int $mode) impure asm """
+    RAWRESERVE
+""";
+
+() $global_message((int, cell, int, slice, int) $params) impure asm """
+    NEWC
+    b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+    1 STI               // store `bounce`
+    b{000} STSLICECONST // store bounced = false and src = addr_none
+    STSLICE             // store `to`
+    SWAP
+    STGRAMS             // store `value`
+    106 PUSHINT         // 1 + 4 + 4 + 64 + 32 + 1
+    STZEROES
+    // → Stack state
+    // s0: Builder
+    // s1: `body`
+    // s2: `mode`
+    STDICT
+    ENDC
+    SWAP
+    SENDRAWMSG
+""";
+
+() $global_send((int, cell, cell, cell, int, slice, int) $params) impure asm """
+    NEWC
+    b{01} STSLICECONST  // store tag = $0 and ihr_disabled = true
+    1 STI               // store `bounce`
+    b{000} STSLICECONST // store bounced = false and src = addr_none
+    STSLICE             // store `to`
+    SWAP
+    STGRAMS             // store `value`
+    105 PUSHINT         // 1 + 4 + 4 + 64 + 32
+    STZEROES            // store currency_collection, ihr_fee, fwd_fee, created_lt and created_at
+    // → Stack state
+    // s0: Builder
+    // s1: `data`
+    // s2: `code`
+    // s3: `body`
+    // s4: `mode`
+
+    // Group 2: Placing the Builder after code and data, then checking those for nullability
+    s2 XCHG0
+    DUP2
+    ISNULL
+    SWAP
+    ISNULL
+    AND
+    // → Stack state
+    // s0: -1 (true) if `data` and `code` are both null, 0 (false) otherwise
+    // s1: `code`
+    // s2: `data`
+    // s3: Builder
+    // s4: `body`
+    // s5: `mode`
+
+    // Group 3: Left branch of the IFELSE, executed if s0 is -1 (true)
+    <{
+        DROP2 // drop `data` and `code`, since either of those is null
+        b{0} STSLICECONST
+    }> PUSHCONT
+
+    // Group 3: Right branch of the IFELSE, executed if s0 is 0 (false)
+    <{
+        // _ split_depth:(Maybe (## 5))
+        //   special:(Maybe TickTock)
+        //   code:(Maybe ^Cell)
+        //   data:(Maybe ^Cell)
+        //   library:(Maybe ^Cell)
+        // = StateInit;
+        ROT                // place message Builder on top
+        b{10} STSLICECONST // store Maybe = true, Either = false
+        // Start composing inlined StateInit
+        b{00} STSLICECONST // store split_depth and special first
+        STDICT             // store code
+        STDICT             // store data
+        b{0} STSLICECONST  // store library
+    }> PUSHCONT
+
+    // Group 3: IFELSE that does the branching shown above
+    IFELSE
+    // → Stack state
+    // s0: Builder
+    // s1: null or StateInit
+    // s2: `body`
+    // s3: `mode`
+
+    // Group 4: Finalizing the message
+    STDICT // store `body` as ref with an extra Maybe bit, since `body` might be null
+    ENDC
+    // → Stack state
+    // s0: Cell
+    // s1: `mode`
+
+    // Group 5: Sending the message, with `mode` on top
+    SWAP
+    SENDRAWMSG // https://github.com/tact-lang/tact/issues/1558
+""";
+
+slice $Int$_fun_toString(int $self) impure asm """
+    <{
+        // x
+        NEWC // x b
+        OVER // x b x
+        0 LESSINT // x b <0?
+        <{
+            // x b
+            45 PUSHINT // x b 45
+            SWAP // x 45 b
+            8 STU // x b
+            SWAP // b x
+            NEGATE // b -x
+            SWAP // -x b
+        }>CONT IF
+        // x b
+
+        SWAP // b x
+
+        <{
+            // b x
+            10 PUSHINT DIVMOD // b x/10 x%10
+            48 ADDCONST // b x/10 (x%10+48)
+            s2 s2 s0 XC2PU ISZERO // (x%10+48) b x/10 x/10==0?
+        }>CONT UNTIL
+        // ... b x
+
+        DROP // ... b
+        DEPTH DEC // ... b n
+        <{ 8 STU }>CONT REPEAT // b
+    }>CONT 1 1 CALLXARGS
+    // b
+
+    ENDC CTOS // s
+""";
+
+cell $String$_fun_asComment(slice $self) impure inline_ref {
+    var ($self) = $self;
+    tuple $b = __tact_string_builder_start_comment();
+    $b~__tact_string_builder_append($self);
+    return __tact_string_builder_end($b);
+}
+
+((slice, int), ()) $ShopFactory$_fun_reply((slice, int) $self, cell $body) impure inline {
+    var (($self'owner, $self'shopsCount)) = $self;
+    slice $to = __tact_context_get_sender();
+    int $bounce = true;
+    if (false) {
+        int $balance = $global_myBalance();
+        int $balanceBeforeMessage = ($balance - $Context$_get_value(__tact_context_get()));
+        if (($balanceBeforeMessage < 0)) {
+            $global_nativeReserve(0, 0);
+            $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 130, $body));
+            return (($self'owner, $self'shopsCount), ());
+        }
+    }
+    $global_message($MessageParameters$_constructor_bounce_to_value_mode_body($bounce, $to, 0, 66, $body));
+    return (($self'owner, $self'shopsCount), ());
+}
+
+((slice, int), slice) $ShopFactory$_fun_owner((slice, int) $self) impure inline_ref {
+    var (($self'owner, $self'shopsCount)) = $self;
+    var $fresh$ret_155 = $self'owner;
+    return (($self'owner, $self'shopsCount), $fresh$ret_155);
+}
+
+;; ShopFactory_ShopFactory.constants.fc
+;; String "Shop #"
+slice __gen_slice_string_13eb937ceb2485dad18e4b3fb2a3f79b3a494b3c5712bbab251323a192d10479() asm """
+    B{b5ee9c7241010101000800000c53686f702023b0a9c677} B>boc <s PUSHSLICE
+""";
+
+;; String " created"
+slice __gen_slice_string_c2ba91e846143a28fa9a6c4e8d4092dc4591e1ef814cfac77ae9daf48d35504e() asm """
+    B{b5ee9c7241010101000a00001020637265617465645755de3b} B>boc <s PUSHSLICE
+""";
+
+;; ShopFactory_ShopFactory.storage.fc
+;;
+;; Type: Context
+;; TLB: _ bounceable:bool sender:address value:int257 raw:^slice = Context
+;;
+
+_ $Context$_get_value((int, slice, int, slice) v) inline {
+    var (v'bounceable, v'sender, v'value, v'raw) = v;
+    return v'value;
+}
+
+;;
+;; Type: SendParameters
+;; TLB: _ mode:int257 body:Maybe ^cell code:Maybe ^cell data:Maybe ^cell value:int257 to:address bounce:bool = SendParameters
+;;
+
+((int, cell, cell, cell, int, slice, int)) $SendParameters$_constructor_to_value_mode_code_data(slice $to, int $value, int $mode, cell $code, cell $data) inline {
+    return ($mode, null(), $code, $data, $value, $to, true);
+}
+
+;;
+;; Type: MessageParameters
+;; TLB: _ mode:int257 body:Maybe ^cell value:int257 to:address bounce:bool = MessageParameters
+;;
+
+((int, cell, int, slice, int)) $MessageParameters$_constructor_bounce_to_value_mode_body(int $bounce, slice $to, int $value, int $mode, cell $body) inline {
+    return ($mode, $body, $value, $to, $bounce);
+}
+
+;;
+;; Type: Shop
+;; TLB: _ owner:address name:^string itemsCount:uint256 shopId:uint256 ordersCount:uint256 balance:coins = Shop
+;;
+
+builder $Shop$init$_store(builder build_0, (slice) v) inline {
+    var (v'owner) = v;
+    build_0 = build_0.store_slice(v'owner);
+    return build_0;
+}
+
+cell $Shop$_child_get_code() impure asm """
+    B{b5ee9c7201023e01000bbe000228ff008e88f4a413f4bcf2c80bed5320e303ed43d90102020271030403f83001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e207925f07e005d70d1ff2e082218210ae4563e0bae302218210fe3511b0bae302218210d6e1cf22ba0d0e0f0201200506020120090a0185b990fed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e2db3c6c6183802014807080185b1477b513434800063873e903500740074fff4fff5007434fffe800c0409840944090408db05a3857e900040745c22e1cda1bdc13985b5961c54c880c138b6cf1b1860390185b3b3fb513434800063873e903500740074fff4fff5007434fffe800c0409840944090408db05a3857e900040745c22e1cda1bdc13985b5961c54c880c138b6cf1b1860350185b96c0ed44d0d200018e1cfa40d401d001d3ffd3ffd401d0d3fffa003010261025102410236c168e15fa400101d1708b873686f704e616d6587153220304e2db3c6c6181e0201e90b0c0183a7dbda89a1a400031c39f481a803a003a7ffa7ffa803a1a7fff40060204c204a20482046d82d1c2bf4800203a2e1170e6d0dee09cc2dacb0e2a6440609c5b678d8c3310183a577da89a1a400031c39f481a803a003a7ffa7ffa803a1a7fff40060204c204a20482046d82d1c2bf4800203a2e1170e6d0dee09cc2dacb0e2a6440609c5b678d8c3320058345b01d401d001d3ff3010354043c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed5403fe31fa0030104510344136db3cf82824db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d049137250a210246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0002a4104510111200ce8e255b01a410354143c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed54e001821090268e31ba8e2fd431d3ff31fa003016a004a41035440302c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed54e05f07f2c0820010f84226c705f2e084011888c87001ca005a02cecbffc9130042035024c87f01ca0055505056ce03c8ce13cdcbffcbff01c8cbff58fa02cdc9ed540228ff008e88f4a413f4bcf2c80bed5320e303ed43d91415020271161701f43001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e22fa40d3fffa00d401d001d401d0d401d001d401d001d2003010371036103510346c178e28fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e87fe208925f08e006d70d1ff2e082212402012018190201201f200201201a1b01b7b88a9ed44d0d200018e22fa40d3fffa00d401d001d401d0d401d001d401d001d2003010371036103510346c178e28fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e87fe2db3c6c718350201621c1d01b7b73cdda89a1a400031c45f481a7fff401a803a003a803a1a803a003a803a003a40060206e206c206a2068d82f1c51f481a7feb205a202e1170d2dac2cecaa6e4c7116ae8d2e8d8cb1176c8cae6c6e4d2e0e8d2dedd0ffc5b678d8e303801b6a821ed44d0d200018e22fa40d3fffa00d401d001d401d0d401d001d401d001d2003010371036103510346c178e28fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e87fe2db3c6c713101b6a99eed44d0d200018e22fa40d3fffa00d401d001d401d0d401d001d401d001d2003010371036103510346c178e28fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e87fe2db3c6c711e000220020148212201b7b951bed44d0d200018e22fa40d3fffa00d401d001d401d0d401d001d401d001d2003010371036103510346c178e28fa40d3ff5902d101708b8696d61676553726388b57469746c6588bb6465736372697074696f6e87fe2db3c6c7183201b7b3b83b51343480006388be9034fffe8035007400750074350074007500740074800c040dc40d840d440d1b05e38a3e9034ffd640b4405c22e1a5b5859d954dc98e22d5d1a5d1b19622ed9195cd8dc9a5c1d1a5bdba1ff8b6cf1b1c602301b7b3643b51343480006388be9034fffe8035007400750074350074007500740074800c040dc40d840d440d1b05e38a3e9034ffd640b4405c22e1a5b5859d954dc98e22d5d1a5d1b19622ed9195cd8dc9a5c1d1a5bdba1ff8b6cf1b1c603900022603fe821039a48275ba8ee3375f0402fa00d401d001d401d001d430d082084c4b40726f00c801308210d6e1cf2201cb1fc92755205a6d6d40037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb0010465503e02182107ac14988bae30230821048fe9b74ba252627004cc87f01ca0055605067ce14cbff58fa0201c8cecdc802c8ce12cd02c8ce12cd12ca00cdc9ed5402fe31810101d700fa4031fa00d430d0f842f82829035155db3c5c705920f90022f9005ad76501d76582020134c8cb17cb0fcb0fcbffcbff71f90400c87401cb0212ca07cbffc9d0027224502310246d4144037fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c92829006c8e2e06b3104610354430c87f01ca0055605067ce14cbff58fa0201c8cecdc802c8ce12cd02c8ce12cd12ca00cdc9ed54e05f07f2c082013288c87001ca0055415045ce12cece01c8cbff02c8ce12cdcdc92a02c201fb00543154c85520821090268e315004cb1f02c8ce12cdcbff01fa02c92659726d50426d50427fc8cf8580ca00cf8440ce01fa028069cf40025c6e016eb0935bcf819d58cf8680cf8480f400f400cf81e2f400c901fb008810571046103544303c3d0228ff008e88f4a413f4bcf2c80bed5320e303ed43d92b2c0202712d2e02f63001d072d721d200d200fa4021103450666f04f86102f862ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e207925f07e07026d74920c21f953106d31f309137e22082103a4c4c8fbae302c00006c12116b03a3b0201202f3002012033340187bb6c2ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618310187b8ffced44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c618320002210002240187b9d90ed44d0d200018e18fa40fa40fa40d401d0d3ffd200d430d01036103510346c168e1afa40fa40fa40d401d0d3ffd430d010251024102305d155037001e2db3c6c6183502012036370002220187b64ffda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c30380187b462fda89a1a400031c31f481f481f481a803a1a7ffa401a861a0206c206a2068d82d1c35f481f481f481a803a1a7ffa861a0204a204820460ba2aa06e003c5b678d8c303900022300022500465b3440347f01c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed5400728e31f842c8cf8508ce70cf0b6ec98042fb0010355512c87f01ca0055505056ce13cece01c8cbff12ca0002c8ce12cdcdc9ed54e05f06f2c0820022000000004f7264657220637265617465640092f8427f705003804201503304c8cf8580ca00cf8440ce01fa02806acf40f400c901fb00c87f01ca0055605067ce14cbff58fa0201c8cecdc802c8ce12cd02c8ce12cd12ca00cdc9ed54} B>boc PUSHREF
+""";
+
+(cell, cell) $Shop$_init_child(slice $owner) inline_ref {
+    ;; Build init code cell
+
+    ;; Contract Code: Shop
+    cell init_code = $Shop$_child_get_code();
+
+
+    builder b = begin_cell();
+    b = b.store_int(false, 1);
+    b = $Shop$init$_store(b, ($owner));
+    return (init_code, b.end_cell());
+}
+
+;;
+;; Type: ShopFactory
+;; TLB: _ owner:address shopsCount:uint256 = ShopFactory
+;;
+
+builder $ShopFactory$_store(builder build_0, (slice, int) v) inline {
+    var (v'owner, v'shopsCount) = v;
+    build_0 = build_0.store_slice(v'owner);
+    build_0 = build_0.store_uint(v'shopsCount, 256);
+    return build_0;
+}
+
+(slice, ((slice, int))) $ShopFactory$_load(slice sc_0) inline {
+    var v'owner = sc_0~load_msg_addr();
+    var v'shopsCount = sc_0~load_uint(256);
+    return (sc_0, (v'owner, v'shopsCount));
+}
+
+(slice, ((slice))) $ShopFactory$init$_load(slice sc_0) inline {
+    var v'owner = sc_0~load_msg_addr();
+    return (sc_0, (v'owner));
+}
+
+(slice, int) $ShopFactory$_contract_load() impure inline {
+    slice $sc = get_data().begin_parse();
+    int $loaded = $sc~load_int(1);
+    if ($loaded) {
+        return $sc~$ShopFactory$_load();
+    }
+    else {
+        (slice $owner) = $sc~$ShopFactory$init$_load();
+        $sc.end_parse();
+        return $ShopFactory$_contract_init($owner);
+    }
+}
+
+() $ShopFactory$_contract_store((slice, int) v) impure inline {
+    builder b = begin_cell();
+    b = b.store_int(true, 1);
+    b = $ShopFactory$_store(b, v);
+    set_data(b.end_cell());
+}
+
+;;
+;; Contract ShopFactory functions
+;;
+
+(slice, int) $ShopFactory$_contract_init(slice $owner) impure inline {
+    var (($self'owner, $self'shopsCount)) = (null(), null());
+    $self'owner = $owner;
+    $self'shopsCount = 0;
+    return ($self'owner, $self'shopsCount);
+}
+
+((slice, int), slice) $ShopFactory$_fun_shopAddress((slice, int) $self, int $index, slice $owner, slice $shopName) impure inline_ref {
+    var (($self'owner, $self'shopsCount)) = $self;
+    var ($init'code, $init'data) = $Shop$_init_child(__tact_context_get_sender());
+    var $fresh$ret_153 = $global_contractAddress(($init'code, $init'data));
+    return (($self'owner, $self'shopsCount), $fresh$ret_153);
+}
+
+((slice, int), int) $ShopFactory$_fun_shopCount((slice, int) $self) impure inline_ref {
+    var (($self'owner, $self'shopsCount)) = $self;
+    var $fresh$ret_154 = $self'shopsCount;
+    return (($self'owner, $self'shopsCount), $fresh$ret_154);
+}
+
+;;
+;; Get methods of a Contract ShopFactory
+;;
+
+_ %shopAddress(int $index, slice $owner, slice $shopName) method_id(94943) {
+    int $index = $index;
+    slice $owner = $owner;
+    slice $shopName = $shopName;
+    var self = $ShopFactory$_contract_load();
+    var res = self~$ShopFactory$_fun_shopAddress($index, $owner, $shopName);
+    return res;
+}
+
+_ %shopCount() method_id(81626) {
+    var self = $ShopFactory$_contract_load();
+    var res = self~$ShopFactory$_fun_shopCount();
+    return res;
+}
+
+_ %owner() method_id(83229) {
+    var self = $ShopFactory$_contract_load();
+    var res = self~$ShopFactory$_fun_owner();
+    return res;
+}
+
+;;
+;; Routing of a Contract ShopFactory
+;;
+
+;; message opcode reader utility: only binary receivers
+;; Returns 32 bit message opcode, otherwise throws the "Invalid incoming message" exit code
+(slice, int) ~load_opcode_internal(slice s) asm( -> 1 0) "32 LDUQ 130 THROWIFNOT";
+
+() recv_internal(int msg_value, cell in_msg_cell, slice in_msg) impure {
+    
+    ;; Context
+    var cs = in_msg_cell.begin_parse();
+    cs~skip_bits(2);
+    var msg_bounceable = cs~load_int(1);
+    var msg_bounced = cs~load_int(1);
+    slice msg_sender_addr = cs~load_msg_addr();
+    __tact_context = (msg_bounceable, msg_sender_addr, msg_value, cs);
+    __tact_context_sender = msg_sender_addr;
+    
+    ;; Load contract data
+    var ($self'owner, $self'shopsCount) = $ShopFactory$_contract_load();
+    
+    ;; Handle bounced messages
+    if (msg_bounced) { return (); }
+    int op = 0;
+    int in_msg_length = slice_bits(in_msg);
+    if (in_msg_length >= 32) {
+        op = in_msg~load_uint(32);
+    }
+    ;; Receive CreateShop message
+    if (op == 0xc6366b42) {
+        var $msg'shopName = in_msg~load_ref().begin_parse();
+        var ($init'code, $init'data) = $Shop$_init_child(__tact_context_get_sender());
+        $global_send($SendParameters$_constructor_to_value_mode_code_data($global_contractAddress(($init'code, $init'data)), 20000000, 2, $init'code, $init'data));
+        tuple $reply = __tact_string_builder_start_string();
+        $reply~__tact_string_builder_append(__gen_slice_string_13eb937ceb2485dad18e4b3fb2a3f79b3a494b3c5712bbab251323a192d10479());
+        $reply~__tact_string_builder_append($Int$_fun_toString($self'shopsCount));
+        $reply~__tact_string_builder_append(__gen_slice_string_c2ba91e846143a28fa9a6c4e8d4092dc4591e1ef814cfac77ae9daf48d35504e());
+        ($self'owner, $self'shopsCount)~$ShopFactory$_fun_reply($String$_fun_asComment(__tact_string_builder_end_slice($reply)));
+        $self'shopsCount = $self'shopsCount + 1;
+        $ShopFactory$_contract_store(($self'owner, $self'shopsCount));
+        return ();
+    }
+    
+    ;; Receive empty message
+    if ((op == 0) & (in_msg_length <= 32)) {
+        $ShopFactory$_contract_store(($self'owner, $self'shopsCount));
+        return ();
+    }
+    ;; Throw if not handled
+    throw(130);
+}
+
+
+() __tact_selector_hack_asm() impure asm """
+@atend @ 1 {
+        execute current@ context@ current!
+        {
+            // The core idea of this function is to save gas by avoiding unnecessary dict jump, when recv_internal/recv_external is called
+            // We want to extract recv_internal/recv_external from the dict and select needed function
+            // not by jumping to the needed function by it's index, but by using usual IF statements.
+
+            }END> b> // Close previous builder, now we have a cell of previous code on top of the stack
+
+            <{ // Start of the new code builder
+                SETCP0
+                // Swap the new code builder with the previous code, now we have previous code on top of the stack
+                swap
+                // Transform cell to slice and load first ref from the previous code, now we have the dict on top of the stack
+                <s ref@
+
+                // Extract the recv_internal from the dict
+                dup 0 swap @procdictkeylen idict@ { "internal shortcut error" abort } ifnot
+                swap
+
+                // Delete the recv_internal from the dict
+                0 swap @procdictkeylen idict- drop
+                // Delete the recv_external from the dict (it's okay if it's not there)
+                -1 swap @procdictkeylen idict- drop
+                // Delete the __tact_selector_hack from the dict
+                65535 swap @procdictkeylen idict- drop
+
+                // Bring the code builder from the bottom of the stack
+                // because if recv_external extraction is optional, and the number of elements on the stack is not fixed
+                depth 1- roll
+                // Swap with the dict from which we extracted recv_internal and (maybe) recv_external
+                swap
+
+                // Check if the dict is empty
+                dup null?
+                // Store a copy of this flag in the bottom of the stack
+                dup depth 1- -roll
+                {
+                    // If the dict is empty, just drop it (it will be null if it's empty)
+                    drop
+                }
+                {
+                    // If the dict is not empty, prepare continuation to be stored in c3
+                    <{
+                        // Save this dict as first ref in this continuation, it will be pushed in runtime by DICTPUSHCONST
+                        swap @procdictkeylen DICTPUSHCONST
+                        // Jump to the needed function by it's index
+                        DICTIGETJMPZ
+                        // If such key is not found, throw 11 along with the key as an argument
+                        11 THROWARG
+                    }> PUSHCONT
+                    // Store the continuation in c3
+                    c3 POP
+                } cond
+
+                // Function id is on top of the (runtime) stack
+                DUP IFNOTJMP:<{
+                    // place recv_internal here
+                    DROP swap @addop
+                }>
+
+                // Bring back the flag, indicating if the dict is empty or not from the bottom of the stack
+                depth 1- roll
+                {
+                    // If the dict is empty, throw 11
+                    11 THROWARG
+                }
+                {
+                    // If the dict is not empty, jump to continuation from c3
+                    c3 PUSH JMPX
+                } cond
+            }> b>
+        } : }END>c
+        current@ context! current!
+    } does @atend !
+""";
+
+() __tact_selector_hack() method_id(65535) {
+    return __tact_selector_hack_asm();
+}

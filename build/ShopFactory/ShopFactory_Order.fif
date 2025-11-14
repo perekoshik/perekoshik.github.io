@@ -1,0 +1,284 @@
+// automatically generated from `@stdlib/std/stdlib.fc` `C:/Users/nikit/ex/build/ShopFactory/ShopFactory_Order.fc` 
+PROGRAM{
+  DECLPROC __tact_context_get_sender
+  DECLPROC $Order$_store
+  DECLPROC $Order$_load
+  DECLPROC $Order$init$_load
+  DECLPROC $Order$_contract_init
+  DECLPROC $Order$_contract_load
+  DECLPROC $Order$_contract_store
+  DECLPROC $Order$_fun_seller
+  DECLPROC $Order$_fun_buyer
+  DECLPROC $Order$_fun_itemAddress
+  DECLPROC $Order$_fun_id
+  DECLPROC $Order$_fun_completed
+  123671 DECLMETHOD %seller
+  86012 DECLMETHOD %buyer
+  119423 DECLMETHOD %itemAddress
+  105872 DECLMETHOD %id
+  79554 DECLMETHOD %completed
+  DECLPROC recv_internal
+  65535 DECLMETHOD __tact_selector_hack
+  DECLGLOBVAR __tact_context
+  DECLGLOBVAR __tact_context_sender
+  DECLGLOBVAR __tact_child_contract_codes
+  DECLGLOBVAR __tact_randomized
+  __tact_context_get_sender PROCINLINE:<{
+    __tact_context_sender GETGLOB
+  }>
+  $Order$_store PROCINLINE:<{
+    s5 s6 XCHG2
+    STSLICE
+    s1 s3 XCHG
+    STSLICE
+    STSLICE
+    SWAP
+    NEWC
+    256 STU
+    s1 s2 XCHG
+    1 STI
+    s0 s2 XCHG
+    NEWC
+    STSLICE
+    s1 s2 XCHG
+    STBREFR
+    STBREFR
+  }>
+  $Order$_load PROCINLINE:<{
+    LDMSGADDR
+    LDMSGADDR
+    LDMSGADDR
+    LDREF
+    SWAP
+    CTOS
+    256 LDU
+    1 LDI
+    LDREF
+    DROP
+    CTOS
+    s3 s6 XCHG
+    s3 s5 XCHG
+    s3 s4 XCHG
+  }>
+  $Order$init$_load PROCINLINE:<{
+    LDMSGADDR
+    LDMSGADDR
+    LDMSGADDR
+    LDREF
+    SWAP
+    CTOS
+    256 LDU
+    LDREF
+    DROP
+    CTOS
+    s2 s5 XCHG
+    s2 s4 XCHG
+    s2 s3 XCHG
+  }>
+  $Order$_contract_init PROCINLINE:<{
+    FALSE
+    SWAP
+  }>
+  $Order$_contract_load PROCINLINE:<{
+    c4 PUSH
+    CTOS
+    1 LDI
+    SWAP
+    IF:<{
+      $Order$_load INLINECALLDICT
+      1 6 BLKDROP2
+    }>ELSE<{
+      $Order$init$_load INLINECALLDICT
+      s0 s5 XCHG
+      ENDS
+      4 ROLL
+      $Order$_contract_init INLINECALLDICT
+    }>
+  }>
+  $Order$_contract_store PROCINLINE:<{
+    NEWC
+    TRUE
+    SWAP
+    1 STI
+    6 -ROLL
+    $Order$_store INLINECALLDICT
+    ENDC
+    c4 POP
+  }>
+  $Order$_fun_seller PROCREF:<{
+    s5 PUSH
+  }>
+  $Order$_fun_buyer PROCREF:<{
+    s4 PUSH
+  }>
+  $Order$_fun_itemAddress PROCREF:<{
+    s3 PUSH
+  }>
+  $Order$_fun_id PROCREF:<{
+    s2 PUSH
+  }>
+  $Order$_fun_completed PROCREF:<{
+    OVER
+  }>
+  %seller PROC:<{
+    $Order$_contract_load INLINECALLDICT
+    $Order$_fun_seller INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %buyer PROC:<{
+    $Order$_contract_load INLINECALLDICT
+    $Order$_fun_buyer INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %itemAddress PROC:<{
+    $Order$_contract_load INLINECALLDICT
+    $Order$_fun_itemAddress INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %id PROC:<{
+    $Order$_contract_load INLINECALLDICT
+    $Order$_fun_id INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  %completed PROC:<{
+    $Order$_contract_load INLINECALLDICT
+    $Order$_fun_completed INLINECALLDICT
+    6 1 BLKDROP2
+  }>
+  recv_internal PROC:<{
+    SWAP
+    CTOS
+    2 PUSHINT
+    SDSKIPFIRST
+    1 LDI
+    1 LDI
+    LDMSGADDR
+    OVER
+    s3 s4 XCHG
+    s6 s6 XCHG2
+    4 TUPLE
+    __tact_context SETGLOB
+    s0 s2 XCHG
+    __tact_context_sender SETGLOB
+    $Order$_contract_load INLINECALLDICT
+    s0 s7 XCHG
+    IFJMP:<{
+      7 BLKDROP
+    }>
+    0 PUSHINT
+    s6 PUSH
+    SBITS
+    DUP
+    31 GTINT
+    IF:<{
+      NIP
+      s0 s6 XCHG
+      32 LDU
+      DROP
+    }>ELSE<{
+      s7 POP
+    }>
+    DUP
+    978078863 PUSHINT
+    EQUAL
+    IFJMP:<{
+      2DROP
+      s4 POP
+      s0 s3 s4 XCHG3
+      TRUE
+      SWAP
+      $Order$_contract_store INLINECALLDICT
+    }>
+    0 EQINT
+    s0 s6 XCHG
+    33 LESSINT
+    s1 s6 XCHG
+    AND
+    IFJMP:<{
+      __tact_context_get_sender INLINECALLDICT
+          NEWC
+          x{42_} STSLICECONST // .storeUint(0x10, 6)
+          STSLICE          // .storeAddress(to)
+          0 PUSHINT        // 0
+          111 STUR         // .storeUint(0, 111)
+                           // 4 zeros for coins and 107 zeros for lt, fees, etc.
+          ENDC
+          66 PUSHINT       // SendRemainingValue | SendIgnoreErrors
+          SENDRAWMSG
+      s3 s5 XCHG
+      2 3 BLKSWAP
+      $Order$_contract_store INLINECALLDICT
+    }>
+    6 BLKDROP
+    130 THROW
+  }>
+  __tact_selector_hack PROC:<{
+    @atend @ 1 {
+            execute current@ context@ current!
+            {
+                // The core idea of this function is to save gas by avoiding unnecessary dict jump, when recv_internal/recv_external is called
+                // We want to extract recv_internal/recv_external from the dict and select needed function
+                // not by jumping to the needed function by it's index, but by using usual IF statements.
+                }END> b> // Close previous builder, now we have a cell of previous code on top of the stack
+                <{ // Start of the new code builder
+                    SETCP0
+                    // Swap the new code builder with the previous code, now we have previous code on top of the stack
+                    swap
+                    // Transform cell to slice and load first ref from the previous code, now we have the dict on top of the stack
+                    <s ref@
+                    // Extract the recv_internal from the dict
+                    dup 0 swap @procdictkeylen idict@ { "internal shortcut error" abort } ifnot
+                    swap
+                    // Delete the recv_internal from the dict
+                    0 swap @procdictkeylen idict- drop
+                    // Delete the recv_external from the dict (it's okay if it's not there)
+                    -1 swap @procdictkeylen idict- drop
+                    // Delete the __tact_selector_hack from the dict
+                    65535 swap @procdictkeylen idict- drop
+                    // Bring the code builder from the bottom of the stack
+                    // because if recv_external extraction is optional, and the number of elements on the stack is not fixed
+                    depth 1- roll
+                    // Swap with the dict from which we extracted recv_internal and (maybe) recv_external
+                    swap
+                    // Check if the dict is empty
+                    dup null?
+                    // Store a copy of this flag in the bottom of the stack
+                    dup depth 1- -roll
+                    {
+                        // If the dict is empty, just drop it (it will be null if it's empty)
+                        drop
+                    }
+                    {
+                        // If the dict is not empty, prepare continuation to be stored in c3
+                        <{
+                            // Save this dict as first ref in this continuation, it will be pushed in runtime by DICTPUSHCONST
+                            swap @procdictkeylen DICTPUSHCONST
+                            // Jump to the needed function by it's index
+                            DICTIGETJMPZ
+                            // If such key is not found, throw 11 along with the key as an argument
+                            11 THROWARG
+                        }> PUSHCONT
+                        // Store the continuation in c3
+                        c3 POP
+                    } cond
+                    // Function id is on top of the (runtime) stack
+                    DUP IFNOTJMP:<{
+                        // place recv_internal here
+                        DROP swap @addop
+                    }>
+                    // Bring back the flag, indicating if the dict is empty or not from the bottom of the stack
+                    depth 1- roll
+                    {
+                        // If the dict is empty, throw 11
+                        11 THROWARG
+                    }
+                    {
+                        // If the dict is not empty, jump to continuation from c3
+                        c3 PUSH JMPX
+                    } cond
+                }> b>
+            } : }END>c
+            current@ context! current!
+        } does @atend !
+  }>
+}END>c

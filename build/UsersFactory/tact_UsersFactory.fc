@@ -306,14 +306,14 @@ builder $UsersFactory$_store(builder build_0, (slice, int) v) inline {
 
 ((slice, int), int) $UsersFactory$_fun_cntUsers((slice, int) $self) impure inline_ref {
     var (($self'owner, $self'quantityOfUsers)) = $self;
-    var $fresh$ret_4 = $self'quantityOfUsers;
-    return (($self'owner, $self'quantityOfUsers), $fresh$ret_4);
+    var $fresh$ret_377 = $self'quantityOfUsers;
+    return (($self'owner, $self'quantityOfUsers), $fresh$ret_377);
 }
 
 ((slice, int), slice) $UsersFactory$_fun_userAddress((slice, int) $self, slice $parent) impure inline_ref {
     var (($self'owner, $self'quantityOfUsers)) = $self;
-    var $fresh$ret_5 = $global_contractAddress($User$_init_child($parent));
-    return (($self'owner, $self'quantityOfUsers), $fresh$ret_5);
+    var $fresh$ret_378 = $global_contractAddress($User$_init_child($parent));
+    return (($self'owner, $self'quantityOfUsers), $fresh$ret_378);
 }
 
 ;;

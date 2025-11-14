@@ -1,17 +1,17 @@
 import { Address, beginCell, toNano } from '@ton/core';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { TWA } from '@/lib/twa';
-import { Item, storeUpdateItem } from '@/wrappers/Item';
-import { Shop, storeUpdateShopInfo } from '@/wrappers/Shop';
-import { User } from '@/wrappers/User';
-import { UsersFactory } from '@/wrappers/UsersFactory';
+import { TWA } from '../lib/twa';
+import { Item, storeUpdateItem } from '../wrappers/Item';
+import { Shop, storeUpdateShopInfo } from '../wrappers/Shop';
+import { User } from '../wrappers/User';
+import { UsersFactory } from '../wrappers/UsersFactory';
 import { useAsyncInitialize } from './useAsyncInitialize';
 import { useTonClient } from './useTonClient';
 import { useTonConnect } from './useTonConnect';
-import { defaultImage } from '@/constants/images';
-import { resolveMediaUrl } from '@/lib/media';
-import { TARGET_CHAIN, TARGET_NETWORK_LABEL } from '@/config';
-import { Api } from '@/lib/api';
+import { defaultImage } from '../constants/images';
+import { resolveMediaUrl } from '../lib/media';
+import { TARGET_CHAIN, TARGET_NETWORK_LABEL } from '../config';
+import { Api } from '../lib/api';
 
 async function waitForContractDeployment(options: {
   client: { isContractDeployed(address: Address): Promise<boolean> };

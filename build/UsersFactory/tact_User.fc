@@ -222,8 +222,8 @@ builder $User$_store(builder build_0, (slice, int, slice, slice) v) inline {
 
 ((slice, int, slice, slice), slice) $User$_fun_deliveryAddress((slice, int, slice, slice) $self) impure inline_ref {
     var (($self'owner, $self'id, $self'name, $self'deliveryAddress)) = $self;
-    var $fresh$ret_0 = $self'deliveryAddress;
-    return (($self'owner, $self'id, $self'name, $self'deliveryAddress), $fresh$ret_0);
+    var $fresh$ret_373 = $self'deliveryAddress;
+    return (($self'owner, $self'id, $self'name, $self'deliveryAddress), $fresh$ret_373);
 }
 
 ;;

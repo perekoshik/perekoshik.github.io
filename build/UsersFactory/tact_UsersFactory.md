@@ -3,7 +3,7 @@ Contract: UsersFactory
 BoC Size: 727 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 32
+Total structures: 33
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -112,6 +112,10 @@ Signature: `NewItem{}`
 ### ChangeAvailability
 TL-B: `change_availability#48fe9b74  = ChangeAvailability`
 Signature: `ChangeAvailability{}`
+
+### NewShop
+TL-B: `new_shop#20170036  = NewShop`
+Signature: `NewShop{}`
 
 ### User$Data
 TL-B: `_ owner:address id:uint256 name:^string deliveryAddress:^string = User`

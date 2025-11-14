@@ -59,6 +59,9 @@ slice $global_contractAddress((cell, cell) $s) impure inline;
 ;; $Shop$_fun_balance
 ((slice, slice, int, int, int, int), int) $Shop$_fun_balance((slice, slice, int, int, int, int) $self) impure inline_ref;
 
+;; $Shop$_fun_ownerAddress
+((slice, slice, int, int, int, int), slice) $Shop$_fun_ownerAddress((slice, slice, int, int, int, int) $self) impure inline_ref;
+
 ;; $Shop$_fun_requireOwner
 ((slice, slice, int, int, int, int), ()) $Shop$_fun_requireOwner((slice, slice, int, int, int, int) $self) impure inline_ref;
 
@@ -223,8 +226,8 @@ slice $global_myAddress() impure asm """
 
 ((slice, slice, int, int, int, int), slice) $Shop$_fun_owner((slice, slice, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
-    var $fresh$ret_57 = $self'owner;
-    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_57);
+    var $fresh$ret_266 = $self'owner;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_266);
 }
 
 ;; tact_Shop.constants.fc
@@ -342,32 +345,38 @@ cell $Item$_child_get_code() impure asm """
 
 ((slice, slice, int, int, int, int), slice) $Shop$_fun_shopName((slice, slice, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
-    var $fresh$ret_52 = $self'name;
-    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_52);
+    var $fresh$ret_260 = $self'name;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_260);
 }
 
 ((slice, slice, int, int, int, int), int) $Shop$_fun_shopId((slice, slice, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
-    var $fresh$ret_53 = $self'shopId;
-    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_53);
+    var $fresh$ret_261 = $self'shopId;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_261);
 }
 
 ((slice, slice, int, int, int, int), int) $Shop$_fun_itemsCount((slice, slice, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
-    var $fresh$ret_54 = $self'itemsCount;
-    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_54);
+    var $fresh$ret_262 = $self'itemsCount;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_262);
 }
 
 ((slice, slice, int, int, int, int), int) $Shop$_fun_ordersCount((slice, slice, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
-    var $fresh$ret_55 = $self'ordersCount;
-    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_55);
+    var $fresh$ret_263 = $self'ordersCount;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_263);
 }
 
 ((slice, slice, int, int, int, int), int) $Shop$_fun_balance((slice, slice, int, int, int, int) $self) impure inline_ref {
     var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
-    var $fresh$ret_56 = $self'balance;
-    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_56);
+    var $fresh$ret_264 = $self'balance;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_264);
+}
+
+((slice, slice, int, int, int, int), slice) $Shop$_fun_ownerAddress((slice, slice, int, int, int, int) $self) impure inline_ref {
+    var (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance)) = $self;
+    var $fresh$ret_265 = $self'owner;
+    return (($self'owner, $self'name, $self'itemsCount, $self'shopId, $self'ordersCount, $self'balance), $fresh$ret_265);
 }
 
 ;;
@@ -401,6 +410,12 @@ _ %ordersCount() method_id(130541) {
 _ %balance() method_id(104128) {
     var self = $Shop$_contract_load();
     var res = self~$Shop$_fun_balance();
+    return res;
+}
+
+_ %ownerAddress() method_id(102426) {
+    var self = $Shop$_contract_load();
+    var res = self~$Shop$_fun_ownerAddress();
     return res;
 }
 

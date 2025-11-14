@@ -1,9 +1,9 @@
 # Tact compilation report
 Contract: Shop
-BoC Size: 3018 bytes
+BoC Size: 3091 bytes
 
 ## Structures (Structs and Messages)
-Total structures: 37
+Total structures: 38
 
 ### DataSize
 TL-B: `_ cells:int257 bits:int257 refs:int257 = DataSize`
@@ -121,6 +121,10 @@ Signature: `NewItem{}`
 TL-B: `change_availability#48fe9b74  = ChangeAvailability`
 Signature: `ChangeAvailability{}`
 
+### NewShop
+TL-B: `new_shop#20170036  = NewShop`
+Signature: `NewShop{}`
+
 ### Item$Data
 TL-B: `_ shop:address id:uint256 price:coins imageSrc:^string title:^string description:^string available:bool = Item`
 Signature: `Item{shop:address,id:uint256,price:coins,imageSrc:^string,title:^string,description:^string,available:bool}`
@@ -154,7 +158,7 @@ TL-B: `_ owner:address name:^string itemsCount:uint256 shopId:uint256 ordersCoun
 Signature: `Shop{owner:address,name:^string,itemsCount:uint256,shopId:uint256,ordersCount:uint256,balance:coins}`
 
 ## Get methods
-Total get methods: 6
+Total get methods: 7
 
 ## shopName
 No arguments
@@ -169,6 +173,9 @@ No arguments
 No arguments
 
 ## balance
+No arguments
+
+## ownerAddress
 No arguments
 
 ## owner

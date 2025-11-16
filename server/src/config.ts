@@ -9,8 +9,8 @@ const projectRoot = resolve(fileURLToPath(new URL('../..', import.meta.url)));
 
 const DEFAULTS = {
   port: 4000,
-  dbPath: './server/data.sqlite',
-  uploadsDir: './server/uploads',
+  dbPath: '/app/data/data.sqlite',
+  uploadsDir: '/app/uploads',
   publicBaseUrl: 'https://web3market.shop',
   tonProofDomain: 'web3market.shop',
   challengeTtlMs: 5 * 60 * 1000,
@@ -35,8 +35,10 @@ function ensureRequiredEnv() {
 
 ensureRequiredEnv();
 
-const resolvePath = (input: string | undefined, fallback: string) =>
-  resolve(projectRoot, input ?? fallback);
+const resolvePath = (input: string | undefined, fallback: string) => {
+  const target = input ?? fallback;
+  return target.startsWith('/') ? target : resolve(projectRoot, target);
+};
 
 const uploadsDir = resolvePath(process.env.UPLOADS_DIR, DEFAULTS.uploadsDir);
 if (!existsSync(uploadsDir)) {

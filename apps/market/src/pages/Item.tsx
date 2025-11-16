@@ -41,7 +41,7 @@ export default function Item() {
     return () => {
       cancelled = true;
     };
-  }, [client, id]);
+  }, [id]);
 
   const mediaSrc = item?.imageUrl ?? defaultImage;
   const title = item?.title ?? 'Unknown item';

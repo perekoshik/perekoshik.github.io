@@ -38,6 +38,7 @@ function serializeOrder(order: OrderRecord, includeAddress: boolean): ApiOrder {
 async function bootstrap() {
   const db = await createDatabaseApi(config.dbPath);
   const app = express();
+  app.set('trust proxy', true);
   const publicLimiter = rateLimit({
     windowMs: config.rateLimit.windowMs,
     limit: config.rateLimit.max,

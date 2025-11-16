@@ -33,6 +33,22 @@ async function bootstrap() {
   );
   app.use('/uploads', express.static(config.uploadsDir));
 
+  const requireAuth: express.RequestHandler = (req, res, next) => {
+    const header = req.header('authorization');
+    if (!header?.startsWith('Bearer ')) {
+      res.status(401).json({ error: 'Missing token' });
+      return;
+    }
+    const token = header.slice('Bearer '.length).trim();
+    const seller = db.findSellerByToken(hashToken(token));
+    if (!seller) {
+      res.status(401).json({ error: 'Invalid token' });
+      return;
+    }
+    (req as SellerRequest).seller = seller;
+    next();
+  };
+
   app.get('/health', (_req, res) => {
     res.json({ ok: true });
   });
@@ -81,22 +97,6 @@ async function bootstrap() {
     db.createSellerToken(seller.wallet, tokenHash, expiresAt);
     res.json({ token, expiresAt, seller });
   });
-
-  const requireAuth: express.RequestHandler = (req, res, next) => {
-    const header = req.header('authorization');
-    if (!header?.startsWith('Bearer ')) {
-      res.status(401).json({ error: 'Missing token' });
-      return;
-    }
-    const token = header.slice('Bearer '.length).trim();
-    const seller = db.findSellerByToken(hashToken(token));
-    if (!seller) {
-      res.status(401).json({ error: 'Invalid token' });
-      return;
-    }
-    (req as SellerRequest).seller = seller;
-    next();
-  };
 
   app.get('/products', (_req, res) => {
     res.json(db.listProducts());

@@ -87,14 +87,19 @@ export function useSellerSession() {
 		if (!tonWallet?.account || authenticated || !challenge) {
 			return;
 		}
-		const proof = tonWallet.connectItems?.tonProof;
-		if (!proof || proof.proof.payload !== challenge.payload) {
+		const proofItem = tonWallet.connectItems?.tonProof;
+		if (!proofItem || !("proof" in proofItem)) {
+			return;
+		}
+		if (challenge.payload && proofItem.proof.payload !== challenge.payload) {
+			console.warn("[auth] ton-proof payload mismatch, requesting new challenge");
+			resetChallenge();
 			return;
 		}
 		const telegramUser = TWA?.initDataUnsafe?.user;
 		const tonProofPayload: TonProofPayload = {
-			proof: proof.proof,
-			state_init: proof.state_init,
+			proof: proofItem.proof,
+			state_init: tonWallet.account.walletStateInit,
 		};
 		setLoading(true);
 		setError(null);

@@ -14,6 +14,8 @@ export interface SellerRecord {
 export interface ProductRecord {
   id: string;
   sellerWallet: string;
+  shopAddress?: string | null;
+  contractAddress?: string | null;
   title: string;
   description: string;
   priceTon: number;
@@ -26,6 +28,15 @@ export interface ProductRecord {
   active: boolean;
 }
 
+export interface ShopRecord {
+  address: string;
+  owner: string;
+  shopName: string;
+  category: string;
+  createdAt: ISODate;
+  updatedAt: ISODate;
+}
+
 export interface OrderRecord {
   id: string;
   productId: string;
@@ -36,6 +47,8 @@ export interface OrderRecord {
   sellerAmountTon: number;
   status: OrderStatus;
   txHash?: string;
+  deliveryAddress?: string | null;
+  tonOrderId?: string | null;
   createdAt: ISODate;
   updatedAt: ISODate;
 }

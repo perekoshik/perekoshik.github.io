@@ -1,11 +1,37 @@
 import { Navigate } from 'react-router-dom';
 import { useSellerSession } from '@/hooks/useSellerSession';
+import { useMarketContracts } from '@/hooks/useMarketContracts';
 import { PageLoader } from '../shared/PageLoader';
+
+function NetworkNotice({ target }: { target: string }) {
+  return (
+    <div className="container py-10">
+      <div className="glass rounded-3xl p-6 space-y-3 text-sm text-txt/80">
+        <h1 className="text-xl font-semibold">Переключите кошелёк</h1>
+        <p>
+          Это окружение работает в сети <strong>{target}</strong>. В TonConnect выберите кошелёк в той же сети и
+          подключитесь заново.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 export function EntryGate() {
   const { authenticated, loading } = useSellerSession();
-  if (loading) {
-    return <PageLoader label="Подключаем кошелёк" />;
+  const { shopDeployed, shopSyncing, wrongNetwork, targetNetworkLabel } = useMarketContracts();
+
+  if (loading || shopDeployed === null || shopSyncing) {
+    return <PageLoader label="Проверяем магазин" />;
   }
-  return <Navigate to={authenticated ? '/shop' : '/onboarding'} replace />;
+
+  if (wrongNetwork) {
+    return <NetworkNotice target={targetNetworkLabel} />;
+  }
+
+  if (!authenticated) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  return <Navigate to={shopDeployed ? '/shop' : '/onboarding'} replace />;
 }

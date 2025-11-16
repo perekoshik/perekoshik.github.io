@@ -8,6 +8,12 @@ import { createDatabaseApi } from './db.js';
 import { generateToken, hashToken } from './auth.js';
 import { saveProductImage } from './storage.js';
 
+function splitOrderAmounts(priceTon: number) {
+  const fee = Number((priceTon * config.platformFee).toFixed(4));
+  const sellerAmount = Number((priceTon - fee).toFixed(4));
+  return { fee, sellerAmount };
+}
+
 async function bootstrap() {
   const db = await createDatabaseApi(config.dbPath);
   const app = express();
@@ -29,6 +35,30 @@ async function bootstrap() {
 
   app.get('/health', (_req, res) => {
     res.json({ ok: true });
+  });
+
+  app.get('/shops', (_req, res) => {
+    res.json(db.listShops());
+  });
+
+  app.post('/shops', requireAuth, (req, res) => {
+    const seller = (req as SellerRequest).seller;
+    const { address, shopName, category } = req.body as {
+      address?: string;
+      shopName?: string;
+      category?: string;
+    };
+    if (!address?.trim() || !shopName?.trim()) {
+      res.status(400).json({ error: 'address и shopName обязательны' });
+      return;
+    }
+    const record = db.upsertShop({
+      address: address.trim(),
+      owner: seller.wallet,
+      shopName: shopName.trim(),
+      category: category?.trim() || 'All',
+    });
+    res.status(201).json(record);
   });
 
   app.post('/auth/verify', (req, res) => {
@@ -84,11 +114,14 @@ async function bootstrap() {
   app.post('/products', requireAuth, async (req, res) => {
     try {
       const seller = (req as SellerRequest).seller;
-      const { title, description, priceTon, imageData } = req.body as {
+      const { id, title, description, priceTon, imageData, shopAddress, contractAddress } = req.body as {
+        id?: string;
         title?: string;
         description?: string;
         priceTon?: number;
         imageData?: string;
+        shopAddress?: string;
+        contractAddress?: string;
       };
       if (!title?.trim() || !description?.trim() || !priceTon || priceTon <= 0 || !imageData) {
         res.status(400).json({ error: 'Invalid product payload' });
@@ -96,8 +129,10 @@ async function bootstrap() {
       }
       const image = await saveProductImage(imageData);
       const product = db.createProduct({
-        id: nanoid(),
+        id: (id?.trim() || nanoid()).toLowerCase(),
         sellerWallet: seller.wallet,
+        shopAddress: shopAddress?.trim() || null,
+        contractAddress: contractAddress?.trim() || id?.trim() || null,
         title: title.trim(),
         description: description.trim(),
         priceTon,
@@ -149,8 +184,7 @@ async function bootstrap() {
       res.status(404).json({ error: 'Product not found' });
       return;
     }
-    const fee = Number((priceTon * config.platformFee).toFixed(4));
-    const sellerAmount = Number((priceTon - fee).toFixed(4));
+    const { fee, sellerAmount } = splitOrderAmounts(priceTon);
     const order = db.createOrder({
       id: nanoid(),
       productId,
@@ -160,6 +194,8 @@ async function bootstrap() {
       platformFeeTon: fee,
       sellerAmountTon: sellerAmount,
       status: 'pending',
+      deliveryAddress: null,
+      tonOrderId: Date.now().toString(),
     });
     res.status(201).json(order);
   });
@@ -177,6 +213,57 @@ async function bootstrap() {
     }
     db.updateOrderStatus(req.params.id, status as any, txHash);
     res.status(204).end();
+  });
+
+  app.post('/orders/public', (req, res) => {
+    const { productId, buyerWallet, deliveryAddress } = req.body as {
+      productId?: string;
+      buyerWallet?: string;
+      deliveryAddress?: string;
+    };
+    if (!productId?.trim() || !buyerWallet?.trim() || !deliveryAddress?.trim()) {
+      res.status(400).json({ error: 'productId, buyerWallet и deliveryAddress обязательны' });
+      return;
+    }
+    const product = db.findProductById(productId.trim());
+    if (!product) {
+      res.status(404).json({ error: 'Product not found' });
+      return;
+    }
+    if (!product.contractAddress) {
+      res.status(400).json({ error: 'Product is not linked to a contract' });
+      return;
+    }
+    const { fee, sellerAmount } = splitOrderAmounts(product.priceTon);
+    const order = db.createOrder({
+      id: nanoid(),
+      productId: product.id,
+      sellerWallet: product.sellerWallet,
+      buyerWallet: buyerWallet.trim(),
+      priceTon: product.priceTon,
+      platformFeeTon: fee,
+      sellerAmountTon: sellerAmount,
+      status: 'pending',
+      deliveryAddress: deliveryAddress.trim(),
+      tonOrderId: Date.now().toString(),
+    });
+    res.status(201).json(order);
+  });
+
+  app.patch('/orders/:id/public', (req, res) => {
+    const { status, txHash } = req.body as { status?: string; txHash?: string };
+    if (!status || !['paid', 'canceled'].includes(status)) {
+      res.status(400).json({ error: 'Only "paid" or "canceled" statuses are allowed' });
+      return;
+    }
+    const order = db.findOrderById(req.params.id);
+    if (!order) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+    db.updateOrderStatus(order.id, status as any, txHash);
+    const updated = db.findOrderById(order.id);
+    res.json(updated);
   });
 
   app.listen(config.port, () => {

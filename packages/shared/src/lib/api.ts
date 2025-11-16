@@ -36,9 +36,20 @@ export type AuthSession = {
   seller: SellerProfile;
 };
 
+export type ShopRecord = {
+  address: string;
+  owner: string;
+  shopName: string;
+  category: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ProductRecord = {
   id: string;
   sellerWallet: string;
+  shopAddress?: string | null;
+  contractAddress?: string | null;
   title: string;
   description: string;
   priceTon: number;
@@ -63,6 +74,8 @@ export type OrderRecord = {
   sellerAmountTon: number;
   status: OrderStatus;
   txHash?: string;
+  deliveryAddress?: string | null;
+  tonOrderId?: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -75,7 +88,18 @@ export const Api = {
     }),
   listProducts: () => request<ProductRecord[]>('/products'),
   getProduct: (id: string) => request<ProductRecord>(`/products/${encodeURIComponent(id)}`),
-  createProduct: (token: string, payload: { title: string; description: string; priceTon: number; imageData: string }) =>
+  createProduct: (
+    token: string,
+    payload: {
+      id?: string;
+      title: string;
+      description: string;
+      priceTon: number;
+      imageData: string;
+      shopAddress?: string;
+      contractAddress?: string;
+    },
+  ) =>
     request<ProductRecord>('/products', {
       method: 'POST',
       token,
@@ -105,5 +129,21 @@ export const Api = {
       token,
       body: JSON.stringify(payload),
       parse: false,
+    }),
+  saveShop: (token: string, payload: { address: string; owner: string; shopName: string; category?: string }) =>
+    request<ShopRecord>('/shops', {
+      method: 'POST',
+      token,
+      body: JSON.stringify(payload),
+    }),
+  createBuyerOrder: (payload: { productId: string; buyerWallet: string; deliveryAddress: string }) =>
+    request<OrderRecord>('/orders/public', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updatePublicOrder: (id: string, payload: { status: 'paid' | 'canceled'; txHash?: string }) =>
+    request<OrderRecord>(`/orders/${encodeURIComponent(id)}/public`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
     }),
 };

@@ -6,3 +6,7 @@ const chain = raw === 'mainnet' ? CHAIN.MAINNET : CHAIN.TESTNET;
 export const TARGET_CHAIN = chain;
 export const TARGET_NETWORK_NAME = chain === CHAIN.TESTNET ? 'testnet' : 'mainnet';
 export const TARGET_NETWORK_LABEL = chain === CHAIN.TESTNET ? 'Testnet' : 'Mainnet';
+
+const feeValue = Number(import.meta.env?.VITE_PLATFORM_FEE ?? '0.03');
+export const PLATFORM_FEE = Number.isFinite(feeValue) && feeValue >= 0 ? feeValue : 0.03;
+export const PLATFORM_WALLET = (import.meta.env?.VITE_PLATFORM_WALLET ?? '').trim() || null;

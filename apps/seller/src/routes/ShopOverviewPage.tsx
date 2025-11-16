@@ -1,104 +1,208 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { fromNano, toNano } from '@ton/core';
 import { Plus, RefreshCcw, UploadCloud } from 'lucide-react';
 import Card from '@/components/Card';
 import Media from '@/components/Media';
 import Skeleton from '@/components/Skeleton';
 import { defaultImage } from '@/constants/images';
+import { useMarketContracts } from '@/hooks/useMarketContracts';
+import { useTonConnect } from '@/hooks/useTonConnect';
 import { useSellerSession } from '@/hooks/useSellerSession';
-import { Api, type OrderRecord, type ProductRecord } from '@/lib/api';
+import { Api, type OrderRecord } from '@/lib/api';
 import { PageLoader } from '../shared/PageLoader';
 
 type StatusMessage = { type: 'success' | 'error'; text: string } | null;
 
 export function ShopOverviewPage() {
+  const navigate = useNavigate();
+  const { connected } = useTonConnect();
   const { authenticated, seller, token } = useSellerSession();
-  const [products, setProducts] = useState<ProductRecord[]>([]);
+  const {
+    shopName,
+    shopAddress,
+    shopItemsCount,
+    shopDeployed,
+    shopSyncing,
+    makeShop,
+    items,
+    itemsLoading,
+    makeItem,
+    wrongNetwork,
+    targetNetworkLabel,
+  } = useMarketContracts();
+
+  const [shopNameInput, setShopNameInput] = useState('');
+  const [shopStatus, setShopStatus] = useState<StatusMessage>(null);
+  const [savingShop, setSavingShop] = useState(false);
   const [orders, setOrders] = useState<OrderRecord[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
   const [loadingOrders, setLoadingOrders] = useState(false);
 
-  const fetchProducts = useCallback(() => {
-    setLoadingProducts(true);
-    Api.listProducts()
-      .then((list) => setProducts(list))
-      .finally(() => setLoadingProducts(false));
-  }, []);
+  useEffect(() => {
+    if (!authenticated) {
+      navigate('/onboarding', { replace: true });
+    }
+  }, [authenticated, navigate]);
 
-  const fetchOrders = useCallback(() => {
+  useEffect(() => {
+    if (!shopDeployed && shopDeployed !== null) {
+      navigate('/onboarding', { replace: true });
+    }
+  }, [shopDeployed, navigate]);
+
+  useEffect(() => {
+    if (shopName) {
+      setShopNameInput(shopName);
+    }
+  }, [shopName]);
+
+  useEffect(() => {
     if (!token) return;
     setLoadingOrders(true);
     Api.listOrders(token)
-      .then((list) => setOrders(list))
-      .catch(() => {
-        /* ignore */
+      .then(setOrders)
+      .catch((error) => {
+        console.error('Failed to load orders', error);
       })
       .finally(() => setLoadingOrders(false));
   }, [token]);
 
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      fetchProducts();
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [fetchProducts]);
-
-  useEffect(() => {
-    const frame = requestAnimationFrame(() => {
-      fetchOrders();
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [fetchOrders]);
-
-  const sellerProducts = useMemo(
-    () => products.filter((item) => item.sellerWallet === seller?.wallet),
-    [products, seller?.wallet],
-  );
-
-  if (!authenticated || !token || !seller) {
-    return <Navigate to="/onboarding" replace />;
+  if (!authenticated || !seller) {
+    return <PageLoader label="Подключаем профиль" />;
   }
 
-  if (loadingProducts && sellerProducts.length === 0) {
+  if (shopDeployed === null) {
     return <PageLoader label="Загружаем данные магазина" />;
   }
 
+  if (!shopDeployed) {
+    return null;
+  }
+
+  const handleSaveShop = async () => {
+    if (!connected) {
+      setShopStatus({ type: 'error', text: 'Подключите TonConnect, чтобы сохранить изменения.' });
+      return;
+    }
+    if (!shopNameInput.trim()) {
+      setShopStatus({ type: 'error', text: 'Введите новое название.' });
+      return;
+    }
+    setSavingShop(true);
+    setShopStatus(null);
+    try {
+      await makeShop(shopNameInput.trim());
+      setShopStatus({ type: 'success', text: 'Название сохранено в базе и обновлено в TON.' });
+    } catch (error) {
+      setShopStatus({
+        type: 'error',
+        text: (error as Error).message ?? 'Не удалось сохранить.',
+      });
+    } finally {
+      setSavingShop(false);
+    }
+  };
+
   return (
     <div className="container space-y-10 py-8">
-      <header className="space-y-2">
+      <section className="space-y-2">
         <span className="text-[11px] uppercase tracking-[0.32em] text-txt/60">Store</span>
-        <h1 className="text-3xl font-semibold">{seller.telegramName || truncate(seller.wallet)}</h1>
-        <p className="text-sm text-txt/70">Редактируйте товары и просматривайте заказы.</p>
-      </header>
+        <h1 className="text-3xl font-semibold">{shopName ?? seller.telegramName ?? truncate(seller.wallet)}</h1>
+        <p className="text-sm text-txt/70">Редактируйте магазин и управляйте товарами.</p>
+      </section>
+
+      <section className="glass rounded-3xl p-5 sm:p-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold">Информация о магазине</h2>
+            <p className="text-sm text-txt/70">Название, адрес и статистика</p>
+          </div>
+          <button
+            type="button"
+            onClick={handleSaveShop}
+            disabled={savingShop || shopSyncing}
+            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-txt/70 transition-colors duration-150 hover:border-white/30 disabled:opacity-60"
+          >
+            <RefreshCcw className="h-4 w-4" /> Сохранить
+          </button>
+        </div>
+
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+          <div className="space-y-4">
+            <label className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">Название магазина</label>
+            <input
+              value={shopNameInput}
+              onChange={(event) => setShopNameInput(event.target.value)}
+              placeholder="Например, Genesis Store"
+              className="w-full rounded-2xl border border-white/10 bg-transparent px-4 py-3 text-base outline-none transition-colors duration-150 focus:border-brand/60"
+              disabled={!connected}
+            />
+            {shopStatus && (
+              <div
+                className={`rounded-2xl px-4 py-3 text-sm ${shopStatus.type === 'success' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}
+              >
+                {shopStatus.text}
+              </div>
+            )}
+            {!connected && <p className="text-sm text-yellow-500">Подключите TonConnect, чтобы редактировать.</p>}
+          </div>
+
+          <div className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-txt/80 dark:bg-white/5">
+            <div className="flex items-center justify-between">
+              <span>Адрес</span>
+              <span className="font-semibold">{shopAddress ? truncate(shopAddress) : '—'}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Товаров</span>
+              <span className="font-semibold">{shopItemsCount?.toString() ?? '0'}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Статус</span>
+              <span className="font-semibold text-green-400">Активен</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {wrongNetwork && (
+        <div className="rounded-3xl border border-yellow-400/40 bg-yellow-400/5 p-4 text-sm text-yellow-200">
+          Подключённый кошелёк работает в другой сети. Переключитесь в {targetNetworkLabel}, чтобы редактировать магазин и
+          добавлять товары.
+        </div>
+      )}
 
       <NewItemPanel
-        disabled={!token}
-        onCreated={(product) => setProducts((current) => [product, ...current])}
-        token={token}
+        onSubmit={makeItem}
+        disabled={!connected || wrongNetwork}
+        warning={wrongNetwork ? `Сеть кошелька должна быть ${targetNetworkLabel}` : undefined}
       />
 
-      <ProductGrid products={sellerProducts} loading={loadingProducts} />
+      <ItemGrid items={items} itemsLoading={itemsLoading} />
 
       <OrdersPanel orders={orders} loading={loadingOrders} />
     </div>
   );
 }
 
-function ProductGrid({ products, loading }: { products: ProductRecord[]; loading: boolean }) {
-  if (loading) {
+function truncate(address: string) {
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
+}
+
+function ItemGrid({ items, itemsLoading }: { items: ReturnType<typeof useMarketContracts>['items']; itemsLoading: boolean }) {
+  if (itemsLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
-          <Skeleton key={`product-skeleton-${index}`} className="h-[220px] rounded-2xl" />
+          <Skeleton key={`item-skeleton-${index}`} className="h-[220px] rounded-2xl" />
         ))}
       </div>
     );
   }
 
-  if (!products.length) {
+  if (!items.length) {
     return (
       <div className="rounded-3xl border border-dashed border-white/10 p-6 text-center text-sm text-txt/60">
-        Добавьте первый товар, чтобы он появился в витрине.
+        Нет товаров. Создайте первый лот, чтобы он появился здесь.
       </div>
     );
   }
@@ -110,21 +214,23 @@ function ProductGrid({ products, loading }: { products: ProductRecord[]; loading
         <span className="text-xs uppercase tracking-[0.24em] text-txt/50">Tap to open</span>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {products.map((item) => (
-          <Link key={item.id} to={`/items/${item.id}`} className="glass flex flex-col rounded-3xl">
+        {items.map((item) => (
+          <Link key={item.address} to={`/items/${item.id.toString()}`} className="glass flex flex-col rounded-3xl">
             <div className="aspect-square overflow-hidden">
-              <Media key={item.imageUrl} src={item.imageUrl || defaultImage} alt={item.title} />
+              <Media key={item.imageSrc} src={item.imageSrc || defaultImage} alt={item.title} />
             </div>
             <div className="flex flex-1 flex-col gap-3 p-4">
               <div>
                 <div className="text-sm font-semibold text-txt">{item.title || 'Без названия'}</div>
-                <p className="text-xs text-txt/60 min-h-[2.5rem] overflow-hidden text-ellipsis">{item.description}</p>
+                <p className="text-xs text-txt/60 min-h-[2.5rem] overflow-hidden text-ellipsis">
+                  {item.description || 'Без описания'}
+                </p>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="rounded-xl bg-white/5 px-2 py-1 text-xs uppercase tracking-[0.24em] text-txt/60">
-                  #{item.id.slice(-4)}
+                  #{item.id.toString()}
                 </span>
-                <span className="font-semibold">{item.priceTon} TON</span>
+                <span className="font-semibold">{fromNano(item.price)} TON</span>
               </div>
             </div>
           </Link>
@@ -160,6 +266,8 @@ function OrdersPanel({ orders, loading }: { orders: OrderRecord[]; loading: bool
                 <span>Покупатель: {order.buyerWallet}</span>
                 <span>Статус: {order.status}</span>
                 <span>Комиссия: {order.platformFeeTon} TON</span>
+                {order.deliveryAddress && <span>Адрес: {order.deliveryAddress}</span>}
+                {order.txHash && <span>TX: {order.txHash.slice(0, 18)}…</span>}
               </div>
             </div>
           ))}
@@ -170,13 +278,13 @@ function OrdersPanel({ orders, loading }: { orders: OrderRecord[]; loading: bool
 }
 
 function NewItemPanel({
+  onSubmit,
   disabled,
-  onCreated,
-  token,
+  warning,
 }: {
+  onSubmit: ReturnType<typeof useMarketContracts>['makeItem'];
   disabled: boolean;
-  token: string;
-  onCreated: (product: ProductRecord) => void;
+  warning?: string;
 }) {
   const [opened, setOpened] = useState(false);
   const [title, setTitle] = useState('');
@@ -187,17 +295,14 @@ function NewItemPanel({
   const [status, setStatus] = useState<StatusMessage>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const cardPreview = useMemo<Parameters<typeof Card>[0]['item']>(() => {
-    const next: Parameters<typeof Card>[0]['item'] = {
+  const cardPreview = useMemo(() => {
+    return {
       id: 'preview',
       title: title || 'Новая карточка',
-      image: imageDataUrl || defaultImage,
+      image: imageDataUrl || undefined,
       badge: 'Draft',
-    };
-    if (price) {
-      next.price = `${price} TON`;
-    }
-    return next;
+      price: price ? `${price} TON` : undefined,
+    } satisfies Parameters<typeof Card>[0]['item'];
   }, [title, price, imageDataUrl]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -234,31 +339,26 @@ function NewItemPanel({
       setStatus({ type: 'error', text: 'Цена должна быть числом (например 12 или 12.4).' });
       return;
     }
-    const tonValue = Number(normalizedPrice);
-    if (!Number.isFinite(tonValue) || tonValue <= 0) {
-      setStatus({ type: 'error', text: 'Цена должна быть больше нуля.' });
-      return;
-    }
     if (!imageDataUrl) {
       setStatus({ type: 'error', text: 'Загрузите изображение товара.' });
       return;
     }
+
     try {
       setSubmitting(true);
-      const product = await Api.createProduct(token, {
+      await onSubmit({
+        price: toNano(normalizedPrice),
+        imageSrc: imageDataUrl,
         title: title.trim(),
         description: description.trim(),
-        priceTon: tonValue,
-        imageData: imageDataUrl,
       });
-      onCreated(product);
-      setStatus({ type: 'success', text: 'Товар сохранён.' });
+      setStatus({ type: 'success', text: 'Лот сохранён в базе и опубликован в TON.' });
       resetForm();
       setOpened(false);
     } catch (error) {
       setStatus({
         type: 'error',
-        text: (error as Error).message ?? 'Не удалось создать товар.',
+        text: (error as Error).message ?? 'Не удалось создать лот.',
       });
     } finally {
       setSubmitting(false);
@@ -270,12 +370,13 @@ function NewItemPanel({
       <div className="space-y-2">
         <button
           type="button"
-          className="inline-flex items-center gap-2 rounded-2xl bg-brand/20 px-5 py-3 text-sm font-semibold text-brand hover:bg-brand/25 disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-2xl bg-brand/20 px-5 py-3 text-sm font-semibold text-brand hover:bg-brand/25"
           onClick={() => setOpened(true)}
           disabled={disabled}
         >
           <Plus className="h-4 w-4" /> Новый товар
         </button>
+        {warning && <p className="text-sm text-yellow-500">{warning}</p>}
       </div>
     );
   }
@@ -287,7 +388,14 @@ function NewItemPanel({
           <h2 className="text-base font-semibold">Новый товар</h2>
           <p className="text-sm text-txt/70">Заполните карточку — предпросмотр справа</p>
         </div>
-        <button type="button" className="text-sm text-txt/60 underline decoration-dotted" onClick={() => setOpened(false)}>
+        <button
+          type="button"
+          className="text-sm text-txt/60 underline decoration-dotted"
+          onClick={() => {
+            setOpened(false);
+            setStatus(null);
+          }}
+        >
           Скрыть
         </button>
       </div>
@@ -342,10 +450,10 @@ function NewItemPanel({
             <button
               type="button"
               onClick={handleCreate}
-              disabled={submitting}
+              disabled={submitting || disabled}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand/25 px-5 text-sm font-medium text-txt transition-colors duration-150 hover:bg-brand/30 disabled:opacity-60"
             >
-              {submitting ? 'Отправляем…' : 'Сохранить'}
+              {submitting ? 'Отправляем…' : 'Опубликовать'}
             </button>
             <button
               type="button"
@@ -390,8 +498,4 @@ async function convertFileToDataUrl(file: File): Promise<string> {
     reader.onerror = () => reject(reader.error ?? new Error('Не удалось прочитать файл'));
     reader.readAsDataURL(file);
   });
-}
-
-function truncate(address: string) {
-  return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }

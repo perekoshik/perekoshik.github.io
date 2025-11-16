@@ -9,6 +9,7 @@ import type {
   RatingRecord,
   SellerRecord,
   SellerTokenRecord,
+  ShopRecord,
 } from './types.js';
 
 const ISO = () => new Date().toISOString();
@@ -23,11 +24,20 @@ export type NewSeller = {
 export type NewProduct = {
   id: string;
   sellerWallet: string;
+  shopAddress?: string | null;
+  contractAddress?: string | null;
   title: string;
   description: string;
   priceTon: number;
   imageUrl: string;
   imageSizeBytes: number;
+};
+
+export type NewShop = {
+  address: string;
+  owner: string;
+  shopName: string;
+  category: string;
 };
 
 export type NewRating = {
@@ -46,11 +56,15 @@ export type NewOrder = {
   platformFeeTon: number;
   sellerAmountTon: number;
   status: OrderStatus;
+  deliveryAddress?: string | null;
+  tonOrderId?: string | null;
 };
 
 export interface DatabaseApi {
   issueChallenge(payload: string, expiresAt: number): void;
   consumeChallenge(payload: string): boolean;
+  upsertShop(input: NewShop): ShopRecord;
+  listShops(): ShopRecord[];
   upsertSeller(input: NewSeller): SellerRecord;
   createSellerToken(wallet: string, tokenHash: string, expiresAt: number): SellerTokenRecord;
   findSellerByToken(tokenHash: string): SellerRecord | null;
@@ -61,6 +75,7 @@ export interface DatabaseApi {
   saveRating(entry: NewRating): RatingRecord;
   createOrder(order: NewOrder): OrderRecord;
   listOrders(filter: { sellerWallet?: string; buyerWallet?: string }): OrderRecord[];
+  findOrderById(id: string): OrderRecord | null;
   updateOrderStatus(id: string, status: OrderStatus, txHash?: string): void;
 }
 
@@ -90,6 +105,14 @@ export function createDatabaseApi(path: string): DatabaseApi {
       statements.deleteChallenge.run(payload);
       return true;
     },
+    upsertShop(input) {
+      const timestamps = { createdAt: ISO(), updatedAt: ISO() };
+      statements.upsertShop.run({ ...input, ...timestamps });
+      return statements.selectShop.get(input.address) as ShopRecord;
+    },
+    listShops() {
+      return statements.selectShops.all() as ShopRecord[];
+    },
     upsertSeller(input) {
       const timestamps = { createdAt: ISO(), updatedAt: ISO() };
       statements.upsertSeller.run({ ...input, ...timestamps });
@@ -111,7 +134,12 @@ export function createDatabaseApi(path: string): DatabaseApi {
     },
     createProduct(product) {
       const timestamps = { createdAt: ISO(), updatedAt: ISO() };
-      statements.insertProduct.run({ ...product, ...timestamps });
+      statements.insertProduct.run({
+        ...product,
+        shopAddress: product.shopAddress ?? null,
+        contractAddress: product.contractAddress ?? null,
+        ...timestamps,
+      });
       return statements.selectProductById.get(product.id) as ProductRecord;
     },
     listProducts() {
@@ -132,7 +160,12 @@ export function createDatabaseApi(path: string): DatabaseApi {
     },
     createOrder(order) {
       const timestamps = { createdAt: ISO(), updatedAt: ISO() };
-      statements.insertOrder.run({ ...order, ...timestamps });
+      statements.insertOrder.run({
+        ...order,
+        deliveryAddress: order.deliveryAddress ?? null,
+        tonOrderId: order.tonOrderId ?? null,
+        ...timestamps,
+      });
       return statements.selectOrderById.get(order.id) as OrderRecord;
     },
     listOrders(filter) {
@@ -143,6 +176,10 @@ export function createDatabaseApi(path: string): DatabaseApi {
         return statements.selectOrdersByBuyer.all(filter.buyerWallet) as OrderRecord[];
       }
       return [];
+    },
+    findOrderById(id) {
+      const record = statements.selectOrderById.get(id) as OrderRecord | undefined;
+      return record ?? null;
     },
     updateOrderStatus(id, status, txHash) {
       statements.updateOrderStatus.run({
@@ -164,6 +201,21 @@ function prepareStatements(db: Database.Database) {
     ),
     selectChallenge: db.prepare('SELECT payload, expires_at as expiresAt FROM auth_challenges WHERE payload = ?'),
     deleteChallenge: db.prepare('DELETE FROM auth_challenges WHERE payload = ?'),
+    upsertShop: db.prepare(
+      `INSERT INTO shops(address, owner, shop_name, category, created_at, updated_at)
+       VALUES(@address, @owner, @shopName, @category, @createdAt, @updatedAt)
+       ON CONFLICT(address) DO UPDATE SET shop_name=excluded.shop_name,
+         category=excluded.category,
+         updated_at=excluded.updated_at`,
+    ),
+    selectShop: db.prepare(
+      `SELECT address, owner, shop_name as shopName, category, created_at as createdAt, updated_at as updatedAt
+       FROM shops WHERE address = ?`,
+    ),
+    selectShops: db.prepare(
+      `SELECT address, owner, shop_name as shopName, category, created_at as createdAt, updated_at as updatedAt
+       FROM shops ORDER BY created_at DESC`,
+    ),
     upsertSeller: db.prepare(
       `INSERT INTO sellers(wallet, telegram_id, telegram_username, telegram_name, created_at, updated_at)
        VALUES(@wallet, @telegramId, @telegramUsername, @telegramName, @createdAt, @updatedAt)
@@ -190,31 +242,42 @@ function prepareStatements(db: Database.Database) {
        WHERE t.token_hash = ? AND t.expires_at > strftime('%s','now') * 1000`,
     ),
     insertProduct: db.prepare(
-      `INSERT INTO products(id, seller_wallet, title, description, price_ton, image_url, image_size_bytes,
-                            rating_average, rating_count, active, created_at, updated_at)
-       VALUES(@id, @sellerWallet, @title, @description, @priceTon, @imageUrl, @imageSizeBytes,
-              0, 0, 1, @createdAt, @updatedAt)`,
+      `INSERT INTO products(id, seller_wallet, shop_address, contract_address, title, description, price_ton, image_url,
+                            image_size_bytes, rating_average, rating_count, active, created_at, updated_at)
+       VALUES(@id, @sellerWallet, @shopAddress, @contractAddress, @title, @description, @priceTon, @imageUrl,
+              @imageSizeBytes, 0, 0, 1, @createdAt, @updatedAt)
+       ON CONFLICT(id) DO UPDATE SET title=excluded.title,
+         description=excluded.description,
+         price_ton=excluded.price_ton,
+         image_url=excluded.image_url,
+         image_size_bytes=excluded.image_size_bytes,
+         shop_address=excluded.shop_address,
+         contract_address=excluded.contract_address,
+         updated_at=excluded.updated_at`,
     ),
     selectProducts: db.prepare(
-      `SELECT id, seller_wallet as sellerWallet, title, description, price_ton as priceTon,
-              image_url as imageUrl, image_size_bytes as imageSizeBytes, rating_average as ratingAverage,
-              rating_count as ratingCount, active, created_at as createdAt, updated_at as updatedAt
+      `SELECT id, seller_wallet as sellerWallet, shop_address as shopAddress, contract_address as contractAddress,
+              title, description, price_ton as priceTon, image_url as imageUrl, image_size_bytes as imageSizeBytes,
+              rating_average as ratingAverage, rating_count as ratingCount, active, created_at as createdAt,
+              updated_at as updatedAt
        FROM products
        WHERE active = 1
        ORDER BY created_at DESC`,
     ),
     selectProductsBySeller: db.prepare(
-      `SELECT id, seller_wallet as sellerWallet, title, description, price_ton as priceTon,
-              image_url as imageUrl, image_size_bytes as imageSizeBytes, rating_average as ratingAverage,
-              rating_count as ratingCount, active, created_at as createdAt, updated_at as updatedAt
+      `SELECT id, seller_wallet as sellerWallet, shop_address as shopAddress, contract_address as contractAddress,
+              title, description, price_ton as priceTon, image_url as imageUrl, image_size_bytes as imageSizeBytes,
+              rating_average as ratingAverage, rating_count as ratingCount, active, created_at as createdAt,
+              updated_at as updatedAt
        FROM products
        WHERE seller_wallet = ?
        ORDER BY created_at DESC`,
     ),
     selectProductById: db.prepare(
-      `SELECT id, seller_wallet as sellerWallet, title, description, price_ton as priceTon,
-              image_url as imageUrl, image_size_bytes as imageSizeBytes, rating_average as ratingAverage,
-              rating_count as ratingCount, active, created_at as createdAt, updated_at as updatedAt
+      `SELECT id, seller_wallet as sellerWallet, shop_address as shopAddress, contract_address as contractAddress,
+              title, description, price_ton as priceTon, image_url as imageUrl, image_size_bytes as imageSizeBytes,
+              rating_average as ratingAverage, rating_count as ratingCount, active, created_at as createdAt,
+              updated_at as updatedAt
        FROM products WHERE id = ?`,
     ),
     upsertRating: db.prepare(
@@ -236,20 +299,22 @@ function prepareStatements(db: Database.Database) {
     ),
     insertOrder: db.prepare(
       `INSERT INTO orders(id, product_id, seller_wallet, buyer_wallet, price_ton, platform_fee_ton,
-                          seller_amount_ton, status, created_at, updated_at)
+                          seller_amount_ton, status, delivery_address, ton_order_id, created_at, updated_at)
        VALUES(@id, @productId, @sellerWallet, @buyerWallet, @priceTon, @platformFeeTon,
-              @sellerAmountTon, @status, @createdAt, @updatedAt)`,
+              @sellerAmountTon, @status, @deliveryAddress, @tonOrderId, @createdAt, @updatedAt)`,
     ),
     selectOrderById: db.prepare(
       `SELECT id, product_id as productId, seller_wallet as sellerWallet, buyer_wallet as buyerWallet,
               price_ton as priceTon, platform_fee_ton as platformFeeTon, seller_amount_ton as sellerAmountTon,
-              status, tx_hash as txHash, created_at as createdAt, updated_at as updatedAt
+              status, tx_hash as txHash, delivery_address as deliveryAddress, ton_order_id as tonOrderId,
+              created_at as createdAt, updated_at as updatedAt
        FROM orders WHERE id = ?`,
     ),
     selectOrdersBySeller: db.prepare(
       `SELECT id, product_id as productId, seller_wallet as sellerWallet, buyer_wallet as buyerWallet,
               price_ton as priceTon, platform_fee_ton as platformFeeTon, seller_amount_ton as sellerAmountTon,
-              status, tx_hash as txHash, created_at as createdAt, updated_at as updatedAt
+              status, tx_hash as txHash, delivery_address as deliveryAddress, ton_order_id as tonOrderId,
+              created_at as createdAt, updated_at as updatedAt
        FROM orders
        WHERE seller_wallet = ?
        ORDER BY created_at DESC`,
@@ -257,7 +322,8 @@ function prepareStatements(db: Database.Database) {
     selectOrdersByBuyer: db.prepare(
       `SELECT id, product_id as productId, seller_wallet as sellerWallet, buyer_wallet as buyerWallet,
               price_ton as priceTon, platform_fee_ton as platformFeeTon, seller_amount_ton as sellerAmountTon,
-              status, tx_hash as txHash, created_at as createdAt, updated_at as updatedAt
+              status, tx_hash as txHash, delivery_address as deliveryAddress, ton_order_id as tonOrderId,
+              created_at as createdAt, updated_at as updatedAt
        FROM orders
        WHERE buyer_wallet = ?
        ORDER BY created_at DESC`,
@@ -274,6 +340,15 @@ function prepareStatements(db: Database.Database) {
 
 function migrate(db: Database.Database) {
   db.exec(`
+    CREATE TABLE IF NOT EXISTS shops (
+      address TEXT PRIMARY KEY,
+      owner TEXT NOT NULL,
+      shop_name TEXT NOT NULL,
+      category TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS sellers (
       wallet TEXT PRIMARY KEY,
       telegram_id INTEGER,
@@ -298,6 +373,8 @@ function migrate(db: Database.Database) {
     CREATE TABLE IF NOT EXISTS products (
       id TEXT PRIMARY KEY,
       seller_wallet TEXT NOT NULL REFERENCES sellers(wallet) ON DELETE CASCADE,
+      shop_address TEXT,
+      contract_address TEXT,
       title TEXT NOT NULL,
       description TEXT NOT NULL,
       price_ton REAL NOT NULL,
@@ -337,4 +414,17 @@ function migrate(db: Database.Database) {
     CREATE INDEX IF NOT EXISTS idx_orders_seller ON orders(seller_wallet);
     CREATE INDEX IF NOT EXISTS idx_orders_buyer ON orders(buyer_wallet);
   `);
+
+  ensureColumn(db, 'products', 'shop_address TEXT');
+  ensureColumn(db, 'products', 'contract_address TEXT');
+  ensureColumn(db, 'orders', 'delivery_address TEXT');
+  ensureColumn(db, 'orders', 'ton_order_id TEXT');
+}
+
+function ensureColumn(db: Database.Database, table: string, definition: string) {
+  const [name] = definition.split(/\s+/);
+  const columns = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+  if (!columns.some((column) => column.name === name)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${definition}`);
+  }
 }

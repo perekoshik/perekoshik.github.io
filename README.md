@@ -112,6 +112,8 @@ npm run lint
 ## Дополнительно
 
 - Комиссия владельца задаётся в `.env` (`PLATFORM_FEE=0.03` = 3%).
+- Те же значения нужно передать на фронт (`VITE_PLATFORM_FEE`, `VITE_PLATFORM_WALLET=<адрес получателя комиссии>`), чтобы TonConnect добавлял второй платёж.
+- При покупке мини‑апп сначала создаёт заказ в БД (`/orders/public`), запускает TonConnect с двумя сообщениями (товарный контракт + комиссия) и после удачного подтверждения переводит заказ в статус `paid`. В случае отказа заказ помечается как `canceled`.
 - Seller Console хранит токен в `localStorage` (`useSellerSession`), выход — в UI.
 - Для mainnet измените `TON_NETWORK=mainnet`, `PUBLIC_BASE_URL` и пересоберите API/SPA.
 - `npm run lint`, `npm run build:market`, `npm run build:seller`, `npm run build --prefix server` — базовый чек перед деплоем.

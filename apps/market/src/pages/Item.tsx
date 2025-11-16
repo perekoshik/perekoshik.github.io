@@ -1,5 +1,5 @@
 import { Address, beginCell, toNano } from '@ton/core';
-import { SendTransactionResponse } from '@tonconnect/ui-react';
+type SendTransactionResponse = { boc?: string };
 import { ArrowLeft, X } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';

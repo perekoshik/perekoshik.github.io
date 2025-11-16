@@ -2,7 +2,6 @@ import { Address } from '@ton/core';
 import { CHAIN } from '@tonconnect/ui-react';
 import { Loader2, UserRound } from 'lucide-react';
 import Media from '@/components/Media';
-import { useMarketContracts } from '@/hooks/useMarketContracts';
 import { useTonConnect } from '@/hooks/useTonConnect';
 import { TWA } from '@/lib/twa';
 
@@ -11,7 +10,6 @@ export default function Profile() {
   const avatarUrl = user?.photo_url;
   const initials = user ? buildInitials(user.first_name, user.last_name) : 'DP';
   const { wallet, connected, network } = useTonConnect();
-  const { marketAddress } = useMarketContracts();
 
   return (
     <div className="container pb-24 space-y-6 sm:space-y-8">
@@ -48,7 +46,6 @@ export default function Profile() {
                   })}
                 </span>
                 <span>Network: {network ?? 'unknown'}</span>
-                <span>Market wallet: {marketAddress ?? '—'}</span>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-sm text-yellow-500">

@@ -1,86 +1,120 @@
 # Web3Market Mini Apps
 
-Репозиторий содержит два отдельных фронтенда:
+Монорепозиторий содержит два фронтенда и бэкенд:
 
-- **Market** (`apps/market`) — публичная витрина /mini-app по адресу `/`
-- **Seller Console** (`apps/seller`) — управление магазином и товарами, деплой в подпапку `/seller`
+- **Market** (`apps/market`) — публичная витрина mini‑app (`/`).
+- **Seller Console** (`apps/seller`) — кабинет продавца (`/seller`).
+- **API** (`server/`) — Express + SQLite: авторизация ton-proof, товары, заказы, рейтинг, загрузка изображений.
 
-## Установка
-```
-npm i
-```
+## Требования
 
-## Разработка
-```
-npm run dev:market   # главная витрина
-npm run dev:seller   # консоль продавца
-```
+- Node.js ≥ 22 и npm.
+- Docker + Docker Compose (для продакшена).
+- SQLite хранится внутри `server/data`.
 
-## Сборка и предпросмотр
-```
-npm run build            # market + seller
-npm run preview:market   # прогон dist/market
-npm run preview:seller   # прогон dist/seller
+## Установка и разработка
+
+```bash
+npm install                # фронтенды и тулчейн
+cd server && npm install   # API
+cp .env.example .env       # заполните TOKEN_SECRET, PUBLIC_BASE_URL и др.
 ```
 
-Скрипт `npm run postbuild` автоматически кладёт `404.html` в обе папки, чтобы SPA корректно работали на GitHub Pages.
+### Режим разработки
 
-## Telegram ссылки
-- Market: `https://perekoshik.github.io/`
-- Seller Console: `https://perekoshik.github.io/seller/`
+1. API:
+   ```bash
+   cd server
+   npm run dev
+   ```
+2. Фронтенды:
+   ```bash
+   npm run dev:market
+   npm run dev:seller
+   ```
 
-> Комментарий: ссылки выше открываются как Telegram mini app.
+В корневой `.env` установите `VITE_API_URL=http://localhost:4000`, чтобы SPA ходили в локальный сервер. Переключение на mainnet — через `TON_NETWORK=mainnet`.
 
-Открывайте мини‑аппы внутри Telegram — тогда подтягивается `initData` и TonConnect.
+### Сборка
 
-## Деплой
-Контрактные артефакты по-прежнему хранятся в корневой папке `build/`, поэтому для GitHub Pages используем отдельный worktree (например, `pages/`).
-
-```
-git worktree add pages gh-pages   # один раз
-npm run build                     # собираем dist/market и dist/seller
-rsync -av dist/market/ pages/
-rsync -av dist/seller/ pages/seller/
-cd pages && git add . && git commit -m "deploy" && git push origin gh-pages
-```
-
-Для удобства есть скрипт `scripts/deploy.sh`, который выполняет весь цикл сразу:
-
-```
-scripts/deploy.sh "feat: update"
+```bash
+npm run build             # market + seller → dist/market и dist/seller
+cd server && npm run build   # компиляция API (dist/index.js)
 ```
 
-Команда последовательно коммитит код в `main`, запускает `npm run build`, синхронизирует `dist` → `pages/` и пушит `gh-pages`.
+Проверка:
 
-После пуша Pages раздаёт витрину по `https://perekoshik.github.io/`, а консоль продавца по `https://perekoshik.github.io/seller/`.
-
-## Сеть TON
-По умолчанию все хуки/клиенты работают в **testnet** (см. `packages/shared/src/config.ts`). Чтобы переключиться на mainnet, задайте в `.env` переменную `VITE_TON_NETWORK=mainnet` и перезапустите dev/build. Seller UI показывает предупреждение, если кошелёк подключён к другой сети, и блокирует транзакции до переключения.
-
-## Backend API
-В каталоге `server/` живёт отдельное приложение на Express + SQLite.
-
-Запуск локально:
-```
-cd server
-cp .env.example .env           # DATABASE_PATH/PORT можно оставить по умолчанию
-npm install
-npm run dev
+```bash
+npm run preview:market
+npm run preview:seller
+npm run lint
 ```
 
-Для продакшена:
-```
-npm run build
-PORT=4000 DATABASE_PATH=/var/www/web3market/data/data.sqlite npm run start
-```
-или `pm2 start npm --name web3market-api -- start`.
+## API (Express)
 
-> **Важно:** база данных теперь хранится в SQLite‑файле (по умолчанию `server/data.sqlite`).
-> Путь можно перенести на сервер через переменную `DATABASE_PATH`.
+| Метод | Путь                   | Описание                                                     |
+|-------|------------------------|--------------------------------------------------------------|
+| POST  | `/auth/challenge`     | Генерирует payload для ton-proof                             |
+| POST  | `/auth/verify`        | Проверяет подпись, создаёт запись продавца и JWT‑токен       |
+| GET   | `/products` / `/:id`  | Общий список / карточка товара                               |
+| POST  | `/products`           | Создать товар (ton-proof токен, изображение как data URL)    |
+| POST  | `/products/:id/rating`| Поставить рейтинг 1–5                                        |
+| GET   | `/orders`             | Заказы текущего продавца (JWT)                               |
+| POST  | `/orders`             | Создать заказ (учитывается комиссия 3%)                      |
+| PATCH | `/orders/:id`         | Обновить статус (pending/paid/delivered/canceled/refunded)   |
 
-Фронтенды используют переменную `VITE_API_URL`. Для разработки добавьте в `.env` (в корне репо):
-```
-VITE_API_URL=http://localhost:4000
-```
+Изображения пережимаются `sharp` (JPEG, ≤600×600px, ≤600 KB) и хранятся в `UPLOADS_DIR`. Все публичные URL строятся от `PUBLIC_BASE_URL` (пример: `https://web3market.shop/uploads/...`).
 
-В продакшене соберите мини‑аппы с `VITE_API_URL=https://web3market.duckdns.org` (или вашим доменом), а API запустите на том же домене через HTTPS.
+## Docker Compose
+
+В корне есть `docker-compose.yml`, который запускает два контейнера:
+
+| Сервис | Описание                             | Dockerfile        |
+|--------|---------------------------------------|-------------------|
+| `api`  | Express + SQLite + `/uploads`         | `server/Dockerfile` |
+| `web`  | Nginx со статикой + proxy `/api`,`/uploads` | `Dockerfile.web`  |
+
+### Подготовка
+
+1. Скопируйте `.env.example` → `.env` и задайте значения:
+   ```env
+   TOKEN_SECRET=<длинный случайный>
+   PUBLIC_BASE_URL=https://web3market.shop
+   TON_PROOF_DOMAIN=web3market.shop
+   VITE_API_URL=/api           # для сборки SPA
+   DATABASE_PATH=/app/data/data.sqlite
+   UPLOADS_DIR=/app/uploads
+   ```
+2. Соберите и запустите:
+   ```bash
+   docker compose up --build -d
+   ```
+   По умолчанию Nginx слушает `8080`, API сидит внутри сети на `api:4000`.
+3. Настройте внешний reverse‑proxy/SSL (у вас уже есть сертификат для `https://web3market.shop/`) и прокиньте 443/80 → `localhost:8080`.
+
+Тома:
+
+- `./server/data` — SQLite.
+- `./server/uploads` — изображения.
+
+## Развёртывание на 185.216.87.125 / web3market.shop
+
+1. Укажите DNS домена на IP сервера.
+2. Склонируйте репозиторий, установите Docker/Compose.
+3. `cp .env.example .env`, заполните `TOKEN_SECRET`, `PUBLIC_BASE_URL=https://web3market.shop`, `TON_PROOF_DOMAIN=web3market.shop`.
+4. `docker compose up --build -d`.
+5. Настройте SSL‑прокси (nginx/Caddy/traefik) и прокиньте запросы на контейнер `web` (порт 8080).
+6. Проверьте:
+   - `https://web3market.shop/` — Market SPA.
+   - `https://web3market.shop/seller/` — Seller Console (подпись ton-proof).
+   - `https://web3market.shop/api/health` → `{ ok: true }`.
+   - Создание товара загружает изображение в `server/uploads` и запись в `server/data`.
+
+## Дополнительно
+
+- Комиссия владельца задаётся в `.env` (`PLATFORM_FEE=0.03` = 3%).
+- Seller Console хранит токен в `localStorage` (`useSellerSession`), выход — в UI.
+- Для mainnet измените `TON_NETWORK=mainnet`, `PUBLIC_BASE_URL` и пересоберите API/SPA.
+- `npm run lint`, `npm run build:market`, `npm run build:seller`, `npm run build --prefix server` — базовый чек перед деплоем.
+
+Репозиторий готов к дальнейшей кастомизации (добавление оплаты, CI/CD, внешних CDN) — все настройки сосредоточены в `.env` и `server/src/config.ts`.

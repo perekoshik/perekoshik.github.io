@@ -10,10 +10,20 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "@ton/core": "^0.62.0",
+    "@ton/crypto": "^3.3.0",
+    "@tonconnect/protocol": "^2.3.0",
     "better-sqlite3": "^9.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "multer": "^1.4.5-lts.1",
+    "nanoid": "^5.0.7",
+    "sharp": "^0.33.5",
+    "tweetnacl": "^1.0.3",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",

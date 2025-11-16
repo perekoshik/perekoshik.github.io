@@ -58,12 +58,6 @@ export type AuthSession = {
   seller: SellerProfile;
 };
 
-export type AuthChallenge = {
-  payload: string;
-  domain: string;
-  expiresAt: number;
-};
-
 export type ShopRecord = {
   address: string;
   owner: string;
@@ -108,27 +102,12 @@ export type OrderRecord = {
   updatedAt: string;
 };
 
-export type TonProofPayload = {
-  proof: {
-    timestamp: number;
-    domain: { lengthBytes: number; value: string };
-    payload: string;
-    signature: string;
-  };
-  state_init?: string;
-};
-
 export type BuyerOrderResponse = {
   order: OrderRecord;
   clientSecret: string;
 };
 
 export const Api = {
-  requestAuthChallenge: () =>
-    request<AuthChallenge>('/auth/challenge', {
-      method: 'POST',
-      body: JSON.stringify({}),
-    }),
   login: (payload: unknown) =>
     request<AuthSession>('/auth/verify', {
       method: 'POST',

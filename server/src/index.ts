@@ -7,7 +7,6 @@ import { config } from './config.js';
 import { createDatabaseApi } from './db.js';
 import { generateToken, hashToken } from './auth.js';
 import { saveProductImage } from './storage.js';
-import { verifyTonProof, type TonProofPayload } from './ton-proof.js';
 import { decryptDeliveryAddress, encryptDeliveryAddress } from './encryption.js';
 import type { OrderRecord } from './types.js';
 
@@ -104,44 +103,12 @@ async function bootstrap() {
     res.status(201).json(record);
   });
 
-  app.post('/auth/challenge', publicLimiter, (_req, res) => {
-    const payload = Buffer.from(JSON.stringify({ nonce: nanoid(), ts: Date.now() }), 'utf8').toString('base64url');
-    const expiresAt = Date.now() + config.challengeTtlMs;
-    db.issueChallenge(payload, expiresAt);
-    res.json({ payload, domain: config.tonProofDomain, expiresAt });
-  });
-
   app.post('/auth/verify', (req, res) => {
-    const { wallet, tonProof } = req.body as {
+    const { wallet } = req.body as {
       wallet?: { address?: string; telegram?: { id?: number; username?: string; name?: string } };
-      tonProof?: TonProofPayload & { stateInit?: string; state_init?: string };
     };
-    if (!wallet?.address || !tonProof?.proof?.payload) {
-      res.status(400).json({ error: 'Wallet address и tonProof обязательны' });
-      return;
-    }
-    const challengeValid = db.consumeChallenge(tonProof.proof.payload);
-    if (!challengeValid) {
-      res.status(400).json({ error: 'Просроченный ton-proof challenge' });
-      return;
-    }
-    const proofAgeMs = Date.now() - tonProof.proof.timestamp * 1000;
-    if (proofAgeMs < 0 || proofAgeMs > config.challengeTtlMs) {
-      res.status(400).json({ error: 'Подпись ton-proof устарела' });
-      return;
-    }
-    try {
-      verifyTonProof(
-        {
-          wallet: { address: wallet.address },
-          proof: tonProof.proof,
-          state_init: tonProof.state_init ?? tonProof.stateInit,
-        },
-        config.tonProofDomain,
-      );
-    } catch (error) {
-      console.warn('[auth] ton-proof failed', error);
-      res.status(401).json({ error: 'Невалидный ton-proof. Переподключите кошелёк.' });
+    if (!wallet?.address) {
+      res.status(400).json({ error: 'Wallet address is required' });
       return;
     }
     const seller = db.upsertSeller({

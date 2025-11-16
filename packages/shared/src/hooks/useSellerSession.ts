@@ -1,12 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useTonConnect } from "./useTonConnect";
-import {
-	Api,
-	type AuthChallenge,
-	type AuthSession,
-	type TonProofPayload,
-	onApiUnauthorized,
-} from "../lib/api";
+import { Api, type AuthSession, onApiUnauthorized } from "../lib/api";
 import { TWA } from "../lib/twa";
 
 const TOKEN_KEY = "seller_token";
@@ -24,7 +18,6 @@ export function useSellerSession() {
 	);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [challenge, setChallenge] = useState<AuthChallenge | null>(null);
 
 	const authenticated = Boolean(session?.token);
 
@@ -41,66 +34,26 @@ export function useSellerSession() {
 		}
 	}, []);
 
-	const resetChallenge = useCallback(() => {
-		setChallenge(null);
-		try {
-			tonConnectUI.setConnectRequestParameters(null);
-		} catch {
-			// ignore
-		}
-	}, [tonConnectUI]);
-
 	const logout = useCallback(() => {
 		persistSession(null);
 		setError(null);
-		resetChallenge();
-	}, [persistSession, resetChallenge]);
+	}, [persistSession]);
 
 	const beginAuth = useCallback(async () => {
 		setError(null);
 		try {
-			resetChallenge();
-			if (tonWallet) {
-				try {
-					await tonConnectUI.disconnect();
-				} catch (disconnectError) {
-					console.warn("[auth] disconnect before ton-proof failed", disconnectError);
-				}
-			}
-			const challengeResponse = await Api.requestAuthChallenge();
-			setChallenge(challengeResponse);
-			tonConnectUI.setConnectRequestParameters({
-				state: "ready",
-				value: {
-					tonProof: challengeResponse.payload,
-				},
-			});
 			await tonConnectUI.openModal();
 		} catch (authError) {
-			console.error("[auth] TonConnect auth failed", authError);
-			setError("Не удалось запросить подтверждение кошелька. Попробуйте ещё раз.");
-			resetChallenge();
+			console.error("[auth] TonConnect modal failed", authError);
+			setError("Не удалось открыть TonConnect. Попробуйте повторно.");
 		}
-	}, [tonConnectUI, tonWallet, resetChallenge]);
+	}, [tonConnectUI]);
 
 	useEffect(() => {
-		if (!tonWallet?.account || authenticated || !challenge) {
-			return;
-		}
-		const proofItem = tonWallet.connectItems?.tonProof;
-		if (!proofItem || !("proof" in proofItem)) {
-			return;
-		}
-		if (challenge.payload && proofItem.proof.payload !== challenge.payload) {
-			console.warn("[auth] ton-proof payload mismatch, requesting new challenge");
-			resetChallenge();
+		if (!tonWallet?.account || authenticated) {
 			return;
 		}
 		const telegramUser = TWA?.initDataUnsafe?.user;
-		const tonProofPayload: TonProofPayload = {
-			proof: proofItem.proof,
-			state_init: tonWallet.account.walletStateInit,
-		};
 		setLoading(true);
 		setError(null);
 
@@ -115,7 +68,6 @@ export function useSellerSession() {
 						}
 					: undefined,
 			},
-			tonProof: tonProofPayload,
 		})
 			.then((result) => {
 				persistSession({
@@ -123,38 +75,21 @@ export function useSellerSession() {
 					expiresAt: result.expiresAt,
 					seller: result.seller,
 				});
-				resetChallenge();
 			})
 			.catch((authError) => {
 				console.error("[auth] login failed", authError);
 				setError("Не удалось подтвердить кошелёк. Попробуйте ещё раз.");
-				resetChallenge();
 			})
 			.finally(() => setLoading(false));
-	}, [tonWallet, authenticated, challenge, persistSession, resetChallenge]);
+	}, [tonWallet, authenticated, persistSession]);
 
 	useEffect(() => {
 		const unsubscribe = onApiUnauthorized(() => {
 			persistSession(null);
 			setError("Авторизация истекла. Подтвердите кошелёк заново.");
-			resetChallenge();
 		});
 		return unsubscribe;
-	}, [persistSession, resetChallenge]);
-
-	useEffect(() => {
-		if (!tonWallet && challenge) {
-			resetChallenge();
-		}
-	}, [tonWallet, challenge, resetChallenge]);
-
-	useEffect(() => {
-		if (!challenge) return;
-		const timeout = setTimeout(() => {
-			resetChallenge();
-		}, Math.max(0, challenge.expiresAt - Date.now()));
-		return () => clearTimeout(timeout);
-	}, [challenge, resetChallenge]);
+	}, [persistSession]);
 
 	const token = session?.token ?? null;
 

@@ -1,7 +1,6 @@
 import cors from 'cors';
 import express, { type Request } from 'express';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import { nanoid } from 'nanoid';
 import { config } from './config.js';
 import { createDatabaseApi } from './db.js';
@@ -17,7 +16,6 @@ function splitOrderAmounts(priceTon: number) {
 async function bootstrap() {
   const db = await createDatabaseApi(config.dbPath);
   const app = express();
-  app.set('trust proxy', true); // CHANGE: allow rate-limit to read X-Forwarded-For behind nginx
   app.use((_req, res, next) => {
     // CHANGE: disable caching so Telegram WebView/mini-app always fetches fresh JSON
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -31,14 +29,6 @@ async function bootstrap() {
   app.use(helmet());
   app.use(cors());
   app.use(express.json({ limit: '10mb' }));
-  app.use(
-    rateLimit({
-      windowMs: config.rateLimit.windowMs,
-      max: config.rateLimit.max,
-      standardHeaders: true,
-      legacyHeaders: false,
-    }),
-  );
   app.use('/uploads', express.static(config.uploadsDir));
 
   const requireAuth: express.RequestHandler = (req, res, next) => {

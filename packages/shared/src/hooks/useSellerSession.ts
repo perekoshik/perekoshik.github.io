@@ -42,40 +42,24 @@ export function useSellerSession() {
 	const beginAuth = useCallback(async () => {
 		setError(null);
 		try {
-			const challenge = await Api.createChallenge();
-			tonConnectUI.setConnectRequestParameters({
-				state: "ready",
-				value: { tonProof: challenge.payload },
-			});
 			await tonConnectUI.openModal();
 		} catch (authError) {
-			console.error("[auth] challenge request failed", authError);
-			setError("Не удалось запросить авторизацию. Попробуйте ещё раз.");
+			console.error("[auth] TonConnect modal failed", authError);
+			setError("Не удалось открыть TonConnect. Попробуйте повторно.");
 		}
 	}, [tonConnectUI]);
 
 	useEffect(() => {
-		if (!tonWallet?.connectItems?.tonProof || !tonWallet.account) {
+		if (!tonWallet?.account || authenticated) {
 			return;
 		}
-		if ("error" in tonWallet.connectItems.tonProof) {
-			setError("Подпись ton-proof была отклонена кошельком.");
-			return;
-		}
-		if (authenticated) {
-			return;
-		}
-
-		const proof = tonWallet.connectItems.tonProof.proof;
 		const telegramUser = TWA?.initDataUnsafe?.user;
 		setLoading(true);
 		setError(null);
 
-		Api.verifyProof({
-			proof,
+		Api.login({
 			wallet: {
 				address: tonWallet.account.address,
-				publicKey: tonWallet.account.publicKey,
 				telegram: telegramUser
 					? {
 							id: telegramUser.id,
@@ -91,14 +75,13 @@ export function useSellerSession() {
 					expiresAt: result.expiresAt,
 					seller: result.seller,
 				});
-				tonConnectUI.setConnectRequestParameters(null);
 			})
 			.catch((authError) => {
-				console.error("[auth] verification failed", authError);
+				console.error("[auth] login failed", authError);
 				setError("Не удалось подтвердить кошелёк. Попробуйте ещё раз.");
 			})
 			.finally(() => setLoading(false));
-	}, [tonWallet, authenticated, persistSession, tonConnectUI]);
+	}, [tonWallet, authenticated, persistSession]);
 
 	const token = session?.token ?? null;
 

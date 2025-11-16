@@ -30,12 +30,6 @@ export type SellerProfile = {
   updatedAt: string;
 };
 
-export type AuthChallenge = {
-  domain: string;
-  payload: string;
-  expiresAt: number;
-};
-
 export type AuthSession = {
   token: string;
   expiresAt: number;
@@ -74,8 +68,7 @@ export type OrderRecord = {
 };
 
 export const Api = {
-  createChallenge: () => request<AuthChallenge>('/auth/challenge', { method: 'POST' }),
-  verifyProof: (payload: unknown) =>
+  login: (payload: unknown) =>
     request<AuthSession>('/auth/verify', {
       method: 'POST',
       body: JSON.stringify(payload),

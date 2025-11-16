@@ -15,7 +15,7 @@ export function CreateShopPage() {
         <span className="text-[11px] uppercase tracking-[0.32em] text-txt/60">Start</span>
         <h1 className="text-3xl font-semibold">Подключите кошелёк продавца</h1>
         <p className="text-sm text-txt/70">
-          Мы сохраним адрес кошелька и Telegram-профиль, а затем откроем консоль управления товарами и заказами.
+          После подключения мы сохраним адрес и Telegram-профиль, а затем откроем консоль управления товарами и заказами.
         </p>
       </section>
 
@@ -26,7 +26,7 @@ export function CreateShopPage() {
           </div>
           <div>
             <h2 className="text-base font-semibold">Авторизация</h2>
-            <p className="text-sm text-txt/70">Подпишите запрос ton-proof через TonConnect.</p>
+            <p className="text-sm text-txt/70">Подключите кошелёк через TonConnect и подтвердите адрес.</p>
           </div>
         </div>
 
@@ -42,7 +42,7 @@ export function CreateShopPage() {
         {error && <div className="rounded-2xl bg-red-500/10 px-4 py-3 text-sm text-red-400">{error}</div>}
 
         <ul className="space-y-2 text-sm text-txt/70">
-          <li>• TonConnectButton вверху откроет кошелёк с готовым ton-proof payload.</li>
+          <li>• TonConnectButton вверху откроет кошелёк и запросит подключение.</li>
           <li>• После подтверждения консоль автоматически откроет панель товаров.</li>
           <li>• В любой момент можно выйти из консоли, очистив сессию.</li>
         </ul>

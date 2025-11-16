@@ -4,7 +4,7 @@
 
 - **Market** (`apps/market`) — публичная витрина mini‑app (`/`).
 - **Seller Console** (`apps/seller`) — кабинет продавца (`/seller`).
-- **API** (`server/`) — Express + SQLite: авторизация ton-proof, товары, заказы, рейтинг, загрузка изображений.
+- **API** (`server/`) — Express + SQLite: авторизация по адресу кошелька, товары, заказы, рейтинг, загрузка изображений.
 
 ## Требования
 
@@ -54,10 +54,9 @@ npm run lint
 
 | Метод | Путь                   | Описание                                                     |
 |-------|------------------------|--------------------------------------------------------------|
-| POST  | `/auth/challenge`     | Генерирует payload для ton-proof                             |
-| POST  | `/auth/verify`        | Проверяет подпись, создаёт запись продавца и JWT‑токен       |
+| POST  | `/auth/verify`        | Принимает адрес кошелька + Telegram‑данные, выдаёт JWT‑токен |
 | GET   | `/products` / `/:id`  | Общий список / карточка товара                               |
-| POST  | `/products`           | Создать товар (ton-proof токен, изображение как data URL)    |
+| POST  | `/products`           | Создать товар (JWT + изображение как data URL)               |
 | POST  | `/products/:id/rating`| Поставить рейтинг 1–5                                        |
 | GET   | `/orders`             | Заказы текущего продавца (JWT)                               |
 | POST  | `/orders`             | Создать заказ (учитывается комиссия 3%)                      |
@@ -106,7 +105,7 @@ npm run lint
 5. Настройте SSL‑прокси (nginx/Caddy/traefik) и прокиньте запросы на контейнер `web` (порт 8080).
 6. Проверьте:
    - `https://web3market.shop/` — Market SPA.
-   - `https://web3market.shop/seller/` — Seller Console (подпись ton-proof).
+   - `https://web3market.shop/seller/` — Seller Console (подключение TonConnect).
    - `https://web3market.shop/api/health` → `{ ok: true }`.
    - Создание товара загружает изображение в `server/uploads` и запись в `server/data`.
 

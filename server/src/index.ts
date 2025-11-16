@@ -6,7 +6,6 @@ import { nanoid } from 'nanoid';
 import { config } from './config.js';
 import { createDatabaseApi } from './db.js';
 import { generateToken, hashToken } from './auth.js';
-import { createChallenge, verifyTonProof } from './tonProof.js';
 import { saveProductImage } from './storage.js';
 
 async function bootstrap() {
@@ -32,39 +31,12 @@ async function bootstrap() {
     res.json({ ok: true });
   });
 
-  app.post('/auth/challenge', (_req, res) => {
-    const payload = createChallenge();
-    const expiresAt = Date.now() + config.challengeTtlMs;
-    db.issueChallenge(payload.payload, expiresAt);
-    res.json({ domain: payload.domain, payload: payload.payload, expiresAt });
-  });
-
   app.post('/auth/verify', (req, res) => {
-    const { proof, wallet } = req.body as {
-      proof?: ReturnType<typeof createChallenge> & { signature?: string; timestamp?: number };
-      wallet?: { address: string; publicKey?: string; telegram?: { id?: number; username?: string; name?: string } };
+    const { wallet } = req.body as {
+      wallet?: { address?: string; telegram?: { id?: number; username?: string; name?: string } };
     };
-    if (!proof || !proof.signature || !proof.timestamp || !proof.payload || !wallet?.address || !wallet?.publicKey) {
-      res.status(400).json({ error: 'Invalid proof payload' });
-      return;
-    }
-    const validChallenge = db.consumeChallenge(proof.payload);
-    if (!validChallenge) {
-      res.status(400).json({ error: 'Challenge expired or unknown' });
-      return;
-    }
-    const isValid = verifyTonProof(
-      {
-        timestamp: proof.timestamp,
-        domain: { lengthBytes: proof.domain?.length ?? config.tonProofDomain.length, value: proof.domain ?? config.tonProofDomain },
-        payload: proof.payload,
-        signature: proof.signature,
-      },
-      wallet.publicKey,
-      wallet.address,
-    );
-    if (!isValid) {
-      res.status(401).json({ error: 'Invalid ton-proof signature' });
+    if (!wallet?.address) {
+      res.status(400).json({ error: 'Wallet address is required' });
       return;
     }
     const seller = db.upsertSeller({

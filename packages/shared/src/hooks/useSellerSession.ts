@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTonConnect } from "./useTonConnect";
 import {
 	Api,
@@ -41,12 +41,6 @@ export function useSellerSession() {
 		}
 	}, []);
 
-	const logout = useCallback(() => {
-		persistSession(null);
-		setError(null);
-		resetChallenge();
-	}, [persistSession, resetChallenge]);
-
 	const resetChallenge = useCallback(() => {
 		setChallenge(null);
 		try {
@@ -55,6 +49,12 @@ export function useSellerSession() {
 			// ignore
 		}
 	}, [tonConnectUI]);
+
+	const logout = useCallback(() => {
+		persistSession(null);
+		setError(null);
+		resetChallenge();
+	}, [persistSession, resetChallenge]);
 
 	const beginAuth = useCallback(async () => {
 		setError(null);

@@ -291,7 +291,7 @@ export function useMarketContracts() {
           storeUpdateItem({
             $$type: 'UpdateItem',
             price: params.price,
-            imageSrc: params.imageSrc,
+            imageSrc: defaultImage,
             title: params.title,
             description: params.description,
           }),

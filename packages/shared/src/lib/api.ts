@@ -10,6 +10,7 @@ async function request<T>(path: string, init?: RequestOptions): Promise<T> {
       ...(rest.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
+    cache: 'no-store',
     ...rest,
   });
   if (!response.ok) {

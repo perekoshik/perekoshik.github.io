@@ -18,6 +18,13 @@ async function bootstrap() {
   const db = await createDatabaseApi(config.dbPath);
   const app = express();
   app.set('trust proxy', true); // CHANGE: allow rate-limit to read X-Forwarded-For behind nginx
+  app.use((_req, res, next) => {
+    // CHANGE: disable caching so Telegram WebView/mini-app always fetches fresh JSON
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    next();
+  });
 
   type SellerRequest = Request & { seller: NonNullable<ReturnType<typeof db.findSellerByToken>> };
 

@@ -60,6 +60,13 @@ export function useSellerSession() {
 		setError(null);
 		try {
 			resetChallenge();
+			if (tonWallet) {
+				try {
+					await tonConnectUI.disconnect();
+				} catch (disconnectError) {
+					console.warn("[auth] disconnect before ton-proof failed", disconnectError);
+				}
+			}
 			const challengeResponse = await Api.requestAuthChallenge();
 			setChallenge(challengeResponse);
 			tonConnectUI.setConnectRequestParameters({
@@ -74,7 +81,7 @@ export function useSellerSession() {
 			setError("Не удалось запросить подтверждение кошелька. Попробуйте ещё раз.");
 			resetChallenge();
 		}
-	}, [tonConnectUI, resetChallenge]);
+	}, [tonConnectUI, tonWallet, resetChallenge]);
 
 	useEffect(() => {
 		if (!tonWallet?.account || authenticated || !challenge) {

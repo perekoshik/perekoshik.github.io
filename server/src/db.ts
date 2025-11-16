@@ -58,6 +58,7 @@ export type NewOrder = {
   status: OrderStatus;
   deliveryAddress?: string | null;
   tonOrderId?: string | null;
+  publicTokenHash?: string | null;
 };
 
 export interface DatabaseApi {
@@ -164,6 +165,7 @@ export function createDatabaseApi(path: string): DatabaseApi {
         ...order,
         deliveryAddress: order.deliveryAddress ?? null,
         tonOrderId: order.tonOrderId ?? null,
+        publicTokenHash: order.publicTokenHash ?? null,
         ...timestamps,
       });
       return statements.selectOrderById.get(order.id) as OrderRecord;
@@ -299,14 +301,17 @@ function prepareStatements(db: Database.Database) {
     ),
     insertOrder: db.prepare(
       `INSERT INTO orders(id, product_id, seller_wallet, buyer_wallet, price_ton, platform_fee_ton,
-                          seller_amount_ton, status, delivery_address, ton_order_id, created_at, updated_at)
+                          seller_amount_ton, status, delivery_address, ton_order_id, buyer_token_hash,
+                          created_at, updated_at)
        VALUES(@id, @productId, @sellerWallet, @buyerWallet, @priceTon, @platformFeeTon,
-              @sellerAmountTon, @status, @deliveryAddress, @tonOrderId, @createdAt, @updatedAt)`,
+              @sellerAmountTon, @status, @deliveryAddress, @tonOrderId, @publicTokenHash,
+              @createdAt, @updatedAt)`,
     ),
     selectOrderById: db.prepare(
       `SELECT id, product_id as productId, seller_wallet as sellerWallet, buyer_wallet as buyerWallet,
               price_ton as priceTon, platform_fee_ton as platformFeeTon, seller_amount_ton as sellerAmountTon,
               status, tx_hash as txHash, delivery_address as deliveryAddress, ton_order_id as tonOrderId,
+              buyer_token_hash as publicTokenHash,
               created_at as createdAt, updated_at as updatedAt
        FROM orders WHERE id = ?`,
     ),
@@ -314,6 +319,7 @@ function prepareStatements(db: Database.Database) {
       `SELECT id, product_id as productId, seller_wallet as sellerWallet, buyer_wallet as buyerWallet,
               price_ton as priceTon, platform_fee_ton as platformFeeTon, seller_amount_ton as sellerAmountTon,
               status, tx_hash as txHash, delivery_address as deliveryAddress, ton_order_id as tonOrderId,
+              buyer_token_hash as publicTokenHash,
               created_at as createdAt, updated_at as updatedAt
        FROM orders
        WHERE seller_wallet = ?
@@ -323,6 +329,7 @@ function prepareStatements(db: Database.Database) {
       `SELECT id, product_id as productId, seller_wallet as sellerWallet, buyer_wallet as buyerWallet,
               price_ton as priceTon, platform_fee_ton as platformFeeTon, seller_amount_ton as sellerAmountTon,
               status, tx_hash as txHash, delivery_address as deliveryAddress, ton_order_id as tonOrderId,
+              buyer_token_hash as publicTokenHash,
               created_at as createdAt, updated_at as updatedAt
        FROM orders
        WHERE buyer_wallet = ?
@@ -419,6 +426,7 @@ function migrate(db: Database.Database) {
   ensureColumn(db, 'products', 'contract_address TEXT');
   ensureColumn(db, 'orders', 'delivery_address TEXT');
   ensureColumn(db, 'orders', 'ton_order_id TEXT');
+  ensureColumn(db, 'orders', 'buyer_token_hash TEXT');
 }
 
 function ensureColumn(db: Database.Database, table: string, definition: string) {

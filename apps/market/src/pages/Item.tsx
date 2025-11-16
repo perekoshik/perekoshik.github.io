@@ -147,22 +147,24 @@ export default function Item() {
     setPending(true);
     setOrderStatus(null);
     let orderId: string | null = null;
+    let orderSecret: string | null = null;
     try {
-      const order = await Api.createBuyerOrder({
+      const orderResponse = await Api.createBuyerOrder({
         productId: item.id,
         buyerWallet: wallet,
         deliveryAddress: trimmedAddress,
       });
-      orderId = order.id;
-      const amountNano = toNano(order.priceTon.toString());
+      orderId = orderResponse.order.id;
+      orderSecret = orderResponse.clientSecret;
+      const amountNano = toNano(orderResponse.order.priceTon.toString());
       const orderBody = beginCell()
         .store(
           storeCreateOrder({
             $$type: 'CreateOrder',
-            orderId: BigInt(order.tonOrderId ?? Date.now()),
+            orderId: BigInt(orderResponse.order.tonOrderId ?? Date.now()),
             itemAddress: Address.parse(contractAddress),
             price: amountNano,
-            deliveryAddress: trimmedAddress,
+            deliveryAddress: orderResponse.order.id,
           }),
         )
         .endCell();
@@ -184,7 +186,11 @@ export default function Item() {
         validUntil: Math.floor(Date.now() / 1000) + TON_VALID_SECONDS,
         messages,
       });
-      await Api.updatePublicOrder(order.id, { status: 'paid', txHash: response?.boc });
+      await Api.updatePublicOrder(orderResponse.order.id, {
+        status: 'paid',
+        txHash: response?.boc,
+        secret: orderSecret!,
+      });
       setOrderStatus({
         type: 'success',
         text: 'Оплата отправлена. Продавец получит подтверждение и адрес доставки.',
@@ -192,9 +198,9 @@ export default function Item() {
       setDeliveryAddress('');
     } catch (sendError) {
       console.error('Failed to submit on-chain order', sendError);
-      if (orderId) {
+      if (orderId && orderSecret) {
         try {
-          await Api.updatePublicOrder(orderId, { status: 'canceled' });
+          await Api.updatePublicOrder(orderId, { status: 'canceled', secret: orderSecret });
         } catch (cancelError) {
           console.warn('Failed to cancel order after error', cancelError);
         }

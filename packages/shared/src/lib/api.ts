@@ -58,6 +58,12 @@ export type AuthSession = {
   seller: SellerProfile;
 };
 
+export type AuthChallenge = {
+  payload: string;
+  domain: string;
+  expiresAt: number;
+};
+
 export type ShopRecord = {
   address: string;
   owner: string;
@@ -102,7 +108,27 @@ export type OrderRecord = {
   updatedAt: string;
 };
 
+export type TonProofPayload = {
+  proof: {
+    timestamp: number;
+    domain: { lengthBytes: number; value: string };
+    payload: string;
+    signature: string;
+  };
+  state_init?: string;
+};
+
+export type BuyerOrderResponse = {
+  order: OrderRecord;
+  clientSecret: string;
+};
+
 export const Api = {
+  requestAuthChallenge: () =>
+    request<AuthChallenge>('/auth/challenge', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    }),
   login: (payload: unknown) =>
     request<AuthSession>('/auth/verify', {
       method: 'POST',
@@ -139,7 +165,7 @@ export const Api = {
       method: 'GET',
       token,
     }),
-  createOrder: (token: string, payload: { productId: string; buyerWallet: string; priceTon: number }) =>
+  createOrder: (token: string, payload: { productId: string; buyerWallet: string }) =>
     request<OrderRecord>('/orders', {
       method: 'POST',
       token,
@@ -159,11 +185,11 @@ export const Api = {
       body: JSON.stringify(payload),
     }),
   createBuyerOrder: (payload: { productId: string; buyerWallet: string; deliveryAddress: string }) =>
-    request<OrderRecord>('/orders/public', {
+    request<BuyerOrderResponse>('/orders/public', {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
-  updatePublicOrder: (id: string, payload: { status: 'paid' | 'canceled'; txHash?: string }) =>
+  updatePublicOrder: (id: string, payload: { status: 'paid' | 'canceled'; txHash?: string; secret: string }) =>
     request<OrderRecord>(`/orders/${encodeURIComponent(id)}/public`, {
       method: 'PATCH',
       body: JSON.stringify(payload),

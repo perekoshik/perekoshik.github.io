@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTonConnect } from "./useTonConnect";
-import { Api, type AuthSession, onApiUnauthorized } from "../lib/api";
+import {
+	Api,
+	type AuthChallenge,
+	type AuthSession,
+	type TonProofPayload,
+	onApiUnauthorized,
+} from "../lib/api";
 import { TWA } from "../lib/twa";
 
 const TOKEN_KEY = "seller_token";
@@ -18,6 +24,7 @@ export function useSellerSession() {
 	);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [challenge, setChallenge] = useState<AuthChallenge | null>(null);
 
 	const authenticated = Boolean(session?.token);
 
@@ -37,23 +44,51 @@ export function useSellerSession() {
 	const logout = useCallback(() => {
 		persistSession(null);
 		setError(null);
-	}, [persistSession]);
+		resetChallenge();
+	}, [persistSession, resetChallenge]);
+
+	const resetChallenge = useCallback(() => {
+		setChallenge(null);
+		try {
+			tonConnectUI.setConnectRequestParameters(null);
+		} catch {
+			// ignore
+		}
+	}, [tonConnectUI]);
 
 	const beginAuth = useCallback(async () => {
 		setError(null);
 		try {
+			resetChallenge();
+			const challengeResponse = await Api.requestAuthChallenge();
+			setChallenge(challengeResponse);
+			tonConnectUI.setConnectRequestParameters({
+				state: "ready",
+				value: {
+					tonProof: challengeResponse.payload,
+				},
+			});
 			await tonConnectUI.openModal();
 		} catch (authError) {
-			console.error("[auth] TonConnect modal failed", authError);
-			setError("Не удалось открыть TonConnect. Попробуйте повторно.");
+			console.error("[auth] TonConnect auth failed", authError);
+			setError("Не удалось запросить подтверждение кошелька. Попробуйте ещё раз.");
+			resetChallenge();
 		}
-	}, [tonConnectUI]);
+	}, [tonConnectUI, resetChallenge]);
 
 	useEffect(() => {
-		if (!tonWallet?.account || authenticated) {
+		if (!tonWallet?.account || authenticated || !challenge) {
+			return;
+		}
+		const proof = tonWallet.connectItems?.tonProof;
+		if (!proof || proof.proof.payload !== challenge.payload) {
 			return;
 		}
 		const telegramUser = TWA?.initDataUnsafe?.user;
+		const tonProofPayload: TonProofPayload = {
+			proof: proof.proof,
+			state_init: proof.state_init,
+		};
 		setLoading(true);
 		setError(null);
 
@@ -68,6 +103,7 @@ export function useSellerSession() {
 						}
 					: undefined,
 			},
+			tonProof: tonProofPayload,
 		})
 			.then((result) => {
 				persistSession({
@@ -75,21 +111,38 @@ export function useSellerSession() {
 					expiresAt: result.expiresAt,
 					seller: result.seller,
 				});
+				resetChallenge();
 			})
 			.catch((authError) => {
 				console.error("[auth] login failed", authError);
 				setError("Не удалось подтвердить кошелёк. Попробуйте ещё раз.");
+				resetChallenge();
 			})
 			.finally(() => setLoading(false));
-	}, [tonWallet, authenticated, persistSession]);
+	}, [tonWallet, authenticated, challenge, persistSession, resetChallenge]);
 
 	useEffect(() => {
 		const unsubscribe = onApiUnauthorized(() => {
 			persistSession(null);
 			setError("Авторизация истекла. Подтвердите кошелёк заново.");
+			resetChallenge();
 		});
 		return unsubscribe;
-	}, [persistSession]);
+	}, [persistSession, resetChallenge]);
+
+	useEffect(() => {
+		if (!tonWallet && challenge) {
+			resetChallenge();
+		}
+	}, [tonWallet, challenge, resetChallenge]);
+
+	useEffect(() => {
+		if (!challenge) return;
+		const timeout = setTimeout(() => {
+			resetChallenge();
+		}, Math.max(0, challenge.expiresAt - Date.now()));
+		return () => clearTimeout(timeout);
+	}, [challenge, resetChallenge]);
 
 	const token = session?.token ?? null;
 

@@ -1,21 +1,49 @@
 import cors from 'cors';
 import express, { type Request } from 'express';
 import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { nanoid } from 'nanoid';
 import { config } from './config.js';
 import { createDatabaseApi } from './db.js';
 import { generateToken, hashToken } from './auth.js';
 import { saveProductImage } from './storage.js';
+import { verifyTonProof, type TonProofPayload } from './ton-proof.js';
+import { decryptDeliveryAddress, encryptDeliveryAddress } from './encryption.js';
+import type { OrderRecord } from './types.js';
 
 function splitOrderAmounts(priceTon: number) {
-  const fee = Number((priceTon * config.platformFee).toFixed(4));
-  const sellerAmount = Number((priceTon - fee).toFixed(4));
-  return { fee, sellerAmount };
+  if (!Number.isFinite(priceTon) || priceTon <= 0) {
+    throw new Error('Некорректная цена заказа');
+  }
+  const priceNano = BigInt(Math.round(priceTon * 1_000_000_000));
+  const feeBps = Math.round(config.platformFee * 10_000);
+  const feeNano = (priceNano * BigInt(feeBps)) / 10_000n;
+  const sellerNano = priceNano - feeNano;
+  const toTon = (value: bigint) => Number(value) / 1_000_000_000;
+  return { fee: toTon(feeNano), sellerAmount: toTon(sellerNano) };
+}
+
+type ApiOrder = Omit<OrderRecord, 'deliveryAddress' | 'publicTokenHash'> & {
+  deliveryAddress: string | null;
+};
+
+function serializeOrder(order: OrderRecord, includeAddress: boolean): ApiOrder {
+  const { publicTokenHash, ...rest } = order;
+  return {
+    ...rest,
+    deliveryAddress: includeAddress ? decryptDeliveryAddress(order.deliveryAddress ?? null) : null,
+  };
 }
 
 async function bootstrap() {
   const db = await createDatabaseApi(config.dbPath);
   const app = express();
+  const publicLimiter = rateLimit({
+    windowMs: config.rateLimit.windowMs,
+    limit: config.rateLimit.max,
+    standardHeaders: true,
+    legacyHeaders: false,
+  });
   app.use((_req, res, next) => {
     // CHANGE: disable caching so Telegram WebView/mini-app always fetches fresh JSON
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -75,12 +103,44 @@ async function bootstrap() {
     res.status(201).json(record);
   });
 
+  app.post('/auth/challenge', publicLimiter, (_req, res) => {
+    const payload = Buffer.from(JSON.stringify({ nonce: nanoid(), ts: Date.now() }), 'utf8').toString('base64url');
+    const expiresAt = Date.now() + config.challengeTtlMs;
+    db.issueChallenge(payload, expiresAt);
+    res.json({ payload, domain: config.tonProofDomain, expiresAt });
+  });
+
   app.post('/auth/verify', (req, res) => {
-    const { wallet } = req.body as {
+    const { wallet, tonProof } = req.body as {
       wallet?: { address?: string; telegram?: { id?: number; username?: string; name?: string } };
+      tonProof?: TonProofPayload & { stateInit?: string; state_init?: string };
     };
-    if (!wallet?.address) {
-      res.status(400).json({ error: 'Wallet address is required' });
+    if (!wallet?.address || !tonProof?.proof?.payload) {
+      res.status(400).json({ error: 'Wallet address и tonProof обязательны' });
+      return;
+    }
+    const challengeValid = db.consumeChallenge(tonProof.proof.payload);
+    if (!challengeValid) {
+      res.status(400).json({ error: 'Просроченный ton-proof challenge' });
+      return;
+    }
+    const proofAgeMs = Date.now() - tonProof.proof.timestamp * 1000;
+    if (proofAgeMs < 0 || proofAgeMs > config.challengeTtlMs) {
+      res.status(400).json({ error: 'Подпись ton-proof устарела' });
+      return;
+    }
+    try {
+      verifyTonProof(
+        {
+          wallet: { address: wallet.address },
+          proof: tonProof.proof,
+          state_init: tonProof.state_init ?? tonProof.stateInit,
+        },
+        config.tonProofDomain,
+      );
+    } catch (error) {
+      console.warn('[auth] ton-proof failed', error);
+      res.status(401).json({ error: 'Невалидный ton-proof. Переподключите кошелёк.' });
       return;
     }
     const seller = db.upsertSeller({
@@ -168,52 +228,66 @@ async function bootstrap() {
 
   app.post('/orders', requireAuth, (req, res) => {
     const seller = (req as SellerRequest).seller;
-    const { productId, buyerWallet, priceTon } = req.body as {
+    const { productId, buyerWallet } = req.body as {
       productId?: string;
       buyerWallet?: string;
-      priceTon?: number;
     };
-    if (!productId || !buyerWallet || !priceTon) {
-      res.status(400).json({ error: 'Invalid order payload' });
+    if (!productId?.trim() || !buyerWallet?.trim()) {
+      res.status(400).json({ error: 'productId и buyerWallet обязательны' });
       return;
     }
-    const product = db.findProductById(productId);
+    const product = db.findProductById(productId.trim());
     if (!product) {
       res.status(404).json({ error: 'Product not found' });
       return;
     }
-    const { fee, sellerAmount } = splitOrderAmounts(priceTon);
+    if (product.sellerWallet !== seller.wallet) {
+      res.status(403).json({ error: 'Вы можете создавать заказы только на свои товары' });
+      return;
+    }
+    const { fee, sellerAmount } = splitOrderAmounts(product.priceTon);
     const order = db.createOrder({
       id: nanoid(),
-      productId,
+      productId: product.id,
       sellerWallet: seller.wallet,
-      buyerWallet,
-      priceTon,
+      buyerWallet: buyerWallet.trim(),
+      priceTon: product.priceTon,
       platformFeeTon: fee,
       sellerAmountTon: sellerAmount,
       status: 'pending',
       deliveryAddress: null,
       tonOrderId: Date.now().toString(),
     });
-    res.status(201).json(order);
+    res.status(201).json(serializeOrder(order, true));
   });
 
   app.get('/orders', requireAuth, (req, res) => {
     const seller = (req as SellerRequest).seller;
-    res.json(db.listOrders({ sellerWallet: seller.wallet }));
+    const orders = db.listOrders({ sellerWallet: seller.wallet }).map((order) => serializeOrder(order, true));
+    res.json(orders);
   });
 
   app.patch('/orders/:id', requireAuth, (req, res) => {
+    const seller = (req as SellerRequest).seller;
     const { status, txHash } = req.body as { status?: string; txHash?: string };
     if (!status || !['pending', 'paid', 'delivered', 'canceled', 'refunded'].includes(status)) {
       res.status(400).json({ error: 'Invalid status' });
       return;
     }
-    db.updateOrderStatus(req.params.id, status as any, txHash);
+    const order = db.findOrderById(req.params.id);
+    if (!order) {
+      res.status(404).json({ error: 'Order not found' });
+      return;
+    }
+    if (order.sellerWallet !== seller.wallet) {
+      res.status(403).json({ error: 'Недостаточно прав для обновления заказа' });
+      return;
+    }
+    db.updateOrderStatus(order.id, status as any, txHash?.trim() || undefined);
     res.status(204).end();
   });
 
-  app.post('/orders/public', (req, res) => {
+  app.post('/orders/public', publicLimiter, (req, res) => {
     const { productId, buyerWallet, deliveryAddress } = req.body as {
       productId?: string;
       buyerWallet?: string;
@@ -233,6 +307,7 @@ async function bootstrap() {
       return;
     }
     const { fee, sellerAmount } = splitOrderAmounts(product.priceTon);
+    const secret = generateToken();
     const order = db.createOrder({
       id: nanoid(),
       productId: product.id,
@@ -242,16 +317,24 @@ async function bootstrap() {
       platformFeeTon: fee,
       sellerAmountTon: sellerAmount,
       status: 'pending',
-      deliveryAddress: deliveryAddress.trim(),
+      deliveryAddress: encryptDeliveryAddress(deliveryAddress.trim()),
       tonOrderId: Date.now().toString(),
+      publicTokenHash: hashToken(secret),
     });
-    res.status(201).json(order);
+    res.status(201).json({
+      order: serializeOrder(order, true),
+      clientSecret: secret,
+    });
   });
 
-  app.patch('/orders/:id/public', (req, res) => {
-    const { status, txHash } = req.body as { status?: string; txHash?: string };
+  app.patch('/orders/:id/public', publicLimiter, (req, res) => {
+    const { status, txHash, secret } = req.body as { status?: string; txHash?: string; secret?: string };
     if (!status || !['paid', 'canceled'].includes(status)) {
       res.status(400).json({ error: 'Only "paid" or "canceled" statuses are allowed' });
+      return;
+    }
+    if (!secret?.trim()) {
+      res.status(400).json({ error: 'secret обязателен' });
       return;
     }
     const order = db.findOrderById(req.params.id);
@@ -259,9 +342,17 @@ async function bootstrap() {
       res.status(404).json({ error: 'Order not found' });
       return;
     }
-    db.updateOrderStatus(order.id, status as any, txHash);
+    if (!order.publicTokenHash || hashToken(secret.trim()) !== order.publicTokenHash) {
+      res.status(403).json({ error: 'Неверный токен заказа' });
+      return;
+    }
+    if (status === 'paid' && !txHash?.trim()) {
+      res.status(400).json({ error: 'txHash обязателен для paid' });
+      return;
+    }
+    db.updateOrderStatus(order.id, status as any, txHash?.trim());
     const updated = db.findOrderById(order.id);
-    res.json(updated);
+    res.json(serializeOrder(updated!, true));
   });
 
   app.listen(config.port, () => {

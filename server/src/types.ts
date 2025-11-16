@@ -49,6 +49,7 @@ export interface OrderRecord {
   txHash?: string;
   deliveryAddress?: string | null;
   tonOrderId?: string | null;
+  publicTokenHash?: string | null;
   createdAt: ISODate;
   updatedAt: ISODate;
 }

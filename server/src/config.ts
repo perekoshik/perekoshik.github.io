@@ -23,7 +23,7 @@ const DEFAULTS = {
   rateMaxRequests: 100,
 };
 
-const REQUIRED_KEYS = ['TOKEN_SECRET'] as const;
+const REQUIRED_KEYS = ['TOKEN_SECRET', 'DELIVERY_ENCRYPTION_KEY'] as const;
 
 function ensureRequiredEnv() {
   for (const key of REQUIRED_KEYS) {
@@ -56,6 +56,7 @@ export const config = {
   challengeTtlMs: Number(process.env.CHALLENGE_TTL_MS ?? DEFAULTS.challengeTtlMs),
   tokenTtlMs: Number(process.env.TOKEN_TTL_MS ?? DEFAULTS.tokenTtlMs),
   tokenSecret: process.env.TOKEN_SECRET!,
+  deliveryEncryptionKey: process.env.DELIVERY_ENCRYPTION_KEY!,
   platformFee: Number(process.env.PLATFORM_FEE ?? DEFAULTS.platformFee),
   maxImageBytes: Number(process.env.MAX_IMAGE_BYTES ?? DEFAULTS.maxImageBytes),
   maxImageDimension: Number(process.env.MAX_IMAGE_DIMENSION ?? DEFAULTS.maxImageDimension),

@@ -2,6 +2,24 @@ const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
 
 type RequestOptions = RequestInit & { token?: string; parse?: boolean };
 
+type UnauthorizedListener = () => void;
+const unauthorizedListeners = new Set<UnauthorizedListener>();
+
+export function onApiUnauthorized(listener: UnauthorizedListener) {
+  unauthorizedListeners.add(listener);
+  return () => unauthorizedListeners.delete(listener);
+}
+
+function notifyUnauthorized() {
+  for (const listener of unauthorizedListeners) {
+    try {
+      listener();
+    } catch (error) {
+      console.warn('[api] unauthorized listener failed', error);
+    }
+  }
+}
+
 async function request<T>(path: string, init?: RequestOptions): Promise<T> {
   const { token, parse = true, ...rest } = init ?? {};
   const response = await fetch(`${API_BASE}${path}`, {
@@ -14,6 +32,9 @@ async function request<T>(path: string, init?: RequestOptions): Promise<T> {
     ...rest,
   });
   if (!response.ok) {
+    if (response.status === 401 && token) {
+      notifyUnauthorized();
+    }
     throw new Error(`API ${response.status}`);
   }
   if (!parse) {

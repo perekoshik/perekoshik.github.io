@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTonConnect } from "./useTonConnect";
-import { Api, type AuthSession } from "../lib/api";
+import { Api, type AuthSession, onApiUnauthorized } from "../lib/api";
 import { TWA } from "../lib/twa";
 
 const TOKEN_KEY = "seller_token";
@@ -82,6 +82,14 @@ export function useSellerSession() {
 			})
 			.finally(() => setLoading(false));
 	}, [tonWallet, authenticated, persistSession]);
+
+	useEffect(() => {
+		const unsubscribe = onApiUnauthorized(() => {
+			persistSession(null);
+			setError("Авторизация истекла. Подтвердите кошелёк заново.");
+		});
+		return unsubscribe;
+	}, [persistSession]);
 
 	const token = session?.token ?? null;
 

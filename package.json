@@ -13,7 +13,7 @@
     "preview:market": "vite preview --config apps/market/vite.config.ts",
     "preview:seller": "vite preview --config apps/seller/vite.config.ts",
     "preview": "npm run preview:market",
-    "postbuild": "node scripts/copy-404.js",
+    "postbuild": "",
     "lint": "npx @ton-ai-core/vibecode-linter apps/market/src/ packages/shared/src/ apps/seller/src/",
     "postinstall": "patch-package",
     "dev:api": "npm --prefix server run dev"
@@ -141,9 +141,6 @@
     "inflight": "^1.0.6",
     "minimatch": "^5.1.6",
     "brace-expansion": "^2.0.2"
-  },
-  "engines": {
-    "node": ">=22.0.0"
   },
   "packageManager": "npm@11.6.1"
 }

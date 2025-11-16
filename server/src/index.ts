@@ -17,6 +17,7 @@ function splitOrderAmounts(priceTon: number) {
 async function bootstrap() {
   const db = await createDatabaseApi(config.dbPath);
   const app = express();
+  app.set('trust proxy', true); // CHANGE: allow rate-limit to read X-Forwarded-For behind nginx
 
   type SellerRequest = Request & { seller: NonNullable<ReturnType<typeof db.findSellerByToken>> };
 

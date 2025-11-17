@@ -13,7 +13,19 @@ export type StoredImage = {
   size: number;
 };
 
-export async function saveProductImage(dataUrl: string): Promise<StoredImage> {
+function normalizeFileKey(input?: string | null): string | null {
+  if (!input) return null;
+  const sanitized = input
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]/g, '')
+    .trim();
+  if (sanitized.length < 8) {
+    return null;
+  }
+  return sanitized;
+}
+
+export async function saveProductImage(dataUrl: string, preferredKey?: string | null): Promise<StoredImage> {
   const parsed = DATA_URL_RE.exec(dataUrl.trim());
   if (!parsed?.groups) {
     throw new Error('Изображение должно быть передано как data URL.');
@@ -43,7 +55,8 @@ export async function saveProductImage(dataUrl: string): Promise<StoredImage> {
     throw new Error('Изображение слишком большое после сжатия (лимит 600 КБ).');
   }
 
-  const fileName = `${randomUUID()}.jpg`;
+  const normalizedKey = normalizeFileKey(preferredKey);
+  const fileName = `${normalizedKey ?? randomUUID()}.jpg`;
   const folder = join(config.uploadsDir, 'products');
   if (!existsSync(folder)) {
     await mkdir(folder, { recursive: true });

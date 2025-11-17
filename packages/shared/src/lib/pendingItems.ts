@@ -9,6 +9,7 @@ export type PendingItemRecord = {
   description: string;
   imageSrc: string;
   price: string;
+  imageKey: string;
 };
 
 function isStorageAvailable() {
@@ -31,7 +32,8 @@ function readQueue(): PendingItemRecord[] {
         Boolean(entry?.id) &&
         typeof entry.imageSrc === 'string' &&
         typeof entry.price === 'string' &&
-        typeof entry.title === 'string',
+        typeof entry.title === 'string' &&
+        typeof entry.imageKey === 'string',
     );
   } catch (error) {
     console.warn('[pending-items] parse failed', error);
@@ -100,6 +102,7 @@ export async function syncPendingItems(token: string) {
         imageData: entry.imageSrc,
         shopAddress: entry.shopAddress,
         contractAddress: entry.id,
+        imageKey: entry.imageKey,
       });
       removePendingItem(entry.id);
       changed = true;

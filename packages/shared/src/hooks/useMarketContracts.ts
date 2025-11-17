@@ -15,6 +15,25 @@ import { Api } from '@/lib/api';
 import { useSellerSession } from './useSellerSession';
 import { enqueuePendingItem, syncPendingItems } from '@/lib/pendingItems';
 
+const uploadsBaseEnv = (import.meta.env?.VITE_PUBLIC_UPLOADS_BASE_URL as string | undefined)?.trim();
+const fallbackUploadsBase =
+  (import.meta.env?.VITE_PUBLIC_BASE_URL as string | undefined)?.trim() ||
+  (typeof window !== 'undefined' ? window.location.origin : '');
+const PUBLIC_UPLOADS_BASE_URL = (uploadsBaseEnv || fallbackUploadsBase || '').replace(/\/$/, '');
+
+function buildImageKey(address: string) {
+  const slug = address.replace(/[^a-z0-9]/gi, '').toLowerCase();
+  if (slug.length >= 8) {
+    return slug.slice(0, 120);
+  }
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function buildImageUrl(imageKey: string) {
+  const base = PUBLIC_UPLOADS_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+  return `${base}/uploads/products/${imageKey}.jpg`;
+}
+
 async function waitForContractDeployment(options: {
   client: { isContractDeployed(address: Address): Promise<boolean> };
   address: Address;
@@ -313,12 +332,15 @@ export function useMarketContracts() {
       }
 
       const itemContract = client.open(itemStateInit);
+      const itemAddressString = itemContract.address.toString();
+      const imageKey = buildImageKey(itemAddressString);
+      const imageUrl = buildImageUrl(imageKey);
       const body = beginCell()
         .store(
           storeUpdateItem({
             $$type: 'UpdateItem',
             price: params.price,
-            imageSrc: defaultImage,
+            imageSrc: imageUrl,
             title: params.title,
             description: params.description,
           }),
@@ -341,7 +363,6 @@ export function useMarketContracts() {
         address: itemContract.address,
       });
 
-      const itemAddressString = itemContract.address.toString();
       try {
         const synced = await persistItemRecord(
           {
@@ -351,6 +372,7 @@ export function useMarketContracts() {
             description: params.description,
             imageSrc: params.imageSrc,
             price: fromNano(params.price),
+            imageKey,
           },
           token,
         );
@@ -405,6 +427,7 @@ async function persistItemRecord(
     description: string;
     imageSrc: string;
     price: string;
+    imageKey: string;
   },
   token: string,
 ): Promise<boolean> {
@@ -421,6 +444,7 @@ async function persistItemRecord(
       imageData: record.imageSrc,
       shopAddress: record.shopAddress,
       contractAddress: record.id,
+      imageKey: record.imageKey,
     });
     return true;
   } catch (error) {

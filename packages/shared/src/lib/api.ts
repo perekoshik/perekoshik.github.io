@@ -125,6 +125,7 @@ export const Api = {
       imageData: string;
       shopAddress?: string;
       contractAddress?: string;
+      imageKey?: string;
     },
   ) =>
     request<ProductRecord>('/products', {

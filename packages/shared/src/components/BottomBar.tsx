@@ -1,4 +1,4 @@
-import { Home, ShoppingBag, User } from 'lucide-react';
+import { Home, User } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/cn';
 
@@ -8,18 +8,10 @@ export default function BottomBar() {
   const active = 'text-brand';
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/5 bg-bg/80 pb-safe backdrop-blur sm:hidden">
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-2">
         <NavLink to="/" className={({ isActive }) => cn(link, isActive ? active : '')} aria-label="Go to home">
           <Home className="h-5 w-5" />
           <span>Home</span>
-        </NavLink>
-        <NavLink
-          to="/orders"
-          className={({ isActive }) => cn(link, isActive ? active : '')}
-          aria-label="Go to orders"
-        >
-          <ShoppingBag className="h-5 w-5" />
-          <span>Orders</span>
         </NavLink>
         <NavLink
           to="/profile"

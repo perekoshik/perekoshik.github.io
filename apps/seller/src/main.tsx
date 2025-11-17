@@ -9,10 +9,11 @@ import { getTwaReturnUrl, isTelegramWebApp } from '@/lib/tonconnect';
 
 initTWA();
 
-const manifestUrl = new URL(
-  'tonconnect-manifest.json',
-  `${window.location.origin}${import.meta.env.BASE_URL}`,
-).toString();
+const manifestEnv = (import.meta.env?.VITE_TONCONNECT_MANIFEST_URL as string | undefined)?.trim();
+const manifestUrl =
+  manifestEnv && /^https?:\/\//i.test(manifestEnv)
+    ? manifestEnv
+    : new URL('tonconnect-manifest.json', `${window.location.origin}${import.meta.env.BASE_URL}`).toString();
 
 const container = document.getElementById('root');
 const enterTwa = isTelegramWebApp();

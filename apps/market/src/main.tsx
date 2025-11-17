@@ -8,10 +8,15 @@ import { router } from './router';
 
 initTWA();
 
+const manifestEnv = (import.meta.env?.VITE_TONCONNECT_MANIFEST_URL as string | undefined)?.trim();
+const manifestUrl = manifestEnv && /^https?:\/\//i.test(manifestEnv)
+  ? manifestEnv
+  : `${window.location.origin}/tonconnect-manifest.json`;
+
 const container = document.getElementById('root');
 if (container) {
   ReactDOM.createRoot(container).render(
-    <TonConnectUIProvider manifestUrl={`${window.location.origin}/tonconnect-manifest.json`}>
+    <TonConnectUIProvider manifestUrl={manifestUrl}>
       <RouterProvider router={router} />
     </TonConnectUIProvider>,
   );

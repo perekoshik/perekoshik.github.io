@@ -157,6 +157,7 @@ export default function Item() {
       orderId = orderResponse.order.id;
       orderSecret = orderResponse.clientSecret;
       const amountNano = toNano(orderResponse.order.priceTon.toString());
+      const chainReference = await buildDeliveryReference(orderResponse.order.id, orderSecret);
       const orderBody = beginCell()
         .store(
           storeCreateOrder({
@@ -164,7 +165,7 @@ export default function Item() {
             orderId: BigInt(orderResponse.order.tonOrderId ?? Date.now()),
             itemAddress: Address.parse(contractAddress),
             price: amountNano,
-            deliveryAddress: orderResponse.order.id,
+            deliveryAddress: chainReference,
           }),
         )
         .endCell();
@@ -393,4 +394,19 @@ function calculateCommission(amountNano: bigint) {
   }
   const feeBps = Math.round(PLATFORM_FEE * 10000);
   return (amountNano * BigInt(feeBps)) / 10000n;
+}
+
+async function buildDeliveryReference(orderId: string, secret: string) {
+  const encoder = new TextEncoder();
+  const payload = encoder.encode(`${orderId}:${secret}`);
+  if (typeof window !== 'undefined' && window.crypto?.subtle) {
+    const digest = await window.crypto.subtle.digest('SHA-256', payload);
+    return Array.from(new Uint8Array(digest))
+      .map((byte) => byte.toString(16).padStart(2, '0'))
+      .join('');
+  }
+  // Fallback для окружений без SubtleCrypto
+  return Array.from(payload)
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
 }

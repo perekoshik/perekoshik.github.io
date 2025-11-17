@@ -140,7 +140,7 @@ async function bootstrap() {
   app.post('/products', requireAuth, async (req, res) => {
     try {
       const seller = (req as SellerRequest).seller;
-      const { id, title, description, priceTon, imageData, shopAddress, contractAddress } = req.body as {
+      const { id, title, description, priceTon, imageData, shopAddress, contractAddress, imageKey } = req.body as {
         id?: string;
         title?: string;
         description?: string;
@@ -148,12 +148,13 @@ async function bootstrap() {
         imageData?: string;
         shopAddress?: string;
         contractAddress?: string;
+        imageKey?: string;
       };
       if (!title?.trim() || !description?.trim() || !priceTon || priceTon <= 0 || !imageData) {
         res.status(400).json({ error: 'Invalid product payload' });
         return;
       }
-      const image = await saveProductImage(imageData);
+      const image = await saveProductImage(imageData, imageKey?.trim());
       const product = db.createProduct({
         id: (id?.trim() || nanoid()).toLowerCase(),
         sellerWallet: seller.wallet,

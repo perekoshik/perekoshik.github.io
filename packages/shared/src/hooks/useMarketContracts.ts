@@ -13,6 +13,7 @@ import { resolveMediaUrl } from '@/lib/media';
 import { TARGET_CHAIN, TARGET_NETWORK_LABEL } from '@/config';
 import { Api } from '@/lib/api';
 import { useSellerSession } from './useSellerSession';
+import { enqueuePendingItem, syncPendingItems } from '@/lib/pendingItems';
 
 async function waitForContractDeployment(options: {
   client: { isContractDeployed(address: Address): Promise<boolean> };
@@ -133,6 +134,32 @@ export function useMarketContracts() {
   useEffect(() => {
     refreshShopInfo();
   }, [refreshShopInfo]);
+
+  useEffect(() => {
+    if (!token) return;
+    let canceled = false;
+    const attemptSync = async () => {
+      try {
+        if (!canceled) {
+          await syncPendingItems(token);
+        }
+      } catch (error) {
+        console.warn('[pending-items] sync failed', error);
+      }
+    };
+    attemptSync();
+    if (typeof window !== 'undefined') {
+      const handleOnline = () => attemptSync();
+      window.addEventListener('online', handleOnline);
+      return () => {
+        canceled = true;
+        window.removeEventListener('online', handleOnline);
+      };
+    }
+    return () => {
+      canceled = true;
+    };
+  }, [token]);
 
   const refreshItems = useCallback(async () => {
     if (!shopAddress || shopItemsCount === null || !shopDeployed || wrongNetwork) {
@@ -316,7 +343,7 @@ export function useMarketContracts() {
 
       const itemAddressString = itemContract.address.toString();
       try {
-        await persistItemRecord(
+        const synced = await persistItemRecord(
           {
             id: itemAddressString,
             shopAddress,
@@ -327,7 +354,8 @@ export function useMarketContracts() {
           },
           token,
         );
-        return itemAddressString;
+        await syncPendingItems(token);
+        return { address: itemAddressString, synced };
       } finally {
         await Promise.all([refreshShopInfo(), refreshItems()]);
       }
@@ -379,12 +407,12 @@ async function persistItemRecord(
     price: string;
   },
   token: string,
-) {
+): Promise<boolean> {
+  const priceTon = Number.parseFloat(record.price);
+  if (!Number.isFinite(priceTon) || priceTon <= 0) {
+    throw new Error('Некорректная цена товара.');
+  }
   try {
-    const priceTon = Number.parseFloat(record.price);
-    if (!Number.isFinite(priceTon) || priceTon <= 0) {
-      throw new Error('Некорректная цена товара.');
-    }
     await Api.createProduct(token, {
       id: record.id,
       title: record.title,
@@ -394,8 +422,15 @@ async function persistItemRecord(
       shopAddress: record.shopAddress,
       contractAddress: record.id,
     });
+    return true;
   } catch (error) {
-    console.warn('[api] saveItem failed', error);
-    throw new Error('Лот опубликован в TON, но API не сохранил карточку. Повторите попытку после проверки сервера.');
+    const message = (error as Error)?.message ?? '';
+    if (/API 4\d\d/.test(message)) {
+      console.warn('[api] saveItem failed (client error)', error);
+      throw new Error('API отклонил карточку. Проверьте данные и повторите попытку.');
+    }
+    console.warn('[api] saveItem failed, queued for retry', error);
+    enqueuePendingItem(record);
+    return false;
   }
 }

@@ -324,10 +324,16 @@ function NewItemPanel({
     } satisfies Parameters<typeof Card>[0]['item'];
   }, [title, price, imageDataUrl]);
 
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setImageError(null);
     const file = event.target.files?.[0];
     if (!file) return;
+    if (file.type && !ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setImageError('Разрешены только JPEG, PNG или WebP. Выберите другое изображение.');
+      return;
+    }
     try {
       const dataUrl = await convertFileToDataUrl(file);
       setImageDataUrl(dataUrl);
@@ -365,13 +371,16 @@ function NewItemPanel({
 
     try {
       setSubmitting(true);
-      await onSubmit({
+      const result = await onSubmit({
         price: toNano(normalizedPrice),
         imageSrc: imageDataUrl,
         title: title.trim(),
         description: description.trim(),
       });
-      setStatus({ type: 'success', text: 'Лот сохранён в базе и опубликован в TON.' });
+      const successText = result?.synced
+        ? 'Лот сохранён в базе и опубликован в TON.'
+        : 'Лот опубликован в TON. Как только API восстановится, карточка автоматически синхронизируется.';
+      setStatus({ type: 'success', text: successText });
       resetForm();
       setOpened(false);
     } catch (error) {
@@ -445,7 +454,12 @@ function NewItemPanel({
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-[0.24em] text-txt/60">Изображение</label>
               <label className="flex min-h-[42px] cursor-pointer items-center justify-center rounded-2xl border border-dashed border-white/15 px-3 py-2 text-sm text-brand transition-colors duration-150 hover:border-brand/60">
-                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
                 <UploadCloud className="mr-2 h-4 w-4" />
                 Загрузить файл
               </label>
